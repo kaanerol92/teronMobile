@@ -22,6 +22,8 @@ class MainMenuView extends StatelessWidget {
         brightness: Brightness.dark,
         elevation: 0.0,
         backgroundColor: Colors.transparent,
+        textTheme: Theme.of(context).textTheme,
+        iconTheme: Theme.of(context).iconTheme,
       ),
       body: ListView.builder(
           padding: const EdgeInsets.all(10.0),

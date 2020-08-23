@@ -12,31 +12,31 @@ class LoadingScreenView extends State<LoadingScreenViewCommand> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
+        onWillPop: () async => false,
+        child: Scaffold(
           body: Center(
-        child: Stack(
-          children: <Widget>[
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(
-                  strokeWidth: 0.5,
+            child: Stack(
+              children: <Widget>[
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 0.5,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  message,
-                  style: TextStyle(fontStyle: FontStyle.italic),
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      message,
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      )),
-    );
+          ),
+        ));
   }
 }
