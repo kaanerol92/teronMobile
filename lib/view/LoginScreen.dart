@@ -21,7 +21,7 @@ class LoginScreenView extends State<LoginViewCommand> {
   var sifre;
 
   Future<List> futureSirket() async {
-    var url = "http://192.168.2.58:8080/ERPService/sirket/list";
+    var url = "http://192.168.1.28:8080/ERPService/sirket/list";
     var response = await http.get(url);
 
     sirketList.clear();
@@ -50,7 +50,7 @@ class LoginScreenView extends State<LoginViewCommand> {
   }
 
   Future<List> futureDonem() async {
-    var url = "http://192.168.2.58:8080/ERPService/donem/list";
+    var url = "http://192.168.1.28:8080/ERPService/donem/list";
     var response = await http.get(Uri.encodeFull(url));
 
     donemList.clear();
@@ -110,7 +110,7 @@ class LoginScreenView extends State<LoginViewCommand> {
     var personel = perId.toString().trim();
     var sifreLink = sifre == null ? "" : sifre;
     var url =
-        "http://192.168.2.58:8080/ERPService/login/kullanici?personel_kodu=$personel&sifre=$sifreLink&donem_kodu=$selectedDonem&sirket_kodu=$selectedSirket";
+        "http://192.168.1.28:8080/ERPService/login/kullanici?personel_kodu=$personel&sifre=$sifreLink&donem_kodu=$selectedDonem&sirket_kodu=$selectedSirket";
     var response;
     try {
       response = await http.get(Uri.encodeFull(url));
