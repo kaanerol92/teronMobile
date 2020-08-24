@@ -21,7 +21,7 @@ class LoginScreenView extends State<LoginViewCommand> {
   var sifre;
 
   Future<List> futureSirket() async {
-    var url = "http://192.168.1.26:8080/ERPService/sirket/list";
+    var url = "http://192.168.2.58:8080/ERPService/sirket/list";
     var response = await http.get(url);
 
     sirketList.clear();
@@ -50,7 +50,7 @@ class LoginScreenView extends State<LoginViewCommand> {
   }
 
   Future<List> futureDonem() async {
-    var url = "http://192.168.1.26:8080/ERPService/donem/list";
+    var url = "http://192.168.2.58:8080/ERPService/donem/list";
     var response = await http.get(Uri.encodeFull(url));
 
     donemList.clear();
@@ -96,8 +96,8 @@ class LoginScreenView extends State<LoginViewCommand> {
         Map menuMap = Map<String, dynamic>();
         menuMap.putIfAbsent(
             'Sipariş İşlemleri', () => SiparisIslemleriMenuScreen());
-        menuMap.putIfAbsent(
-            'Stok İşlemleri', () => LoadingScreenViewCommand("Henüz Yükleniyor.."));
+        menuMap.putIfAbsent('Stok İşlemleri',
+            () => LoadingScreenViewCommand("Henüz Yükleniyor.."));
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return MainMenuView(menuMap, "Ana Menü");
         }));
@@ -110,7 +110,7 @@ class LoginScreenView extends State<LoginViewCommand> {
     var personel = perId.toString().trim();
     var sifreLink = sifre == null ? "" : sifre;
     var url =
-        "http://192.168.1.26:8080/ERPService/login/kullanici?personel_kodu=$personel&sifre=$sifreLink&donem_kodu=$selectedDonem&sirket_kodu=$selectedSirket";
+        "http://192.168.2.58:8080/ERPService/login/kullanici?personel_kodu=$personel&sifre=$sifreLink&donem_kodu=$selectedDonem&sirket_kodu=$selectedSirket";
     var response;
     try {
       response = await http.get(Uri.encodeFull(url));
@@ -142,7 +142,7 @@ class LoginScreenView extends State<LoginViewCommand> {
   Widget build(BuildContext context) {
     return Builder(
       builder: (context) => Scaffold(
-              body: SafeArea(
+        body: SafeArea(
           child: Center(
             child: ListView(
               padding: EdgeInsets.symmetric(horizontal: 24.0),
