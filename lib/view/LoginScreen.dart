@@ -13,6 +13,7 @@ import 'package:teronmobile/view/MainMenuScreen.dart';
 import 'package:teronmobile/view/SiparisIslemleriMenuScreen.dart';
 
 class LoginScreenView extends State<LoginViewCommand> {
+  static KullaniciSessionModel ksm;
   List<DropdownMenuItem<String>> sirketList = new List();
   List<DropdownMenuItem<String>> donemList = new List();
   var selectedSirket;
@@ -23,7 +24,7 @@ class LoginScreenView extends State<LoginViewCommand> {
   bool donemOk = false;
 
   Future<List> futureSirket() async {
-    var url = "http://192.168.2.58:8080/ERPService/sirket/list";
+    var url = "http://192.168.1.28:8080/ERPService/sirket/list";
     var response = await http.get(url);
 
     sirketList.clear();
@@ -53,7 +54,7 @@ class LoginScreenView extends State<LoginViewCommand> {
   }
 
   Future<List> futureDonem() async {
-    var url = "http://192.168.2.58:8080/ERPService/donem/list";
+    var url = "http://192.168.1.28:8080/ERPService/donem/list";
     var response = await http.get(Uri.encodeFull(url));
 
     donemList.clear();
@@ -100,7 +101,7 @@ class LoginScreenView extends State<LoginViewCommand> {
           children: [
             Icon(Icons.announcement),
             Padding(padding: EdgeInsets.all(20)),
-            Text("Giriş Başarısızç"),
+            Text("Giriş Başarısız."),
           ],
         )));
       } else {
@@ -117,11 +118,11 @@ class LoginScreenView extends State<LoginViewCommand> {
   }
 
   Future<KullaniciSessionModel> futureGiris(BuildContext context) async {
-    KullaniciSessionModel ksm;
+    ksm = null;
     var personel = perId.toString().trim();
     var sifreLink = sifre == null ? "" : sifre;
     var url =
-        "http://192.168.2.58:8080/ERPService/login/kullanici?personel_kodu=$personel&sifre=$sifreLink&donem_kodu=$selectedDonem&sirket_kodu=$selectedSirket";
+        "http://192.168.1.28:8080/ERPService/login/kullanici?personel_kodu=$personel&sifre=$sifreLink&donem_kodu=$selectedDonem&sirket_kodu=$selectedSirket";
     var response;
     try {
       response = await http.get(Uri.encodeFull(url));
@@ -143,6 +144,9 @@ class LoginScreenView extends State<LoginViewCommand> {
         var per = PersonelModel.fromJson(personelMap);
         var sirket = SirketModel.fromJson(sirketMap);
         var donem = DonemModel.fromJson(donemMap);
+        print(per.getPerId);
+        print(sirket.getKod);
+        print(donem.getKod);
         ksm = KullaniciSessionModel(per, sirket, donem);
       }
     }
@@ -165,7 +169,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                 children: <Widget>[
                   SizedBox(height: 80.0),
                   Center(
-                      child: Text("GURU SİSTEM YÖNETİMİ VE YAZILIMI - TERON")),
+                      child: Text("TERON MOBILE")),
                   SizedBox(height: 80.0),
                   TextField(
                     decoration: InputDecoration(

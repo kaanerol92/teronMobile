@@ -6,8 +6,9 @@ import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
 import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+//import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:http/http.dart' as http;
+import 'package:teronmobile/view/LoginScreen.dart';
 
 class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   final labelWidth = 120.0;
@@ -117,6 +118,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
     terminTarihController.text =
         "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+        
     cariKoduController.text = model.getCariKodu;
     cariAdiController.text = model.getCariAdi;
     sevkCariKoduController.text = model.getSevkCariKodu;
@@ -152,48 +154,28 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         ? goTo(context, currentStep + 1)
         : setState(() {
             complete = true;
-            createAlbum(model);
+            insert(model);
             print("kayıt");
           });
   }
 
-  Future<http.Response> createAlbum(MusteriSiparisiModel model) {
-    return http.post(
-      'http://192.168.2.58:8080/ERPService/musterisiparisi/insert',
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: jsonEncode(<String, String>{
-        /* 'musteriSiparisNo': model.getMusSipNo,
-        'siparisTarihi':
-            "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}",
-        'terminTarihi':
-            "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}",
-        'musteriCariId': 100,
-        'sevkCariId': 100,*/
-        "title": "title"
-      }),
-    );
-  }
+  Future<http.Response> insert(MusteriSiparisiModel model) {
+    var map = Map<String, dynamic>();
+    map['musteriSiparisNo'] = model.getMusSipNo;
+    map['siparisTarihi'] = model.getSiparisTarihi.toIso8601String();
+    map['terminTarihi'] = model.getTerminTarihi.toIso8601String();
+    map['perId'] = LoginScreenView.ksm.getPersonel.getPerId;
+    map['donemId'] = LoginScreenView.ksm.getDonem.getKod;
+    map['sirketId'] = LoginScreenView.ksm.getSirket.getKod;
 
-  /*	siparisNo = getMaxSiparisNo();
-			preStm = mainFrame.getConnection().prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
-			preStm.setString(1, "100");
-			preStm.setInt(2, siparisNo);
-			preStm.setDate(3, new java.sql.Date(siparisTarihi.getTime()));
-			preStm.setDate(4, new java.sql.Date(terminTarihi.getTime()));
-			preStm.setInt(5, musteriCariId);
-			preStm.setInt(6, sevkCariId);
-			preStm.setInt(7, depoId);
-			preStm.setString(8, musteriSiparisNo);
-			preStm.setInt(9, vadeGun);
-			preStm.setString(10, belgeAciklama);
-			preStm.setInt(11, iskontoTur);
-			preStm.setDouble(12, iskonto);
-			preStm.setString(13, mainFrame.getPersonel().getId());
-			preStm.setString(14, mainFrame.getDonem().getKodu());
-			preStm.setString(15, mainFrame.getSirket().getKod());*/
+    return http.post(
+        'http://192.168.1.28:8080/ERPService/musterisiparisi/insert',
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: jsonEncode(map));
+  }
 
   cancel(BuildContext context) {
     if (currentStep > 0) {
@@ -362,7 +344,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: cariKoduController,
-                        onChanged: (newText) {},
+                        onChanged: (newText) {
+                          if (newText != null) {
+                            model.setCariKodu = newText;
+                          }
+                        },
                       )),
                 ],
               ),
@@ -388,7 +374,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: cariAdiController,
-                        onChanged: (newText) {},
+                        onChanged: (newText) {
+                          if (newText != null) {
+                            model.setCariAdi = newText;
+                          }
+                        },
                       )),
                 ],
               ),
@@ -417,7 +407,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: sevkCariKoduController,
-                        onChanged: (newText) {},
+                        onChanged: (newText) {
+                          if (newText != null) {
+                            model.setSevkCariKodu = newText;
+                          }
+                        },
                       )),
                 ],
               ),
@@ -443,7 +437,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: sevkCariAdiController,
-                        onChanged: (newText) {},
+                        onChanged: (newText) {
+                          if (newText != null) {
+                            model.setSevkCariAdi = newText;
+                          }
+                        },
                       )),
                 ],
               ),
@@ -472,7 +470,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: depoKoduController,
-                        onChanged: (newText) {},
+                        onChanged: (newText) {
+                          if (newText != null) {
+                            model.setDepoKodu = newText;
+                          }
+                        },
                       )),
                 ],
               ),
@@ -498,7 +500,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: depoAdiController,
-                        onChanged: (newText) {},
+                        onChanged: (newText) {
+                          if (newText != null) {
+                            model.setDepoAdi = newText;
+                          }
+                        },
                       )),
                 ],
               ),
@@ -522,7 +528,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: musSipNoController,
-                        onChanged: (newText) {},
+                        onChanged: (newText) {
+                          if (newText != null) {
+                            model.setMusSipNo = newText;
+                          }
+                        },
                       )),
                 ],
               ),
@@ -545,7 +555,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: aciklamaController,
-                        onChanged: (newText) {},
+                        onChanged: (newText) {
+                          if (newText != null) {
+                            model.setAciklama = newText;
+                          }
+                        },
                       )),
                 ],
               ),
