@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
 import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+import 'package:http/http.dart' as http;
 
 class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   final labelWidth = 120.0;
@@ -40,62 +44,65 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   @override
   Widget build(BuildContext context) {
     setSteps();
-    return Scaffold(
-      resizeToAvoidBottomPadding: true,
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.transparent,
-        centerTitle: true,
-        title: Text("Müşteri Siparişi"),
-        textTheme: Theme.of(context).textTheme,
-        iconTheme: Theme.of(context).iconTheme,
-      ),
-      body: Builder(
-        builder: (context) => Center(
-          child: Stepper(
-              steps: steps,
-              physics: ClampingScrollPhysics(),
-              type: StepperType.horizontal,
-              currentStep: currentStep,
-              onStepCancel: () {
-                cancel(context);
-              },
-              onStepContinue: () {
-                next(context);
-              },
-              onStepTapped: (step) {
-                if (stepIndex[step] == true) {
-                  goTo(context, step);
-                }
-              },
-              controlsBuilder: (BuildContext context,
-                  {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-                return Column(
-                  children: [
-                    SizedBox(
-                      width: 50,
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        RaisedButton(
-                          onPressed: onStepCancel,
-                          child: const Text('Geri'),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(40),
-                        ),
-                        RaisedButton(
-                          onPressed: onStepContinue,
-                          child: Text(ileriBtnStr),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              }),
+    return WillPopScope(
+      onWillPop: () => backPress(),
+      child: Scaffold(
+        resizeToAvoidBottomPadding: true,
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+          title: Text("Müşteri Siparişi"),
+          textTheme: Theme.of(context).textTheme,
+          iconTheme: Theme.of(context).iconTheme,
+        ),
+        body: Builder(
+          builder: (context) => Center(
+            child: Stepper(
+                steps: steps,
+                physics: ClampingScrollPhysics(),
+                type: StepperType.horizontal,
+                currentStep: currentStep,
+                onStepCancel: () {
+                  cancel(context);
+                },
+                onStepContinue: () {
+                  next(context);
+                },
+                onStepTapped: (step) {
+                  if (stepIndex[step] == true) {
+                    goTo(context, step);
+                  }
+                },
+                controlsBuilder: (BuildContext context,
+                    {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                  return Column(
+                    children: [
+                      SizedBox(
+                        width: 50,
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          RaisedButton(
+                            onPressed: onStepCancel,
+                            child: const Text('Geri'),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(40),
+                          ),
+                          RaisedButton(
+                            onPressed: onStepContinue,
+                            child: Text(ileriBtnStr),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                }),
+          ),
         ),
       ),
     );
@@ -122,12 +129,71 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     setSatirlar();
   }
 
+  Future<bool> backPress() {
+    return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Çıkmak istediğinize emin misiniz?"),
+              actions: [
+                FlatButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text("Hayır")),
+                FlatButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: Text("Evet")),
+              ],
+            ));
+  }
+
   next(BuildContext context) {
     print(currentStep);
+    print(steps.length);
     currentStep + 1 != steps.length
         ? goTo(context, currentStep + 1)
-        : setState(() => complete = true);
+        : setState(() {
+            complete = true;
+            createAlbum(model);
+            print("kayıt");
+          });
   }
+
+  Future<http.Response> createAlbum(MusteriSiparisiModel model) {
+    return http.post(
+      'http://192.168.2.58:8080/ERPService/musterisiparisi/insert',
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: jsonEncode(<String, String>{
+        /* 'musteriSiparisNo': model.getMusSipNo,
+        'siparisTarihi':
+            "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}",
+        'terminTarihi':
+            "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}",
+        'musteriCariId': 100,
+        'sevkCariId': 100,*/
+        "title": "title"
+      }),
+    );
+  }
+
+  /*	siparisNo = getMaxSiparisNo();
+			preStm = mainFrame.getConnection().prepareStatement(query,Statement.RETURN_GENERATED_KEYS);
+			preStm.setString(1, "100");
+			preStm.setInt(2, siparisNo);
+			preStm.setDate(3, new java.sql.Date(siparisTarihi.getTime()));
+			preStm.setDate(4, new java.sql.Date(terminTarihi.getTime()));
+			preStm.setInt(5, musteriCariId);
+			preStm.setInt(6, sevkCariId);
+			preStm.setInt(7, depoId);
+			preStm.setString(8, musteriSiparisNo);
+			preStm.setInt(9, vadeGun);
+			preStm.setString(10, belgeAciklama);
+			preStm.setInt(11, iskontoTur);
+			preStm.setDouble(12, iskonto);
+			preStm.setString(13, mainFrame.getPersonel().getId());
+			preStm.setString(14, mainFrame.getDonem().getKodu());
+			preStm.setString(15, mainFrame.getSirket().getKod());*/
 
   cancel(BuildContext context) {
     if (currentStep > 0) {
@@ -209,8 +275,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       child: TextField(
                         style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
                             contentPadding: EdgeInsets.all(8),
                             border: OutlineInputBorder(
                                 borderRadius:
@@ -220,14 +284,17 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         controller: sipTarihController,
                         onTap: () {
                           showDatePicker(
+                                  locale: const Locale('tr'),
                                   context: context,
                                   initialDate: model.getSiparisTarihi,
                                   firstDate: DateTime(2010),
                                   lastDate: DateTime(2030))
                               .then((value) {
-                            model.setSiparisTarihi = value;
-                            sipTarihController.text =
-                                "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
+                            if (value != null) {
+                              model.setSiparisTarihi = value;
+                              sipTarihController.text =
+                                  "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
+                            }
                           });
                         },
                       )),
@@ -246,8 +313,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       child: TextField(
                         style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
                             contentPadding: EdgeInsets.all(8),
                             border: OutlineInputBorder(
                                 borderRadius:
@@ -262,9 +327,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                                   firstDate: DateTime(2010),
                                   lastDate: DateTime(2030))
                               .then((value) {
-                            model.setTerminTarihi = value;
-                            terminTarihController.text =
-                                "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+                            if (value != null) {
+                              model.setTerminTarihi = value;
+                              terminTarihController.text =
+                                  "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+                            }
                           });
                         },
                       )),
@@ -678,7 +745,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   }
 
   void setOzet() {
-    
     int toplam = 0;
     for (var i = 0; i < satirlarModel.length; i++) {
       MusteriSiparisiRowModel model = satirlarModel[i];
@@ -816,8 +882,24 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           icon: Icons.delete,
           onTap: () {
             print('Sil');
-            setState(() {
-              satirlarModel.removeAt(satirlarModel.indexOf(model));
+            showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                      title: Text("Silmek istediğinize emin misiniz?"),
+                      actions: [
+                        FlatButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: Text("Hayır")),
+                        FlatButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: Text("Evet")),
+                      ],
+                    )).then((value) {
+              if (value == true) {
+                setState(() {
+                  satirlarModel.removeAt(satirlarModel.indexOf(model));
+                });
+              }
             });
           },
         ),
@@ -851,18 +933,22 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           border: InputBorder.none,
                           hintText: 'Yeni miktarı giriniz.'),
                     ),
-                    SizedBox(
-                      width: 320.0,
-                      child: RaisedButton(
-                        onPressed: () {
-                          model.setMiktar = int.parse(controller.text);
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          "Kaydet",
-                          style: TextStyle(color: Colors.white),
+                    Center(
+                      child: SizedBox(
+                        width: 320.0,
+                        child: RaisedButton(
+                          onPressed: () {
+                            setState(() {
+                              model.setMiktar = int.parse(controller.text);
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: Text(
+                            "Kaydet",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          color: const Color(0xFF1BC0C5),
                         ),
-                        color: const Color(0xFF1BC0C5),
                       ),
                     )
                   ],
