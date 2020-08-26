@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
 import 'command/LoginScreenCommand.dart';
 
 void main() {
@@ -18,5 +19,10 @@ void main() {
         const Locale('tr'),
       ],
       debugShowCheckedModeBanner: false,
-      home: LoginViewCommand()));
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LoginViewCommand(),
+        '/musterisiparisi': (context) => MusteriSiparisiScreenCommand(),
+      }));
+  // home: LoginViewCommand()));
 }

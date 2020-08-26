@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:teronmobile/view/LoginScreen.dart';
+import 'package:http/http.dart' as http;
+
 class MusteriSiparisiModel {
   DateTime siparisTarihi;
   DateTime terminTarihi;
@@ -24,7 +29,23 @@ class MusteriSiparisiModel {
     this.aciklama = "";
   }
 
-  insert() {}
+  Future<http.Response> insert() {
+    var map = Map<String, dynamic>();
+    map['musteriSiparisNo'] = getMusSipNo;
+    map['siparisTarihi'] = getSiparisTarihi.toIso8601String();
+    map['terminTarihi'] = getTerminTarihi.toIso8601String();
+    map['perId'] = LoginScreenView.ksm.getPersonel.getPerId;
+    map['donemId'] = LoginScreenView.ksm.getDonem.getKod;
+    map['sirketId'] = LoginScreenView.ksm.getSirket.getKod;
+
+    return http.post(
+        'http://192.168.2.58:8080/ERPService/musterisiparisi/insert',
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: jsonEncode(map));
+  }
 
   DateTime get getSiparisTarihi => siparisTarihi;
 

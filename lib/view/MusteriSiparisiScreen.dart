@@ -42,6 +42,31 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   TextEditingController ozetCariAdiController = TextEditingController();
   TextEditingController ozetToplamMiktarController = TextEditingController();
 
+  VoidCallback _onStepContinue;
+  VoidCallback _onStepCancel;
+
+  Widget _bottomBar() {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: <Widget>[
+          RaisedButton(
+            color: Colors.blueAccent,
+            onPressed: () => _onStepCancel(),
+            child: Icon(
+              Icons.navigate_before,
+              color: Colors.white,
+            ),
+          ),
+          RaisedButton(
+              color: Colors.blueAccent,
+              onPressed: () => _onStepContinue(),
+              child: Icon(
+                Icons.navigate_next,
+                color: Colors.white,
+              )),
+        ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     setSteps();
@@ -50,60 +75,49 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       child: Scaffold(
         resizeToAvoidBottomPadding: true,
         resizeToAvoidBottomInset: true,
-        appBar: AppBar(
+        /*appBar: AppBar(
           elevation: 0.0,
           backgroundColor: Colors.transparent,
           centerTitle: true,
           title: Text("Müşteri Siparişi"),
           textTheme: Theme.of(context).textTheme,
           iconTheme: Theme.of(context).iconTheme,
-        ),
-        body: Builder(
-          builder: (context) => Center(
-            child: Stepper(
-                steps: steps,
-                physics: ClampingScrollPhysics(),
-                type: StepperType.horizontal,
-                currentStep: currentStep,
-                onStepCancel: () {
-                  cancel(context);
-                },
-                onStepContinue: () {
-                  next(context);
-                },
-                onStepTapped: (step) {
-                  if (stepIndex[step] == true) {
-                    goTo(context, step);
-                  }
-                },
-                controlsBuilder: (BuildContext context,
-                    {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        width: 50,
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          RaisedButton(
-                            onPressed: onStepCancel,
-                            child: const Text('Geri'),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(40),
-                          ),
-                          RaisedButton(
-                            onPressed: onStepContinue,
-                            child: Text(ileriBtnStr),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                }),
-          ),
+        ),*/
+        body: SafeArea(
+          child: Builder(
+              builder: (context) => Stack(children: [
+                    Stepper(
+                        steps: steps,
+                        physics: ClampingScrollPhysics(),
+                        type: StepperType.horizontal,
+                        currentStep: currentStep,
+                        onStepCancel: () {
+                          cancel(context);
+                        },
+                        onStepContinue: () {
+                          next(context);
+                        },
+                        onStepTapped: (step) {
+                          if (stepIndex[step] == true) {
+                            goTo(context, step);
+                          }
+                        },
+                        controlsBuilder: (BuildContext context,
+                            {VoidCallback onStepContinue,
+                            VoidCallback onStepCancel}) {
+                          _onStepCancel = onStepCancel;
+                          _onStepContinue = onStepContinue;
+                          return Column(children: [
+                            SizedBox(
+                              width: 50,
+                            ),
+                          ]);
+                        }),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: _bottomBar(),
+                    )
+                  ])),
         ),
       ),
     );
@@ -118,7 +132,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
     terminTarihController.text =
         "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
-        
+
     cariKoduController.text = model.getCariKodu;
     cariAdiController.text = model.getCariAdi;
     sevkCariKoduController.text = model.getSevkCariKodu;
@@ -128,14 +142,13 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     musSipNoController.text = model.getMusSipNo;
     aciklamaController.text = model.getAciklama;
     barkodFocus = FocusNode();
-    setSatirlar();
   }
 
   Future<bool> backPress() {
     return showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: Text("Çıkmak istediğinize emin misiniz?"),
+              title: Text("Çıkmak istediğinize emin misadminiz?"),
               actions: [
                 FlatButton(
                     onPressed: () => Navigator.pop(context, false),
@@ -154,27 +167,10 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         ? goTo(context, currentStep + 1)
         : setState(() {
             complete = true;
-            insert(model);
+            model.insert();
             print("kayıt");
+            Navigator.popAndPushNamed(context, '/musterisiparisi');
           });
-  }
-
-  Future<http.Response> insert(MusteriSiparisiModel model) {
-    var map = Map<String, dynamic>();
-    map['musteriSiparisNo'] = model.getMusSipNo;
-    map['siparisTarihi'] = model.getSiparisTarihi.toIso8601String();
-    map['terminTarihi'] = model.getTerminTarihi.toIso8601String();
-    map['perId'] = LoginScreenView.ksm.getPersonel.getPerId;
-    map['donemId'] = LoginScreenView.ksm.getDonem.getKod;
-    map['sirketId'] = LoginScreenView.ksm.getSirket.getKod;
-
-    return http.post(
-        'http://192.168.1.28:8080/ERPService/musterisiparisi/insert',
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: jsonEncode(map));
   }
 
   cancel(BuildContext context) {
@@ -240,7 +236,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   setSteps() {
     steps = [
       Step(
-        title: const Text('Sipariş Oluştur'),
+        title: const Text('Başlık Bilgileri'),
         isActive: stepIndex[0],
         state: maxStep > 0 ? StepState.complete : StepState.editing,
         content: SingleChildScrollView(
@@ -347,6 +343,8 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         onChanged: (newText) {
                           if (newText != null) {
                             model.setCariKodu = newText;
+                            sevkCariKoduController.text = newText;
+                            model.setSevkCariKodu = newText;
                           }
                         },
                       )),
@@ -546,7 +544,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(
                       width: 200,
                       child: TextField(
-                        maxLines: 5,
+                        maxLines: 2,
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(8),
                             border: OutlineInputBorder(
@@ -572,7 +570,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         state: maxStep > 1
             ? StepState.complete
             : maxStep == 1 ? StepState.editing : StepState.indexed,
-        title: const Text('Satır Bilgileri'),
+        title: const Text('Detay Bilgileri'),
         content: SingleChildScrollView(
             child: Column(
           children: <Widget>[
@@ -597,25 +595,31 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         controller: barkodController,
                         focusNode: barkodFocus,
                         onSubmitted: (value) {
-                          setState(() {
-                            barkod = value;
-                            barkodFocus.requestFocus();
-                            barkodController.selection = TextSelection(
-                                baseOffset: 0,
-                                extentOffset: barkodController.text.length);
-                            //SETMODEL
-                            MusteriSiparisiRowModel model =
-                                MusteriSiparisiRowModel();
-                            model.setBarkod = "123456789";
-                            model.setKodu = "Stok Kodu";
-                            model.setAdi = "Stok Adı";
-                            model.setRenk = "Kırmızı";
-                            model.setBeden = "XL";
-                            model.setParaBirimi = "TL";
-                            model.setFiyat = 20;
-                            model.setMiktar = 20;
-                            satirlarModel.add(model);
-                            print(barkod);
+                          MusteriSiparisiRowModel satirModel =
+                              MusteriSiparisiRowModel();
+                          satirModel.setData(value).then((sonModel) {
+                            setState(() {
+                              barkod = value;
+                              barkodFocus.requestFocus();
+                              barkodController.selection = TextSelection(
+                                  baseOffset: 0,
+                                  extentOffset: barkodController.text.length);
+
+                              satirModel = sonModel;
+                              bool add = true;
+                              for (var i = 0; i < satirlarModel.length; i++) {
+                                MusteriSiparisiRowModel m = satirlarModel[i];
+                                if (m.barkod == satirModel.barkod) {
+                                  m.setMiktar = m.getMiktar + 1;
+                                  add = false;
+                                  print("deneme");
+                                }
+                              }
+                              if (add == true) {
+                                satirlarModel.add(satirModel);
+                                print("deneme");
+                              }
+                            });
                           });
                         },
                       )),
@@ -631,16 +635,16 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           border: Border.all(
                               color:
                                   Theme.of(context).textTheme.bodyText1.color,
-                              width: 0),
+                              width: 1),
                           borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height - 350,
+                      height: MediaQuery.of(context).size.height - 275,
                       child: ListView.builder(
-                        padding: EdgeInsets.all(10),
+                        //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
                         scrollDirection: Axis.vertical,
                         itemBuilder: (context, index) =>
-                            slidableSatir(satirlarModel[index]),
+                            slidableSatir(satirlarModel[index], index),
                       )),
                 ),
               ],
@@ -712,16 +716,16 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           border: Border.all(
                               color:
                                   Theme.of(context).textTheme.bodyText1.color,
-                              width: 0),
+                              width: 1),
                           borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height - 400,
                       child: ListView.builder(
-                        padding: EdgeInsets.all(10),
+                        //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
                         scrollDirection: Axis.vertical,
                         itemBuilder: (context, index) =>
-                            table(satirlarModel[index]),
+                            table(satirlarModel[index], index),
                       )),
                 ),
               ],
@@ -770,7 +774,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   }
 
 //SILINCEK
-  void setSatirlar() {
+  /*void setSatirlar() {
     MusteriSiparisiRowModel model = MusteriSiparisiRowModel();
     model.setBarkod = "123456789";
     model.setKodu = "Stok Kodu";
@@ -804,12 +808,14 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     satirlarModel.add(model);
     satirlarModel.add(model1);
     satirlarModel.add(model2);
-  }
+  }*/
 
-  Widget table(MusteriSiparisiRowModel model) {
+  Widget table(MusteriSiparisiRowModel model, index) {
+    print(model.getBarkod);
     return Table(
-      border: TableBorder.symmetric(
-          inside: BorderSide(color: Colors.black45, width: 0)),
+      key: UniqueKey(),
+      /*border: TableBorder.symmetric(
+          inside: BorderSide(color: Colors.black45, width: 0)),*/
       columnWidths: {
         0: FixedColumnWidth(50),
         1: FixedColumnWidth(100),
@@ -819,70 +825,89 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         5: FixedColumnWidth(50),
       },
       children: [
-        TableRow(children: [
-          Text(
-            "Barkod",
-            style: TextStyle(color: Colors.red),
-          ),
-          Text(model.getBarkod),
-          Text(
-            "Renk",
-            style: TextStyle(color: Colors.red),
-          ),
-          Text(model.getRenk),
-          Text(
-            "Para Birimi",
-            style: TextStyle(color: Colors.red),
-          ),
-          Text(model.getParaBirimi),
-        ]),
-        TableRow(children: [
-          Text(
-            "Kodu",
-            style: TextStyle(color: Colors.red),
-          ),
-          Text(model.getKodu),
-          Text(
-            "Beden",
-            style: TextStyle(color: Colors.red),
-          ),
-          Text(model.getBeden),
-          Text(
-            "Fiyat",
-            style: TextStyle(color: Colors.red),
-          ),
-          Text(model.getFiyat.toString()),
-        ]),
         TableRow(
+            decoration: BoxDecoration(
+                color:
+                    index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
             children: [
               Text(
-                "Adi",
-                style: TextStyle(color: Colors.red),
+                "Barkod",
+                style: TextStyle(color: Colors.black, fontSize: 12),
               ),
-              Text(model.getAdi),
+              Text(model.getBarkod,
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
               Text(
-                "Miktar",
-                style: TextStyle(color: Colors.red),
+                "Renk",
+                style: TextStyle(color: Colors.black, fontSize: 12),
               ),
-              Text(model.getMiktar.toString()),
-              Text(""),
-              Text(""),
-            ],
+              Text(model.getRenk,
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+              Text(
+                "Para Birimi",
+                style: TextStyle(color: Colors.black, fontSize: 12),
+              ),
+              Text(model.getParaBirimi,
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+            ]),
+        TableRow(
             decoration: BoxDecoration(
+                color:
+                    index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
+            children: [
+              Text(
+                "Kodu",
+                style: TextStyle(color: Colors.black, fontSize: 12),
+              ),
+              Text(model.getKodu,
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+              Text(
+                "Beden",
+                style: TextStyle(color: Colors.black, fontSize: 12),
+              ),
+              Text(model.getBeden,
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+              Text(
+                "Fiyat",
+                style: TextStyle(color: Colors.black, fontSize: 12),
+              ),
+              Text(model.getFiyat.toString(),
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+            ]),
+        TableRow(
+          decoration: BoxDecoration(
+              color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
+          children: [
+            Text(
+              "Adi",
+              style: TextStyle(color: Colors.black, fontSize: 12),
+            ),
+            Text(model.getAdi,
+                style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+            Text(
+              "Miktar",
+              style: TextStyle(color: Colors.black, fontSize: 12),
+            ),
+            Text(model.getMiktar.toString(),
+                style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+            Text(""),
+            Text(""),
+          ],
+          /*decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(
                       width: 2,
                       color: Theme.of(context).textTheme.bodyText1.color)),
-            )),
+            )*/
+        ),
       ],
     );
   }
 
-  Widget slidableSatir(MusteriSiparisiRowModel model) {
+  Widget slidableSatir(MusteriSiparisiRowModel model, int index) {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
-      child: Container(child: table(model)),
+      child: Container(child: table(model, index)),
       secondaryActions: <Widget>[
         IconSlideAction(
           caption: 'Düzenle',
