@@ -25,7 +25,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   String barkod;
   FocusNode barkodFocus;
   List<MusteriSiparisiRowModel> satirlarModel = List();
-  String ileriBtnStr = "İleri";
 
   TextEditingController sipTarihController = TextEditingController();
   TextEditingController terminTarihController = TextEditingController();
@@ -41,30 +40,46 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   TextEditingController ozetCariKoduController = TextEditingController();
   TextEditingController ozetCariAdiController = TextEditingController();
   TextEditingController ozetToplamMiktarController = TextEditingController();
+  TextEditingController ozetToplamFiyatController = TextEditingController();
 
   VoidCallback _onStepContinue;
   VoidCallback _onStepCancel;
 
   Widget _bottomBar() {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: <Widget>[
-          RaisedButton(
-            color: Colors.blueAccent,
-            onPressed: () => _onStepCancel(),
-            child: Icon(
-              Icons.navigate_before,
-              color: Colors.white,
+    return Container(
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            (currentStep != 0
+                ? Container(
+                    margin: EdgeInsets.only(left: 10, bottom: 5),
+                    child: RaisedButton(
+                      color: Colors.blueAccent,
+                      onPressed: () => _onStepCancel(),
+                      child: Icon(
+                        Icons.navigate_before,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink()),
+            Container(
+              margin: EdgeInsets.only(right: 10, bottom: 5),
+              child: RaisedButton(
+                  color: Colors.blueAccent,
+                  onPressed: () => _onStepContinue(),
+                  child: currentStep == 2
+                      ? Icon(
+                          Icons.done,
+                          color: Colors.white,
+                        )
+                      : Icon(
+                          Icons.navigate_next,
+                          color: Colors.white,
+                        )),
             ),
-          ),
-          RaisedButton(
-              color: Colors.blueAccent,
-              onPressed: () => _onStepContinue(),
-              child: Icon(
-                Icons.navigate_next,
-                color: Colors.white,
-              )),
-        ]);
+          ]),
+    );
   }
 
   @override
@@ -180,7 +195,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   }
 
   goTo(BuildContext context, int step) {
-    ileriBtnStr = "İleri";
     if (currentStep == 0) {
       bool ret = false;
       setState(() {
@@ -222,7 +236,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     }
     if (step == 2) {
       setOzet();
-      ileriBtnStr = "Tamamla";
     }
     setState(() {
       currentStep = step;
@@ -251,7 +264,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       width: 150,
                       height: 35,
                       child: TextField(
-                        style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(8),
                             border: OutlineInputBorder(
@@ -289,7 +301,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       width: 150,
                       height: 35,
                       child: TextField(
-                        style: TextStyle(color: Colors.black),
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(8),
                             border: OutlineInputBorder(
@@ -597,7 +608,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         onSubmitted: (value) {
                           MusteriSiparisiRowModel satirModel =
                               MusteriSiparisiRowModel();
-                          satirModel.setData(value).then((sonModel) {
+                          satirModel.setData(value, model).then((sonModel) {
                             setState(() {
                               barkod = value;
                               barkodFocus.requestFocus();
@@ -638,7 +649,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                               width: 1),
                           borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height - 275,
+                      height: MediaQuery.of(context).size.height * 0.65,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
@@ -719,7 +730,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                               width: 1),
                           borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height - 400,
+                      height: MediaQuery.of(context).size.height * 0.5,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
@@ -734,11 +745,12 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               height: 5,
             ),
             Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(child: Text("Toplam Miktar"), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
-                    width: 250,
+                    width: 100,
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
@@ -749,10 +761,37 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           border: OutlineInputBorder(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(5)))),
-                      textAlign: TextAlign.left,
+                      textAlign: TextAlign.right,
                       readOnly: true,
                       onChanged: (newText) {},
                       controller: ozetToplamMiktarController,
+                    )),
+              ],
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(child: Text("Toplam Fiyat"), width: 100),
+                Padding(padding: EdgeInsets.only(right: 10)),
+                Container(
+                    width: 100,
+                    height: 35,
+                    child: TextField(
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                          fillColor: Colors.yellow[100],
+                          filled: true,
+                          contentPadding: EdgeInsets.all(8),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5)))),
+                      textAlign: TextAlign.right,
+                      readOnly: true,
+                      onChanged: (newText) {},
+                      controller: ozetToplamFiyatController,
                     )),
               ],
             ),
@@ -764,13 +803,16 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
 
   void setOzet() {
     int toplam = 0;
+    int fiyat = 0;
     for (var i = 0; i < satirlarModel.length; i++) {
       MusteriSiparisiRowModel model = satirlarModel[i];
       toplam += model.getMiktar;
+      fiyat += model.getFiyat;
     }
     ozetCariKoduController.text = model.getCariKodu;
     ozetCariAdiController.text = model.getCariAdi;
     ozetToplamMiktarController.text = toplam.toString();
+    ozetToplamFiyatController.text = fiyat.toString();
   }
 
 //SILINCEK
@@ -812,17 +854,21 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
 
   Widget table(MusteriSiparisiRowModel model, index) {
     print(model.getBarkod);
+    Color baslik = Colors.blueGrey;
+    Color value = Colors.black;
+    double baslikSize = 11;
+    double valueSize = 15;
     return Table(
       key: UniqueKey(),
       /*border: TableBorder.symmetric(
           inside: BorderSide(color: Colors.black45, width: 0)),*/
       columnWidths: {
-        0: FixedColumnWidth(50),
-        1: FixedColumnWidth(100),
-        2: FixedColumnWidth(50),
-        3: FixedColumnWidth(50),
-        4: FixedColumnWidth(70),
-        5: FixedColumnWidth(50),
+        0: FractionColumnWidth(.1),
+        1: FractionColumnWidth(.4),
+        2: FractionColumnWidth(.1),
+        3: FractionColumnWidth(.2),
+        4: FractionColumnWidth(.1),
+        5: FractionColumnWidth(.1),
       },
       children: [
         TableRow(
@@ -832,22 +878,22 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
             children: [
               Text(
                 "Barkod",
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: baslik, fontSize: baslikSize),
               ),
               Text(model.getBarkod,
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+                  style: TextStyle(color: value, fontSize: valueSize)),
               Text(
                 "Renk",
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: baslik, fontSize: baslikSize),
               ),
               Text(model.getRenk,
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+                  style: TextStyle(color: value, fontSize: valueSize)),
               Text(
                 "Para Birimi",
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: baslik, fontSize: baslikSize),
               ),
               Text(model.getParaBirimi,
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+                  style: TextStyle(color: value, fontSize: valueSize)),
             ]),
         TableRow(
             decoration: BoxDecoration(
@@ -856,22 +902,22 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
             children: [
               Text(
                 "Kodu",
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: baslik, fontSize: baslikSize),
               ),
               Text(model.getKodu,
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+                  style: TextStyle(color: value, fontSize: valueSize)),
               Text(
                 "Beden",
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: baslik, fontSize: baslikSize),
               ),
               Text(model.getBeden,
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+                  style: TextStyle(color: value, fontSize: valueSize)),
               Text(
                 "Fiyat",
-                style: TextStyle(color: Colors.black, fontSize: 12),
+                style: TextStyle(color: baslik, fontSize: baslikSize),
               ),
               Text(model.getFiyat.toString(),
-                  style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+                  style: TextStyle(color: value, fontSize: valueSize)),
             ]),
         TableRow(
           decoration: BoxDecoration(
@@ -879,16 +925,16 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           children: [
             Text(
               "Adi",
-              style: TextStyle(color: Colors.black, fontSize: 12),
+              style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
             Text(model.getAdi,
-                style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+                style: TextStyle(color: value, fontSize: valueSize)),
             Text(
               "Miktar",
-              style: TextStyle(color: Colors.black, fontSize: 12),
+              style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
             Text(model.getMiktar.toString(),
-                style: TextStyle(color: Colors.blueGrey, fontSize: 15)),
+                style: TextStyle(color: value, fontSize: valueSize)),
             Text(""),
             Text(""),
           ],

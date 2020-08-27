@@ -16,6 +16,7 @@ class PersonelModel {
     this.perId = json['perId'];
     this.soyadi = json['soyadi'];
     this.adi = json['adi'];
+    this.sifre = json['sifre'];
   }
 
   String get getPerId => perId;
