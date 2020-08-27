@@ -1,14 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
-import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
+import 'package:teronmobile/model/CariDepoAutoComp.dart';
+import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
-//import 'package:autocomplete_textfield/autocomplete_textfield.dart';
-import 'package:http/http.dart' as http;
-import 'package:teronmobile/view/LoginScreen.dart';
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   final labelWidth = 120.0;
@@ -336,28 +334,54 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(
                       width: 200,
                       height: 35,
-                      child: TextField(
-                        decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: cariRed == true
-                                    ? BorderSide(color: Colors.red, width: 2)
-                                    : BorderSide(width: 0),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
-                        textAlign: TextAlign.left,
-                        readOnly: false,
-                        controller: cariKoduController,
-                        onChanged: (newText) {
-                          if (newText != null) {
-                            model.setCariKodu = newText;
-                            sevkCariKoduController.text = newText;
-                            model.setSevkCariKodu = newText;
+                      child: TypeAheadField(
+                        suggestionsCallback: (pattern) async {
+                          if (pattern != null && pattern != "") {
+                            return await CariDepoAutoComp.getCariJson(pattern);
                           }
+                          return null;
                         },
+                        noItemsFoundBuilder: (context){
+                          return Text("Cari kodu bulunamadı..", style: TextStyle(
+                            fontSize: 18
+                          ),);
+                        },
+                        itemBuilder: (context,suggestion){
+                          return ListTile(
+                            title: Text(suggestion.keys.elementAt(0)),
+                            subtitle: Text(suggestion.values.elementAt(0)),
+                          );
+                        },
+                        onSuggestionSelected: (suggestion){
+                          cariKoduController.text = suggestion.keys.elementAt(0);
+                          cariAdiController.text = suggestion.values.elementAt(0);
+                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text = suggestion.values.elementAt(0);
+                          model.setCariKodu = cariKoduController.text;
+                          model.setSevkCariKodu = sevkCariKoduController.text;
+                        },
+                        textFieldConfiguration: TextFieldConfiguration(
+                          decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: cariRed == true
+                                      ? BorderSide(color: Colors.red, width: 2)
+                                      : BorderSide(width: 0),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
+                              contentPadding: EdgeInsets.all(8),
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)))),
+                          textAlign: TextAlign.left,
+                          controller: cariKoduController,
+                          /*onChanged: (newText) {
+                            if (newText != null) {
+                              model.setCariKodu = newText;
+                              sevkCariKoduController.text = newText;
+                              model.setSevkCariKodu = newText;
+                            }
+                          },*/
+                        ),
                       )),
                 ],
               ),
@@ -401,26 +425,51 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(
                       width: 200,
                       height: 35,
-                      child: TextField(
-                        decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: sevkRed == true
-                                    ? BorderSide(color: Colors.red, width: 2)
-                                    : BorderSide(width: 0),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
-                        textAlign: TextAlign.left,
-                        readOnly: false,
-                        controller: sevkCariKoduController,
-                        onChanged: (newText) {
-                          if (newText != null) {
-                            model.setSevkCariKodu = newText;
+                      child: TypeAheadField(
+                        suggestionsCallback: (pattern) async {
+                          if (pattern != null && pattern != "") {
+                            return await CariDepoAutoComp.getCariJson(pattern);
                           }
+                          return null;
                         },
+                        noItemsFoundBuilder: (context){
+                          return Text("Cari kodu bulunamadı..", style: TextStyle(
+                            fontSize: 18
+                          ),);
+                        },
+                        itemBuilder: (context,suggestion){
+                          return ListTile(
+                            title: Text(suggestion.keys.elementAt(0)),
+                            subtitle: Text(suggestion.values.elementAt(0)),
+                          );
+                        },
+                        onSuggestionSelected: (suggestion){
+                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text = suggestion.values.elementAt(0);
+                          model.sevkCariKodu = sevkCariKoduController.text;
+                        },
+                        textFieldConfiguration: TextFieldConfiguration(
+                          decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: cariRed == true
+                                      ? BorderSide(color: Colors.red, width: 2)
+                                      : BorderSide(width: 0),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
+                              contentPadding: EdgeInsets.all(8),
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)))),
+                          textAlign: TextAlign.left,
+                          controller: sevkCariKoduController,
+                          /*onChanged: (newText) {
+                            if (newText != null) {
+                              model.setCariKodu = newText;
+                              sevkCariKoduController.text = newText;
+                              model.setSevkCariKodu = newText;
+                            }
+                          },*/
+                        ),
                       )),
                 ],
               ),
@@ -464,26 +513,52 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(
                       width: 200,
                       height: 35,
-                      child: TextField(
-                        decoration: InputDecoration(
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: depoRed == true
-                                    ? BorderSide(color: Colors.red, width: 2)
-                                    : BorderSide(width: 0),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5))),
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
-                        textAlign: TextAlign.left,
-                        readOnly: false,
-                        controller: depoKoduController,
-                        onChanged: (newText) {
-                          if (newText != null) {
-                            model.setDepoKodu = newText;
+                      child: TypeAheadField(
+                        suggestionsCallback: (pattern) async {
+                          if (pattern != null && pattern != "") {
+                            return await CariDepoAutoComp.getDepoJson(pattern);
                           }
+                          return null;
                         },
+                        autoFlipDirection: true,
+                        noItemsFoundBuilder: (context){
+                          return Text("Depo kodu bulunamadı..", style: TextStyle(
+                            fontSize: 18
+                          ),);
+                        },
+                        itemBuilder: (context,suggestion){
+                          return ListTile(
+                            title: Text(suggestion.keys.elementAt(0)),
+                            subtitle: Text(suggestion.values.elementAt(0)),
+                          );
+                        },
+                        onSuggestionSelected: (suggestion){
+                          depoKoduController.text = suggestion.keys.elementAt(0);
+                          depoAdiController.text = suggestion.values.elementAt(0);
+                          model.depoKodu = depoKoduController.text;
+                        },
+                        textFieldConfiguration: TextFieldConfiguration(
+                          decoration: InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                  borderSide: cariRed == true
+                                      ? BorderSide(color: Colors.red, width: 2)
+                                      : BorderSide(width: 0),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5))),
+                              contentPadding: EdgeInsets.all(8),
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(5)))),
+                          textAlign: TextAlign.left,
+                          controller: depoKoduController,
+                          /*onChanged: (newText) {
+                            if (newText != null) {
+                              model.setCariKodu = newText;
+                              sevkCariKoduController.text = newText;
+                              model.setSevkCariKodu = newText;
+                            }
+                          },*/
+                        ),
                       )),
                 ],
               ),

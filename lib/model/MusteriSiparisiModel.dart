@@ -52,8 +52,11 @@ class MusteriSiparisiModel {
         LoginScreenView.ksm.getPersonel.getSifre);
     String userPass = base64.encode(list);
 
+    String ip = LoginScreenView.ip;
+    String port = LoginScreenView.port;
+
     http
-        .post('http://192.168.2.58:8080/ERPService/musterisiparisi/insert',
+        .post('http://$ip:$port/ERPService/musterisiparisi/insert',
             headers: <String, String>{
               'Content-Type': 'application/json',
               'Accept': 'application/json',

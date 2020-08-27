@@ -40,8 +40,10 @@ class MusteriSiparisiRowModel {
 
   Future<MusteriSiparisiRowModel> setData(
       String barkod, MusteriSiparisiModel sipModel) async {
+        String ip = LoginScreenView.ip;
+        String port = LoginScreenView.port;
     var url =
-        'http://192.168.2.58:8080/ERPService/musterisiparisibarkod/specific?master_value=$barkod';
+        'http://$ip:$port/ERPService/musterisiparisibarkod/specific?master_value=$barkod';
     var response = await http.get(Uri.encodeFull(url));
 
     print(url);
