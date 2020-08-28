@@ -13,7 +13,7 @@ import 'package:teronmobile/view/MainMenuScreen.dart';
 import 'package:teronmobile/view/SiparisIslemleriMenuScreen.dart';
 
 class LoginScreenView extends State<LoginViewCommand> {
-  static String ip = "192.168.1.28";
+  static String ip = "192.168.2.58";
   static String port = "8080";
   static KullaniciSessionModel ksm;
   List<DropdownMenuItem<String>> sirketList = new List();
@@ -157,7 +157,9 @@ class LoginScreenView extends State<LoginViewCommand> {
 
   @override
   Widget build(BuildContext context) {
-    return (sirketOk == true && donemOk == true) ? login() : LoadingScreenViewCommand("Sistem Yükleniyor..");
+    return (sirketOk == true && donemOk == true)
+        ? login()
+        : LoadingScreenViewCommand("Sistem Yükleniyor..");
   }
 
   Widget login() {

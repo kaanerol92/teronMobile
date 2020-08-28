@@ -6,7 +6,6 @@ import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
 import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
-import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 
 class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   final labelWidth = 120.0;
@@ -43,6 +42,8 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   VoidCallback _onStepContinue;
   VoidCallback _onStepCancel;
 
+  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+
   Widget _bottomBar() {
     return Container(
       child: Row(
@@ -64,7 +65,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
             Container(
               margin: EdgeInsets.only(right: 10, bottom: 5),
               child: RaisedButton(
-                  color: Colors.blueAccent,
+                  color: currentStep == 2 ? Colors.green : Colors.blueAccent,
                   onPressed: () => _onStepContinue(),
                   child: currentStep == 2
                       ? Icon(
@@ -86,6 +87,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     return WillPopScope(
       onWillPop: () => backPress(),
       child: Scaffold(
+        key: scaffoldKey,
         resizeToAvoidBottomPadding: true,
         resizeToAvoidBottomInset: true,
         /*appBar: AppBar(
@@ -161,7 +163,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     return showDialog(
         context: context,
         builder: (context) => AlertDialog(
-              title: Text("Çıkmak istediğinize emin misadminiz?"),
+              title: Text("Çıkmak istediğinize emin misiniz?"),
               actions: [
                 FlatButton(
                     onPressed: () => Navigator.pop(context, false),
@@ -179,11 +181,41 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     currentStep + 1 != steps.length
         ? goTo(context, currentStep + 1)
         : setState(() {
-            complete = true;
-            model.insert();
-            print("kayıt");
-            Navigator.popAndPushNamed(context, '/musterisiparisi');
+            showIsOkDialog(context);
           });
+  }
+
+  showIsOkDialog(BuildContext context) {
+    Widget cancelButton = FlatButton(
+      child: Text("Hayır"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+    Widget continueButton = FlatButton(
+      child: Text("Evet"),
+      onPressed: () {
+        complete = true;
+        model.insert(satirlarModel);
+        print("kayıt");
+        Navigator.pop(context);
+        Navigator.popAndPushNamed(context, '/musterisiparisi');
+      },
+    );
+    AlertDialog alert = AlertDialog(
+      title: Text("Uyarı!"),
+      content: Text("Müşteri Siparişi oluşturmak istediğinize emin misiniz?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   cancel(BuildContext context) {
@@ -341,22 +373,27 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           }
                           return null;
                         },
-                        noItemsFoundBuilder: (context){
-                          return Text("Cari kodu bulunamadı..", style: TextStyle(
-                            fontSize: 18
-                          ),);
+                        noItemsFoundBuilder: (context) {
+                          return Text(
+                            "Cari kodu bulunamadı..",
+                            style: TextStyle(fontSize: 18),
+                          );
                         },
-                        itemBuilder: (context,suggestion){
+                        itemBuilder: (context, suggestion) {
                           return ListTile(
                             title: Text(suggestion.keys.elementAt(0)),
                             subtitle: Text(suggestion.values.elementAt(0)),
                           );
                         },
-                        onSuggestionSelected: (suggestion){
-                          cariKoduController.text = suggestion.keys.elementAt(0);
-                          cariAdiController.text = suggestion.values.elementAt(0);
-                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
-                          sevkCariAdiController.text = suggestion.values.elementAt(0);
+                        onSuggestionSelected: (suggestion) {
+                          cariKoduController.text =
+                              suggestion.keys.elementAt(0);
+                          cariAdiController.text =
+                              suggestion.values.elementAt(0);
+                          sevkCariKoduController.text =
+                              suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text =
+                              suggestion.values.elementAt(0);
                           model.setCariKodu = cariKoduController.text;
                           model.setSevkCariKodu = sevkCariKoduController.text;
                         },
@@ -432,20 +469,23 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           }
                           return null;
                         },
-                        noItemsFoundBuilder: (context){
-                          return Text("Cari kodu bulunamadı..", style: TextStyle(
-                            fontSize: 18
-                          ),);
+                        noItemsFoundBuilder: (context) {
+                          return Text(
+                            "Cari kodu bulunamadı..",
+                            style: TextStyle(fontSize: 18),
+                          );
                         },
-                        itemBuilder: (context,suggestion){
+                        itemBuilder: (context, suggestion) {
                           return ListTile(
                             title: Text(suggestion.keys.elementAt(0)),
                             subtitle: Text(suggestion.values.elementAt(0)),
                           );
                         },
-                        onSuggestionSelected: (suggestion){
-                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
-                          sevkCariAdiController.text = suggestion.values.elementAt(0);
+                        onSuggestionSelected: (suggestion) {
+                          sevkCariKoduController.text =
+                              suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text =
+                              suggestion.values.elementAt(0);
                           model.sevkCariKodu = sevkCariKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
@@ -521,20 +561,23 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           return null;
                         },
                         autoFlipDirection: true,
-                        noItemsFoundBuilder: (context){
-                          return Text("Depo kodu bulunamadı..", style: TextStyle(
-                            fontSize: 18
-                          ),);
+                        noItemsFoundBuilder: (context) {
+                          return Text(
+                            "Depo kodu bulunamadı..",
+                            style: TextStyle(fontSize: 18),
+                          );
                         },
-                        itemBuilder: (context,suggestion){
+                        itemBuilder: (context, suggestion) {
                           return ListTile(
                             title: Text(suggestion.keys.elementAt(0)),
                             subtitle: Text(suggestion.values.elementAt(0)),
                           );
                         },
-                        onSuggestionSelected: (suggestion){
-                          depoKoduController.text = suggestion.keys.elementAt(0);
-                          depoAdiController.text = suggestion.values.elementAt(0);
+                        onSuggestionSelected: (suggestion) {
+                          depoKoduController.text =
+                              suggestion.keys.elementAt(0);
+                          depoAdiController.text =
+                              suggestion.values.elementAt(0);
                           model.depoKodu = depoKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
@@ -630,7 +673,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(
                       width: 200,
                       child: TextField(
-                        maxLines: 2,
+                        maxLines: 5,
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(8),
                             border: OutlineInputBorder(
@@ -690,20 +733,30 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                               barkodController.selection = TextSelection(
                                   baseOffset: 0,
                                   extentOffset: barkodController.text.length);
-
-                              satirModel = sonModel;
-                              bool add = true;
-                              for (var i = 0; i < satirlarModel.length; i++) {
-                                MusteriSiparisiRowModel m = satirlarModel[i];
-                                if (m.barkod == satirModel.barkod) {
-                                  m.setMiktar = m.getMiktar + 1;
-                                  add = false;
+                              if (sonModel != null) {
+                                satirModel = sonModel;
+                                bool add = true;
+                                for (var i = 0; i < satirlarModel.length; i++) {
+                                  MusteriSiparisiRowModel m = satirlarModel[i];
+                                  if (m.barkod == satirModel.barkod) {
+                                    m.setMiktar = m.getMiktar + 1;
+                                    add = false;
+                                    print("deneme");
+                                  }
+                                }
+                                if (add == true) {
+                                  satirlarModel.add(satirModel);
                                   print("deneme");
                                 }
-                              }
-                              if (add == true) {
-                                satirlarModel.add(satirModel);
-                                print("deneme");
+                              } else {
+                                scaffoldKey.currentState.showSnackBar(SnackBar(
+                                    content: Row(
+                                  children: [
+                                    Icon(Icons.announcement),
+                                    Padding(padding: EdgeInsets.all(20)),
+                                    Text("Barkod Bulunamadı."),
+                                  ],
+                                )));
                               }
                             });
                           });
@@ -878,7 +931,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
 
   void setOzet() {
     int toplam = 0;
-    int fiyat = 0;
+    double fiyat = 0;
     for (var i = 0; i < satirlarModel.length; i++) {
       MusteriSiparisiRowModel model = satirlarModel[i];
       toplam += model.getMiktar;

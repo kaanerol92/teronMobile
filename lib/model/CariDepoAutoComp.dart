@@ -12,17 +12,27 @@ class CariDepoAutoComp {
 
     var url =
         'http://$ip:$port/ERPService/cari/simple?constraint=$query&orderByCondition=cari_no&auto_complete=true';
-    var response = await http.get(Uri.encodeFull(url));
+    var response = await http.get(
+      Uri.encodeFull(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': "Basic " + LoginScreenView.ksm.userPass,
+        'SessionType': '0',
+        'Sirket': LoginScreenView.ksm.getSirket.getKod,
+        'DonemModel': LoginScreenView.ksm.getDonem.getKod
+      },
+    );
 
     print(url);
 
-    List<Map<String,String>> liste = List();
+    List<Map<String, String>> liste = List();
 
     if (response.statusCode == 200) {
       String resp = Utf8Decoder().convert(response.bodyBytes);
       var jsonDecode = json.decode(resp);
       for (var json in jsonDecode) {
-        Map<String,String> map = Map();
+        Map<String, String> map = Map();
         map.putIfAbsent(json['kodu'], () => json['adi']);
         liste.add(map);
       }
@@ -31,8 +41,7 @@ class CariDepoAutoComp {
     return liste;
   }
 
-
-    static Future<List> getDepoJson(String query) async {
+  static Future<List> getDepoJson(String query) async {
     await Future.delayed(Duration(seconds: 1));
 
     String ip = LoginScreenView.ip;
@@ -40,17 +49,27 @@ class CariDepoAutoComp {
 
     var url =
         'http://$ip:$port/ERPService/depo/simple?constraint=$query&orderByCondition=depo_kod&auto_complete=true';
-    var response = await http.get(Uri.encodeFull(url));
+    var response = await http.get(
+      Uri.encodeFull(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': "Basic " + LoginScreenView.ksm.userPass,
+        'SessionType': '0',
+        'Sirket': LoginScreenView.ksm.getSirket.getKod,
+        'DonemModel': LoginScreenView.ksm.getDonem.getKod
+      },
+    );
 
     print(url);
 
-    List<Map<String,String>> liste = List();
+    List<Map<String, String>> liste = List();
 
     if (response.statusCode == 200) {
       String resp = Utf8Decoder().convert(response.bodyBytes);
       var jsonDecode = json.decode(resp);
       for (var json in jsonDecode) {
-        Map<String,String> map = Map();
+        Map<String, String> map = Map();
         map.putIfAbsent(json['kodu'], () => json['adi']);
         liste.add(map);
       }

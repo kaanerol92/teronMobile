@@ -12,7 +12,9 @@ class MusteriSiparisiRowModel {
   String beden = "";
   int miktar = 0;
   String paraBirimi = "TL";
-  int fiyat = 0;
+  double fiyat = 0;
+  double kur = 0;
+  int musSipId;
 
   int stokRenkBoyutId;
 
@@ -40,8 +42,8 @@ class MusteriSiparisiRowModel {
 
   Future<MusteriSiparisiRowModel> setData(
       String barkod, MusteriSiparisiModel sipModel) async {
-        String ip = LoginScreenView.ip;
-        String port = LoginScreenView.port;
+    String ip = LoginScreenView.ip;
+    String port = LoginScreenView.port;
     var url =
         'http://$ip:$port/ERPService/musterisiparisibarkod/specific?master_value=$barkod';
     var response = await http.get(Uri.encodeFull(url));
@@ -51,12 +53,29 @@ class MusteriSiparisiRowModel {
     if (response.statusCode == 200) {
       String resp = Utf8Decoder().convert(response.bodyBytes);
       var jsonDecode = json.decode(resp);
-      return MusteriSiparisiRowModel.fromJson(jsonDecode, sipModel);
+      if (jsonDecode['recorded'] == true) {
+        return MusteriSiparisiRowModel.fromJson(jsonDecode, sipModel);
+      }
     }
-    return MusteriSiparisiRowModel();
+    return null;
   }
 
   MusteriSiparisiRowModel();
+
+  Map<String, String> toJson() {
+    var map = Map<String, String>();
+    map['stokId'] = this.stokId.toString();
+    map['stokRenkBoyutId'] = this.stokRenkBoyutId.toString();
+    map['boyut1Id'] = this.boyut1Id.toString();
+    map['stokRenkBoyutId'] = this.stokRenkBoyutId.toString();
+    map['renkId'] = this.renkId.toString();
+    map['kur'] = this.kur.toString();
+    map['paraBirimi'] = this.paraBirimi;
+    map['planlananMiktar'] = this.miktar.toString();
+    map['gecerliFiyat'] = this.fiyat.toString();
+    map['musteriSipId'] = this.musSipId.toString();
+    return map;
+  }
 
   MusteriSiparisiRowModel.fromJson(var json, MusteriSiparisiModel sipModel) {
     this.barkod = json['barkodu'];
@@ -68,6 +87,7 @@ class MusteriSiparisiRowModel {
     this.stokRenkBoyutId = json['stokRenkBoyutId'];
     this.boyut1Id = json['boyut1Id'];
     this.renkId = json['renkId'];
+
     this.miktar = 1;
 
     fillFiyat(sipModel);
@@ -95,6 +115,9 @@ class MusteriSiparisiRowModel {
       String resp = Utf8Decoder().convert(response.bodyBytes);
       var jsonDecode = json.decode(resp);
       print(jsonDecode);
+      setParaBirimi = jsonDecode['paraBirimi'];
+      setFiyat = jsonDecode['gecerliFiyat'];
+      kur = jsonDecode['kur'];
     }
 
     return null;
@@ -128,9 +151,13 @@ class MusteriSiparisiRowModel {
 
   set setParaBirimi(String paraBirimi) => this.paraBirimi = paraBirimi;
 
-  int get getFiyat => fiyat;
+  double get getFiyat => fiyat;
 
-  set setFiyat(int fiyat) => this.fiyat = fiyat;
+  int get getMusSipId => musSipId;
+
+  set setMusSipId(int musSipId) => this.musSipId = musSipId;
+
+  set setFiyat(double fiyat) => this.fiyat = fiyat;
 
   int get getStokRenkBoyutId => stokRenkBoyutId;
 
