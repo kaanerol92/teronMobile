@@ -196,10 +196,29 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       child: Text("Evet"),
       onPressed: () {
         complete = true;
-        model.insert(satirlarModel);
-        print("kayıt");
-        Navigator.pop(context);
-        Navigator.popAndPushNamed(context, '/musterisiparisi');
+        model.insert(satirlarModel).then((_) {
+          Navigator.pop(context);
+          String fisNo = model.sipNo.toString();
+          AlertDialog alert = AlertDialog(
+            title: Text("İşlem Başarılı!"),
+            content: Text("Siparişiniz $fisNo no ile oluşmuştur."),
+            actions: [
+              FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.popAndPushNamed(context, '/musterisiparisi');
+                  },
+                  child: Text("Tamam")),
+            ],
+          );
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            },
+          );
+        });
       },
     );
     AlertDialog alert = AlertDialog(
@@ -713,7 +732,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   child: Container(
                       width: 300,
                       height: 35,
-                      child: TextField(
+                      child: TextFormField(
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.all(8),
                             border: OutlineInputBorder(
@@ -723,7 +742,9 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         readOnly: false,
                         controller: barkodController,
                         focusNode: barkodFocus,
-                        onSubmitted: (value) {
+                        textInputAction: TextInputAction.done,
+                        textCapitalization: TextCapitalization.characters,
+                        onFieldSubmitted: (value) {
                           MusteriSiparisiRowModel satirModel =
                               MusteriSiparisiRowModel();
                           satirModel.setData(value, model).then((sonModel) {
@@ -840,7 +861,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                                   BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.left,
                       readOnly: true,
-                      controller: ozetCariAdiController,
+                      controller: cariAdiController,
                     )),
               ],
             ),
@@ -858,7 +879,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                               width: 1),
                           borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.37,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
@@ -867,6 +888,56 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                             table(satirlarModel[index], index),
                       )),
                 ),
+              ],
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                /*Container(child: Text("Toplam Fiyat"), width: 100),
+                Padding(padding: EdgeInsets.only(right: 10)),
+                Container(
+                    width: 100,
+                    height: 35,
+                    child: TextField(
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                          fillColor: Colors.yellow[100],
+                          filled: true,
+                          contentPadding: EdgeInsets.all(8),
+                          border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5)))),
+                      textAlign: TextAlign.right,
+                      readOnly: true,
+                      onChanged: (newText) {},
+                      controller: ozetToplamFiyatController,
+                    )),*/
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Theme.of(context).textTheme.bodyText1.color,
+                            width: 1),
+                        borderRadius: BorderRadius.circular(5)),
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height * 0.18,
+                    child: SingleChildScrollView(
+                      child: DataTable(
+                          columnSpacing: 5,
+                          dataRowHeight: 30,
+                          headingRowHeight: 30,
+                          columns: [
+                            DataColumn(label: Text("Para Birimi")),
+                            DataColumn(label: Text("Miktar")),
+                            DataColumn(label: Text("Tutar")),
+                          ],
+                          rows: setToplam()),
+                    ),
+                  ),
+                )
               ],
             ),
             SizedBox(
@@ -896,37 +967,46 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                     )),
               ],
             ),
-            SizedBox(
-              height: 5,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(child: Text("Toplam Fiyat"), width: 100),
-                Padding(padding: EdgeInsets.only(right: 10)),
-                Container(
-                    width: 100,
-                    height: 35,
-                    child: TextField(
-                      style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
-                      textAlign: TextAlign.right,
-                      readOnly: true,
-                      onChanged: (newText) {},
-                      controller: ozetToplamFiyatController,
-                    )),
-              ],
-            ),
           ],
         ),
       ),
     ];
+  }
+
+  List<DataRow> setToplam() {
+    Map paraBrmMap = Map();
+    List<DataRow> list = List();
+    for (var i = 0; i < satirlarModel.length; i++) {
+      MusteriSiparisiRowModel model = satirlarModel[i];
+      MusteriSiparisiRowModel toplamModel = paraBrmMap[model.getParaBirimi];
+      if (toplamModel == null) {
+        print("toplam model if");
+        toplamModel = MusteriSiparisiRowModel();
+        toplamModel.setParaBirimi = model.getParaBirimi;
+        paraBrmMap.putIfAbsent(model.getParaBirimi, () => toplamModel);
+      }
+      setState(() {
+        toplamModel.setMiktar = toplamModel.getMiktar + model.getMiktar;
+        toplamModel.setFiyat =
+            toplamModel.getFiyat + (model.getMiktar * model.getFiyat);
+      });
+    }
+    int index = 0;
+    for (var keys in paraBrmMap.keys) {
+      MusteriSiparisiRowModel toplamModel = paraBrmMap[keys];
+      index++;
+      list.add(DataRow(
+          color: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+            return index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100];
+          }),
+          cells: [
+            DataCell(Text(toplamModel.getParaBirimi)),
+            DataCell(Text(toplamModel.getMiktar.toString())),
+            DataCell(Text(toplamModel.getFiyat.toString()))
+          ]));
+    }
+    return list;
   }
 
   void setOzet() {

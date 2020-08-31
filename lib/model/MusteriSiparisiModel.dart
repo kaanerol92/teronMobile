@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
 import 'package:teronmobile/view/LoginScreen.dart';
@@ -20,6 +21,8 @@ class MusteriSiparisiModel {
   String depoAdi;
   String musSipNo;
   String aciklama;
+  int sipNo;
+  String fisTip;
 
   MusteriSiparisiModel() {
     DateTime now = DateTime.now();
@@ -35,7 +38,7 @@ class MusteriSiparisiModel {
     this.aciklama = "";
   }
 
-  insert(List<MusteriSiparisiRowModel> satirlarModel) {
+  Future insert(List<MusteriSiparisiRowModel> satirlarModel) async {
     var map = Map<String, dynamic>();
     map['musteriSiparisNo'] = getMusSipNo;
     map['musteriCariKodu'] = getCariKodu;
@@ -51,7 +54,7 @@ class MusteriSiparisiModel {
     String ip = LoginScreenView.ip;
     String port = LoginScreenView.port;
 
-    http
+    await http
         .post('http://$ip:$port/ERPService/musterisiparisi/insert',
             headers: <String, String>{
               'Content-Type': 'application/json',
@@ -65,10 +68,14 @@ class MusteriSiparisiModel {
         .then((http.Response response) {
       String resp = Utf8Decoder().convert(response.bodyBytes);
       var jsonDecode = json.decode(resp);
+      print(jsonDecode);
       id = jsonDecode['id'];
       cariId = jsonDecode['musteriCariId'];
       sevkCariId = jsonDecode['sevkCariId'];
       depoId = jsonDecode['depoId'];
+      fisTip = jsonDecode['fisTipi'];
+      sipNo = jsonDecode['siparisNo'];
+      print(sipNo);
       insertRows(satirlarModel);
     });
   }

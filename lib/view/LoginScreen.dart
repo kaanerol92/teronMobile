@@ -13,7 +13,7 @@ import 'package:teronmobile/view/MainMenuScreen.dart';
 import 'package:teronmobile/view/SiparisIslemleriMenuScreen.dart';
 
 class LoginScreenView extends State<LoginViewCommand> {
-  static String ip = "192.168.2.58";
+  static String ip = "192.168.2.78";
   static String port = "8080";
   static KullaniciSessionModel ksm;
   List<DropdownMenuItem<String>> sirketList = new List();
