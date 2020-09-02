@@ -68,14 +68,12 @@ class MusteriSiparisiModel {
         .then((http.Response response) {
       String resp = Utf8Decoder().convert(response.bodyBytes);
       var jsonDecode = json.decode(resp);
-      print(jsonDecode);
       id = jsonDecode['id'];
       cariId = jsonDecode['musteriCariId'];
       sevkCariId = jsonDecode['sevkCariId'];
       depoId = jsonDecode['depoId'];
       fisTip = jsonDecode['fisTipi'];
       sipNo = jsonDecode['siparisNo'];
-      print(sipNo);
       insertRows(satirlarModel);
     });
   }
@@ -83,10 +81,8 @@ class MusteriSiparisiModel {
   insertRows(List<MusteriSiparisiRowModel> satirlarModel) {
     List<Map<String, String>> list = List();
     for (var i = 0; i < satirlarModel.length; i++) {
-      print(satirlarModel);
       MusteriSiparisiRowModel model = satirlarModel.elementAt(i);
       model.setMusSipId = this.id;
-      print(model.getKodu);
       list.add(model.toJson());
     }
 

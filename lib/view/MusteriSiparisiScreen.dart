@@ -174,8 +174,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   }
 
   next(BuildContext context) {
-    print(currentStep);
-    print(steps.length);
     currentStep + 1 != steps.length
         ? goTo(context, currentStep + 1)
         : setState(() {
@@ -663,8 +661,9 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                               barkodController.selection = TextSelection(baseOffset: 0, extentOffset: barkodController.text.length);
                               if (list.length != 0) {
                                 for (var i = 0; i < list.length; i++) {
+                                  print(satirlarRowModel);
+                                  print(satirlarModel);
                                   satirModel = list[i];
-
                                   MusteriSiparisiRowModel satirRowModel = list[i];
                                   bool addRow = true;
                                   for (var i = 0; i < satirlarRowModel.length; i++) {
@@ -698,13 +697,13 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                                     lotModel.setAdi = satirModel.getAdi;
                                     lotModel.setRenk = satirModel.getRenk;
                                     lotModel.setParaBirimi = satirModel.getParaBirimi;
-                                    print(satirModel.getParaBirimi);
-                                    print(lotModel.getParaBirimi);
                                     lotModel.setFiyat = satirModel.getFiyat;
                                     lotModel.setMiktar = satirModel.getMiktar;
                                     lotModel.setStokId = satirModel.getStokId;
                                     lotModel.setRenkId = satirModel.getRenkId;
                                     lotModel.setBeden = satirModel.getBeden;
+                                    lotModel.lot = satirModel.lot;
+                                    lotModel.lotAdeti = satirModel.lotAdeti;
                                     satirlarModel.add(lotModel);
                                     /*}*/
                                   }
@@ -889,7 +888,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       MusteriSiparisiRowModel model = satirlarModel[i];
       MusteriSiparisiRowModel toplamModel = paraBrmMap[model.getParaBirimi];
       if (toplamModel == null) {
-        print("toplam model if");
         toplamModel = MusteriSiparisiRowModel();
         toplamModel.setParaBirimi = model.getParaBirimi;
         paraBrmMap.putIfAbsent(model.getParaBirimi, () => toplamModel);
@@ -968,7 +966,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   }*/
 
   Widget table(MusteriSiparisiRowModel model, index) {
-    print(model.getBarkod);
     Color baslik = Colors.blueGrey;
     Color value = Colors.black;
     double baslikSize = 11;
@@ -1010,10 +1007,10 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           ),
           Text(model.getKodu, style: TextStyle(color: value, fontSize: valueSize)),
           Text(
-            "Beden",
+            model.lot == 1 ? "Lot Adeti" : "Beden",
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
-          Text(model.getBeden, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(model.lot == 1 ? model.lotAdeti.toString() : model.getBeden, style: TextStyle(color: value, fontSize: valueSize)),
           Text(
             "Fiyat",
             style: TextStyle(color: baslik, fontSize: baslikSize),
@@ -1029,7 +1026,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
             ),
             Text(model.getAdi, style: TextStyle(color: value, fontSize: valueSize)),
             Text(
-              "Miktar",
+              model.lot == 1 ? "Lot İçi Adeti" : "Miktar",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
             Text(model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
@@ -1064,7 +1061,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           color: Colors.red,
           icon: Icons.delete,
           onTap: () {
-            print('Sil');
             showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -1077,6 +1073,15 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               if (value == true) {
                 setState(() {
                   satirlarModel.removeAt(satirlarModel.indexOf(model));
+                  for (var i = 0; i < satirlarRowModel.length; i++) {
+                    MusteriSiparisiRowModel rowModel = satirlarRowModel[i];
+                    if (model.barkod == rowModel.barkod && model.stokId == rowModel.stokId && model.renkId == rowModel.renkId) {
+                      satirlarRowModel.removeAt(satirlarRowModel.indexOf(rowModel));
+                      i--;
+                    }
+                  }
+                  print(satirlarModel);
+                  print(satirlarRowModel);
                 });
               }
             });
