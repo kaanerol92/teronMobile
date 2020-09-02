@@ -13,8 +13,12 @@ import 'package:teronmobile/view/MainMenuScreen.dart';
 import 'package:teronmobile/view/SiparisIslemleriMenuScreen.dart';
 
 class LoginScreenView extends State<LoginViewCommand> {
-  static String ip = "192.168.2.78";
-  static String port = "8080";
+  static String ip;
+  static String port;
+  String icIp;
+  String icPort;
+  String disIp;
+  String disPort;
   static KullaniciSessionModel ksm;
   List<DropdownMenuItem<String>> sirketList = new List();
   List<DropdownMenuItem<String>> donemList = new List();
@@ -86,8 +90,58 @@ class LoginScreenView extends State<LoginViewCommand> {
   @override
   void initState() {
     super.initState();
-    setSirket();
-    setDonem();
+  }
+
+  checkConnection(BuildContext context) async {
+    String icAdress = "$icIp";
+    String disAdress = "$disIp";
+    print(icAdress);
+    print(disAdress);
+    try {
+      final result =
+          await InternetAddress.lookup(icAdress).timeout(Duration(seconds: 10));
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        setState(() {
+          ip = icIp;
+          port = icPort;
+        });
+      }
+    } on SocketException catch (_) {
+      try {
+        final result = await InternetAddress.lookup(disAdress)
+            .timeout(Duration(seconds: 10));
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          setState(() {
+            ip = disIp;
+            port = disPort;
+          });
+        }
+      } on SocketException catch (_) {
+        Scaffold.of(context).showSnackBar(SnackBar(
+            content: Row(
+          children: [
+            Icon(Icons.announcement),
+            Padding(padding: EdgeInsets.all(20)),
+            Text("Bağlantı Kurulamadı."),
+          ],
+        )));
+      }
+    }
+  }
+
+  static Future<bool> isInternetExist() async {
+    try {
+      await InternetAddress.lookup("$ip")
+          .timeout(Duration(seconds: 10))
+          .then((value) {
+        if (value.isNotEmpty && value[0].rawAddress.isNotEmpty) {
+          return true;
+        }
+      });
+    } on SocketException catch (_) {
+      return false;
+    }
+    return false;
   }
 
   void giris(BuildContext context) {
@@ -157,12 +211,16 @@ class LoginScreenView extends State<LoginViewCommand> {
 
   @override
   Widget build(BuildContext context) {
-    return (sirketOk == true && donemOk == true)
-        ? login()
-        : LoadingScreenViewCommand("Sistem Yükleniyor..");
+    return (ip == null || port == null) ? ipLog() : login();
   }
 
   Widget login() {
+    if (sirketOk == false || donemOk == false) {
+      setSirket();
+      setDonem();
+      return LoadingScreenViewCommand("Sistem Yükleniyor..");
+    }
+
     return Scaffold(
       body: Builder(
         builder: (context) => Scaffold(
@@ -269,6 +327,108 @@ class LoginScreenView extends State<LoginViewCommand> {
                         child: Text('Giriş'),
                         onPressed: () {
                           giris(context);
+                        },
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  TextEditingController ipCont = TextEditingController();
+  TextEditingController ipPortCont = TextEditingController();
+  TextEditingController ipDisCont = TextEditingController();
+  TextEditingController ipDisPortCont = TextEditingController();
+
+  Widget ipLog() {
+    return Scaffold(
+      body: Builder(
+        builder: (context) => Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: ListView(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                children: <Widget>[
+                  SizedBox(height: 80.0),
+                  Center(child: Text("TERON MOBILE - IP Ayarları")),
+                  SizedBox(height: 80.0),
+                  TextField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20))),
+                      contentPadding: EdgeInsets.all(20),
+                      labelText: 'İç Ip',
+                      labelStyle: TextStyle(fontStyle: FontStyle.italic),
+                      filled: true,
+                    ),
+                    controller: ipCont,
+                  ),
+                  SizedBox(height: 24.0),
+                  TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20))),
+                        contentPadding: EdgeInsets.all(20),
+                        labelText: 'İç Port',
+                        filled: true,
+                        labelStyle: TextStyle(fontStyle: FontStyle.italic),
+                      ),
+                      controller: ipPortCont),
+                  SizedBox(height: 24.0),
+                  TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20))),
+                        contentPadding: EdgeInsets.all(20),
+                        labelText: 'Dış Ip',
+                        labelStyle: TextStyle(fontStyle: FontStyle.italic),
+                        filled: true,
+                      ),
+                      controller: ipDisCont),
+                  SizedBox(height: 24.0),
+                  TextField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20))),
+                      contentPadding: EdgeInsets.all(20),
+                      labelText: 'Dış Port',
+                      filled: true,
+                      labelStyle: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                    controller: ipDisPortCont,
+                  ),
+                  SizedBox(height: 24.0),
+                  ButtonBar(
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text('Çıkış'),
+                        onPressed: () {
+                          //SystemChannels.platform
+                          //.invokeMethod('SystemNavigator.pop');
+                          exit(1);
+                        },
+                      ),
+                      FlatButton(
+                        child: Text('Tamam'),
+                        onPressed: () {
+                          icIp = ipCont.text;
+                          icPort = ipPortCont.text;
+                          disIp = ipDisCont.text;
+                          disPort = ipDisPortCont.text;
+                          checkConnection(context);
                         },
                       )
                     ],

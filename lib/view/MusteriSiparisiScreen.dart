@@ -3,9 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
+import 'package:teronmobile/main.dart';
+import 'package:teronmobile/main.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
 import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
+import 'package:teronmobile/view/LoginScreen.dart';
 
 class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   final labelWidth = 120.0;
@@ -22,6 +25,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   String barkod;
   FocusNode barkodFocus;
   List<MusteriSiparisiRowModel> satirlarModel = List();
+  List<MusteriSiparisiRowModel> satirlarRowModel = List();
 
   TextEditingController sipTarihController = TextEditingController();
   TextEditingController terminTarihController = TextEditingController();
@@ -46,38 +50,36 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
 
   Widget _bottomBar() {
     return Container(
-      child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            (currentStep != 0
-                ? Container(
-                    margin: EdgeInsets.only(left: 10, bottom: 5),
-                    child: RaisedButton(
-                      color: Colors.blueAccent,
-                      onPressed: () => _onStepCancel(),
-                      child: Icon(
-                        Icons.navigate_before,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink()),
-            Container(
-              margin: EdgeInsets.only(right: 10, bottom: 5),
-              child: RaisedButton(
-                  color: currentStep == 2 ? Colors.green : Colors.blueAccent,
-                  onPressed: () => _onStepContinue(),
-                  child: currentStep == 2
-                      ? Icon(
-                          Icons.done,
-                          color: Colors.white,
-                        )
-                      : Icon(
-                          Icons.navigate_next,
-                          color: Colors.white,
-                        )),
-            ),
-          ]),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+        (currentStep != 0
+            ? Container(
+                margin: EdgeInsets.only(left: 10, bottom: 5),
+                child: RaisedButton(
+                  color: Colors.blueAccent,
+                  onPressed: () => _onStepCancel(),
+                  child: Icon(
+                    Icons.navigate_before,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            : SizedBox.shrink()),
+        Container(
+          margin: EdgeInsets.only(right: 10, bottom: 5),
+          child: RaisedButton(
+              color: currentStep == 2 ? Colors.green : Colors.blueAccent,
+              onPressed: () => _onStepContinue(),
+              child: currentStep == 2
+                  ? Icon(
+                      Icons.done,
+                      color: Colors.white,
+                    )
+                  : Icon(
+                      Icons.navigate_next,
+                      color: Colors.white,
+                    )),
+        ),
+      ]),
     );
   }
 
@@ -117,9 +119,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                             goTo(context, step);
                           }
                         },
-                        controlsBuilder: (BuildContext context,
-                            {VoidCallback onStepContinue,
-                            VoidCallback onStepCancel}) {
+                        controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
                           _onStepCancel = onStepCancel;
                           _onStepContinue = onStepContinue;
                           return Column(children: [
@@ -141,12 +141,14 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   @override
   void initState() {
     super.initState();
-    stepIndex = {0: true, 1: false, 2: false};
+    stepIndex = {
+      0: true,
+      1: false,
+      2: false
+    };
     model = MusteriSiparisiModel();
-    sipTarihController.text =
-        "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
-    terminTarihController.text =
-        "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+    sipTarihController.text = "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
+    terminTarihController.text = "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
 
     cariKoduController.text = model.getCariKodu;
     cariAdiController.text = model.getCariAdi;
@@ -165,12 +167,8 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         builder: (context) => AlertDialog(
               title: Text("Çıkmak istediğinize emin misiniz?"),
               actions: [
-                FlatButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: Text("Hayır")),
-                FlatButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: Text("Evet")),
+                FlatButton(onPressed: () => Navigator.pop(context, false), child: Text("Hayır")),
+                FlatButton(onPressed: () => Navigator.pop(context, true), child: Text("Evet")),
               ],
             ));
   }
@@ -196,7 +194,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       child: Text("Evet"),
       onPressed: () {
         complete = true;
-        model.insert(satirlarModel).then((_) {
+        model.insert(satirlarRowModel).then((_) {
           Navigator.pop(context);
           String fisNo = model.sipNo.toString();
           AlertDialog alert = AlertDialog(
@@ -257,8 +255,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           cariRed = true;
         });
       }
-      if (sevkCariKoduController.text == null ||
-          sevkCariKoduController.text == "") {
+      if (sevkCariKoduController.text == null || sevkCariKoduController.text == "") {
         setState(() {
           ret = true;
           sevkRed = true;
@@ -298,7 +295,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   setSteps() {
     steps = [
       Step(
-        title: const Text('Başlık Bilgileri'),
+        title: const Text('Başlık'),
         isActive: stepIndex[0],
         state: maxStep > 0 ? StepState.complete : StepState.editing,
         content: SingleChildScrollView(
@@ -313,26 +310,15 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       width: 150,
                       height: 35,
                       child: TextField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: sipTarihController,
                         onTap: () {
-                          showDatePicker(
-                                  locale: const Locale('tr'),
-                                  context: context,
-                                  initialDate: model.getSiparisTarihi,
-                                  firstDate: DateTime(2010),
-                                  lastDate: DateTime(2030))
-                              .then((value) {
+                          showDatePicker(locale: const Locale('tr'), context: context, initialDate: model.getSiparisTarihi, firstDate: DateTime(2010), lastDate: DateTime(2030)).then((value) {
                             if (value != null) {
                               model.setSiparisTarihi = value;
-                              sipTarihController.text =
-                                  "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
+                              sipTarihController.text = "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
                             }
                           });
                         },
@@ -350,25 +336,15 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       width: 150,
                       height: 35,
                       child: TextField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: terminTarihController,
                         onTap: () {
-                          showDatePicker(
-                                  context: context,
-                                  initialDate: model.getTerminTarihi,
-                                  firstDate: DateTime(2010),
-                                  lastDate: DateTime(2030))
-                              .then((value) {
+                          showDatePicker(context: context, initialDate: model.getTerminTarihi, firstDate: DateTime(2010), lastDate: DateTime(2030)).then((value) {
                             if (value != null) {
                               model.setTerminTarihi = value;
-                              terminTarihController.text =
-                                  "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+                              terminTarihController.text = "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
                             }
                           });
                         },
@@ -383,7 +359,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(child: Text("Cari Kodu"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
-                      width: 200,
+                      width: 150,
                       height: 35,
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
@@ -405,29 +381,15 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           );
                         },
                         onSuggestionSelected: (suggestion) {
-                          cariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          cariAdiController.text =
-                              suggestion.values.elementAt(0);
-                          sevkCariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          sevkCariAdiController.text =
-                              suggestion.values.elementAt(0);
+                          cariKoduController.text = suggestion.keys.elementAt(0);
+                          cariAdiController.text = suggestion.values.elementAt(0);
+                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text = suggestion.values.elementAt(0);
                           model.setCariKodu = cariKoduController.text;
                           model.setSevkCariKodu = sevkCariKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: cariRed == true
-                                      ? BorderSide(color: Colors.red, width: 2)
-                                      : BorderSide(width: 0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              contentPadding: EdgeInsets.all(8),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)))),
+                          decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cariRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                           textAlign: TextAlign.left,
                           controller: cariKoduController,
                           /*onChanged: (newText) {
@@ -449,17 +411,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(child: Text("Cari Adı"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
-                      width: 200,
+                      width: 150,
                       height: 35,
                       child: TextField(
                         style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: cariAdiController,
@@ -479,7 +435,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(child: Text("Sevk Cari Kodu"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
-                      width: 200,
+                      width: 150,
                       height: 35,
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
@@ -501,24 +457,12 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           );
                         },
                         onSuggestionSelected: (suggestion) {
-                          sevkCariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          sevkCariAdiController.text =
-                              suggestion.values.elementAt(0);
+                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text = suggestion.values.elementAt(0);
                           model.sevkCariKodu = sevkCariKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: cariRed == true
-                                      ? BorderSide(color: Colors.red, width: 2)
-                                      : BorderSide(width: 0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              contentPadding: EdgeInsets.all(8),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)))),
+                          decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cariRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                           textAlign: TextAlign.left,
                           controller: sevkCariKoduController,
                           /*onChanged: (newText) {
@@ -540,17 +484,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(child: Text("Sevk Cari Adı"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
-                      width: 200,
+                      width: 150,
                       height: 35,
                       child: TextField(
                         style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: sevkCariAdiController,
@@ -570,7 +508,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(child: Text("Depo Kodu"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
-                      width: 200,
+                      width: 150,
                       height: 35,
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
@@ -593,24 +531,12 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                           );
                         },
                         onSuggestionSelected: (suggestion) {
-                          depoKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          depoAdiController.text =
-                              suggestion.values.elementAt(0);
+                          depoKoduController.text = suggestion.keys.elementAt(0);
+                          depoAdiController.text = suggestion.values.elementAt(0);
                           model.depoKodu = depoKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: cariRed == true
-                                      ? BorderSide(color: Colors.red, width: 2)
-                                      : BorderSide(width: 0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              contentPadding: EdgeInsets.all(8),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)))),
+                          decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cariRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                           textAlign: TextAlign.left,
                           controller: depoKoduController,
                           /*onChanged: (newText) {
@@ -632,17 +558,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(child: Text("Depo Adı"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
-                      width: 200,
+                      width: 150,
                       height: 35,
                       child: TextField(
                         style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: depoAdiController,
@@ -659,18 +579,13 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               ),
               Row(
                 children: [
-                  Container(
-                      child: Text("Müşteri Sipariş No"), width: labelWidth),
+                  Container(child: Text("Müşteri Sipariş No"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
                       height: 35,
                       child: TextField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: musSipNoController,
@@ -690,14 +605,10 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                   Container(child: Text("Açıklama"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
-                      width: 200,
+                      width: 150,
                       child: TextField(
-                        maxLines: 5,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        maxLines: 3,
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: aciklamaController,
@@ -715,10 +626,8 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       ),
       Step(
         isActive: stepIndex[1],
-        state: maxStep > 1
-            ? StepState.complete
-            : maxStep == 1 ? StepState.editing : StepState.indexed,
-        title: const Text('Detay Bilgileri'),
+        state: maxStep > 1 ? StepState.complete : maxStep == 1 ? StepState.editing : StepState.indexed,
+        title: const Text('Detay'),
         content: SingleChildScrollView(
             child: Column(
           children: <Widget>[
@@ -726,18 +635,19 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(child: Text("Barkod"), width: 50),
+                Container(
+                    child: Text(
+                      "Barkod",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    width: 50),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Expanded(
                   child: Container(
                       width: 300,
                       height: 35,
                       child: TextFormField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: barkodController,
@@ -745,29 +655,62 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textInputAction: TextInputAction.done,
                         textCapitalization: TextCapitalization.characters,
                         onFieldSubmitted: (value) {
-                          MusteriSiparisiRowModel satirModel =
-                              MusteriSiparisiRowModel();
-                          satirModel.setData(value, model).then((sonModel) {
+                          MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel();
+                          satirModel.setData(value, model).then((list) {
                             setState(() {
                               barkod = value;
                               barkodFocus.requestFocus();
-                              barkodController.selection = TextSelection(
-                                  baseOffset: 0,
-                                  extentOffset: barkodController.text.length);
-                              if (sonModel != null) {
-                                satirModel = sonModel;
-                                bool add = true;
-                                for (var i = 0; i < satirlarModel.length; i++) {
-                                  MusteriSiparisiRowModel m = satirlarModel[i];
-                                  if (m.barkod == satirModel.barkod) {
-                                    m.setMiktar = m.getMiktar + 1;
-                                    add = false;
-                                    print("deneme");
+                              barkodController.selection = TextSelection(baseOffset: 0, extentOffset: barkodController.text.length);
+                              if (list.length != 0) {
+                                for (var i = 0; i < list.length; i++) {
+                                  satirModel = list[i];
+
+                                  MusteriSiparisiRowModel satirRowModel = list[i];
+                                  bool addRow = true;
+                                  for (var i = 0; i < satirlarRowModel.length; i++) {
+                                    MusteriSiparisiRowModel m = satirlarRowModel[i];
+                                    if (m.getStokRenkBoyutId == satirRowModel.getStokRenkBoyutId) {
+                                      m.setMiktar = m.getMiktar + satirRowModel.getMiktar;
+                                      addRow = false;
+                                    }
                                   }
-                                }
-                                if (add == true) {
-                                  satirlarModel.add(satirModel);
-                                  print("deneme");
+
+                                  if (addRow == true) {
+                                    satirlarRowModel.add(satirRowModel);
+                                  }
+
+                                  bool add = true;
+                                  for (var i = 0; i < satirlarModel.length; i++) {
+                                    MusteriSiparisiRowModel m = satirlarModel[i];
+                                    if (m.barkod == satirModel.barkod && m.stokId == satirModel.stokId && m.renkId == satirModel.renkId) {
+                                      m.setMiktar = m.getMiktar + satirModel.getMiktar;
+                                      add = false;
+                                    }
+                                  }
+
+                                  if (add == true) {
+                                    /*if (satirModel.lot == 0) {
+                                      satirlarModel.add(satirModel);
+                                    } else {*/
+                                    MusteriSiparisiRowModel lotModel = MusteriSiparisiRowModel();
+                                    lotModel.setBarkod = satirModel.getBarkod;
+                                    lotModel.setKodu = satirModel.getKodu;
+                                    lotModel.setAdi = satirModel.getAdi;
+                                    lotModel.setRenk = satirModel.getRenk;
+                                    lotModel.setParaBirimi = satirModel.getParaBirimi;
+                                    print(satirModel.getParaBirimi);
+                                    print(lotModel.getParaBirimi);
+                                    lotModel.setFiyat = satirModel.getFiyat;
+                                    lotModel.setMiktar = satirModel.getMiktar;
+                                    lotModel.setStokId = satirModel.getStokId;
+                                    lotModel.setRenkId = satirModel.getRenkId;
+                                    lotModel.setBeden = satirModel.getBeden;
+                                    satirlarModel.add(lotModel);
+                                    /*}*/
+                                  }
+
+                                  print(satirlarModel);
+                                  print(satirlarRowModel);
                                 }
                               } else {
                                 scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -791,20 +734,14 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               children: [
                 Expanded(
                   child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1.color,
-                              width: 1),
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.65,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
                         scrollDirection: Axis.vertical,
-                        itemBuilder: (context, index) =>
-                            slidableSatir(satirlarModel[index], index),
+                        itemBuilder: (context, index) => slidableSatir(satirlarModel[index], index),
                       )),
                 ),
               ],
@@ -823,17 +760,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                 Container(child: Text("Cari Kodu"), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
-                    width: 250,
+                    width: 200,
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.left,
                       readOnly: true,
                       controller: cariKoduController,
@@ -848,17 +779,11 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                 Container(child: Text("Cari Adı"), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
-                    width: 250,
+                    width: 200,
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.left,
                       readOnly: true,
                       controller: cariAdiController,
@@ -872,20 +797,14 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               children: [
                 Expanded(
                   child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1.color,
-                              width: 1),
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.37,
+                      height: MediaQuery.of(context).size.height * 0.33,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
                         scrollDirection: Axis.vertical,
-                        itemBuilder: (context, index) =>
-                            table(satirlarModel[index], index),
+                        itemBuilder: (context, index) => table(satirlarModel[index], index),
                       )),
                 ),
               ],
@@ -917,11 +836,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                     )),*/
                 Expanded(
                   child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            width: 1),
-                        borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.18,
                     child: SingleChildScrollView(
@@ -953,13 +868,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.right,
                       readOnly: true,
                       onChanged: (newText) {},
@@ -987,8 +896,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       }
       setState(() {
         toplamModel.setMiktar = toplamModel.getMiktar + model.getMiktar;
-        toplamModel.setFiyat =
-            toplamModel.getFiyat + (model.getMiktar * model.getFiyat);
+        toplamModel.setFiyat = toplamModel.getFiyat + (model.getMiktar * model.getFiyat);
       });
     }
     int index = 0;
@@ -996,8 +904,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       MusteriSiparisiRowModel toplamModel = paraBrmMap[keys];
       index++;
       list.add(DataRow(
-          color: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
+          color: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
             return index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100];
           }),
           cells: [
@@ -1079,70 +986,53 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         5: FractionColumnWidth(.1),
       },
       children: [
+        TableRow(decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]), children: [
+          Text(
+            "Barkod",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getBarkod, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            "Renk",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getRenk, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            "Para Birimi",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getParaBirimi, style: TextStyle(color: value, fontSize: valueSize)),
+        ]),
+        TableRow(decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]), children: [
+          Text(
+            "Kodu",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getKodu, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            "Beden",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getBeden, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            "Fiyat",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getFiyat.toString(), style: TextStyle(color: value, fontSize: valueSize)),
+        ]),
         TableRow(
-            decoration: BoxDecoration(
-                color:
-                    index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
-            children: [
-              Text(
-                "Barkod",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getBarkod,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                "Renk",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getRenk,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                "Para Birimi",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getParaBirimi,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-            ]),
-        TableRow(
-            decoration: BoxDecoration(
-                color:
-                    index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
-            children: [
-              Text(
-                "Kodu",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getKodu,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                "Beden",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getBeden,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                "Fiyat",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getFiyat.toString(),
-                  style: TextStyle(color: value, fontSize: valueSize)),
-            ]),
-        TableRow(
-          decoration: BoxDecoration(
-              color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
+          decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
           children: [
             Text(
               "Adi",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(model.getAdi,
-                style: TextStyle(color: value, fontSize: valueSize)),
+            Text(model.getAdi, style: TextStyle(color: value, fontSize: valueSize)),
             Text(
               "Miktar",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(model.getMiktar.toString(),
-                style: TextStyle(color: value, fontSize: valueSize)),
+            Text(model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
             Text(""),
             Text(""),
           ],
@@ -1180,12 +1070,8 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                 builder: (context) => AlertDialog(
                       title: Text("Silmek istediğinize emin misiniz?"),
                       actions: [
-                        FlatButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text("Hayır")),
-                        FlatButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text("Evet")),
+                        FlatButton(onPressed: () => Navigator.pop(context, false), child: Text("Hayır")),
+                        FlatButton(onPressed: () => Navigator.pop(context, true), child: Text("Evet")),
                       ],
                     )).then((value) {
               if (value == true) {
@@ -1206,8 +1092,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         context: context,
         builder: (BuildContext context) {
           return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
             child: Container(
               height: 200,
               child: Padding(
@@ -1222,9 +1107,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         FilteringTextInputFormatter.digitsOnly
                       ],
                       controller: controller,
-                      decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Yeni miktarı giriniz.'),
+                      decoration: InputDecoration(border: InputBorder.none, hintText: 'Yeni miktarı giriniz.'),
                     ),
                     Center(
                       child: SizedBox(
