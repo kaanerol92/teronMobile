@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:teronmobile/model/DonemModel.dart';
 import 'package:teronmobile/model/PersonelModel.dart';
 import 'package:teronmobile/model/SirketModel.dart';
-import 'package:teronmobile/view/LoginScreen.dart';
 
 class KullaniciSessionModel {
   DonemModel donem;
@@ -12,15 +11,13 @@ class KullaniciSessionModel {
   SirketModel sirket;
   String userPass;
 
-  KullaniciSessionModel(
-      PersonelModel personel, SirketModel sirket, DonemModel donem) {
+  KullaniciSessionModel(PersonelModel personel, SirketModel sirket, DonemModel donem) {
     this.personel = personel;
     this.sirket = sirket;
     this.donem = donem;
 
     var codec = Latin1Codec();
-    Uint8List list =
-        codec.encode(getPersonel.getPerId + ":" + getPersonel.getSifre);
+    Uint8List list = codec.encode(getPersonel.getPerId + ":" + getPersonel.getSifre);
     userPass = base64.encode(list);
   }
 

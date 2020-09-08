@@ -42,23 +42,29 @@ class MusteriSiparisiRowModel {
         body: jsonEncode(map));
   }*/
 
-  Future<List<MusteriSiparisiRowModel>> setData(
-      String barkod, MusteriSiparisiModel sipModel) async {
+  Future<List<MusteriSiparisiRowModel>> setData(String barkod, MusteriSiparisiModel sipModel) async {
     String ip = LoginScreenView.ip;
     String port = LoginScreenView.port;
-    var url =
-        'http://$ip:$port/ERPService/musterisiparisibarkod/specific?master_value=$barkod';
+    var url = 'http://$ip:$port/ERPService/musterisiparisibarkod/specific?master_value=$barkod';
     List<MusteriSiparisiRowModel> list = List();
     await http.get(Uri.encodeFull(url)).then((value) async {
       print(url);
       if (value.statusCode == 200) {
         String resp = Utf8Decoder().convert(value.bodyBytes);
         List jsonDecode = json.decode(resp);
+        int lotAdet = 0;
         for (var json in jsonDecode) {
           await MusteriSiparisiRowModel().fromJson(json, sipModel).then((value) async {
-            value.lotAdeti = jsonDecode.length;
-            await value.fillFiyat(value, sipModel).then((value) => list.add(value));
+            await value.fillFiyat(value, sipModel).then((value) {
+              lotAdet += json['miktar'];
+              list.add(value);
+            });
           });
+        }
+
+        for (var i = 0; i < list.length; i++) {
+          MusteriSiparisiRowModel model = list[i];
+          model.lotAdeti = lotAdet;
         }
       }
     });
@@ -83,8 +89,7 @@ class MusteriSiparisiRowModel {
     return map;
   }
 
-  Future<MusteriSiparisiRowModel> fromJson(
-      var json, MusteriSiparisiModel sipModel) async {
+  Future<MusteriSiparisiRowModel> fromJson(var json, MusteriSiparisiModel sipModel) async {
     this.barkod = json['barkodu'];
     this.kodu = json['stokKodu'];
     this.adi = json['stokAdi'];
@@ -104,24 +109,13 @@ class MusteriSiparisiRowModel {
     return this;
   }
 
-  Future<MusteriSiparisiRowModel> fillFiyat(
-      MusteriSiparisiRowModel model, MusteriSiparisiModel sipModel) async {
-    String whereClause = "cari=" +
-        sipModel.getCariKodu +
-        "&stokid=" +
-        stokId.toString() +
-        "&renkid=" +
-        renkId.toString() +
-        "&boyutid=" +
-        boyut1Id.toString() +
-        "&sirket=" +
-        LoginScreenView.ksm.getSirket.getKod;
+  Future<MusteriSiparisiRowModel> fillFiyat(MusteriSiparisiRowModel model, MusteriSiparisiModel sipModel) async {
+    String whereClause = "cari=" + sipModel.getCariKodu + "&stokid=" + stokId.toString() + "&renkid=" + renkId.toString() + "&boyutid=" + boyut1Id.toString() + "&sirket=" + LoginScreenView.ksm.getSirket.getKod;
 
     String ip = LoginScreenView.ip;
     String port = LoginScreenView.port;
 
-    var url =
-        'http://$ip:$port/ERPService/barkodluislem/specific_barkod?$whereClause';
+    var url = 'http://$ip:$port/ERPService/barkodluislem/specific_barkod?$whereClause';
     await http.get(Uri.encodeFull(url)).then((value) {
       if (value.statusCode == 200) {
         String resp = Utf8Decoder().convert(value.bodyBytes);
@@ -175,8 +169,7 @@ class MusteriSiparisiRowModel {
 
   int get getStokRenkBoyutId => stokRenkBoyutId;
 
-  set setStokRenkBoyutId(int stokRenkBoyutId) =>
-      this.stokRenkBoyutId = stokRenkBoyutId;
+  set setStokRenkBoyutId(int stokRenkBoyutId) => this.stokRenkBoyutId = stokRenkBoyutId;
   int get getStokId => stokId;
 
   set setStokId(int stokId) => this.stokId = stokId;

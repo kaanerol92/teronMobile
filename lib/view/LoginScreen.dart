@@ -31,22 +31,23 @@ class LoginScreenView extends State<LoginViewCommand> {
 
   Future<List> futureSirket() async {
     var url = "http://$ip:$port/ERPService/sirket/list";
-    var response = await http.get(url);
-
-    sirketList.clear();
-    if (response.statusCode == 200) {
-      String resp = Utf8Decoder().convert(response.bodyBytes);
-      var jsonDecode = json.decode(resp);
-      for (var jsonSirket in jsonDecode) {
-        sirketList.add(DropdownMenuItem(
-          child: Text(jsonSirket['kod'] + " - " + jsonSirket['adi']),
-          value: jsonSirket['kod'].toString(),
-        ));
-        if (selectedSirket == null) {
-          selectedSirket = jsonSirket['kod'].toString();
+    await http.get(url).then((value) {
+      sirketList.clear();
+      if (value.statusCode == 200) {
+        String resp = Utf8Decoder().convert(value.bodyBytes);
+        var jsonDecode = json.decode(resp);
+        for (var jsonSirket in jsonDecode) {
+          sirketList.add(DropdownMenuItem(
+            child: Text(jsonSirket['kod'] + " - " + jsonSirket['adi']),
+            value: jsonSirket['kod'].toString(),
+          ));
+          if (selectedSirket == null) {
+            selectedSirket = jsonSirket['kod'].toString();
+          }
         }
       }
-    }
+    });
+    print(sirketList);
     return sirketList;
   }
 
@@ -98,8 +99,7 @@ class LoginScreenView extends State<LoginViewCommand> {
     print(icAdress);
     print(disAdress);
     try {
-      final result =
-          await InternetAddress.lookup(icAdress).timeout(Duration(seconds: 10));
+      final result = await InternetAddress.lookup(icAdress).timeout(Duration(seconds: 10));
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         setState(() {
           ip = icIp;
@@ -108,8 +108,7 @@ class LoginScreenView extends State<LoginViewCommand> {
       }
     } on SocketException catch (_) {
       try {
-        final result = await InternetAddress.lookup(disAdress)
-            .timeout(Duration(seconds: 10));
+        final result = await InternetAddress.lookup(disAdress).timeout(Duration(seconds: 10));
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           setState(() {
             ip = disIp;
@@ -131,9 +130,7 @@ class LoginScreenView extends State<LoginViewCommand> {
 
   static Future<bool> isInternetExist() async {
     try {
-      await InternetAddress.lookup("$ip")
-          .timeout(Duration(seconds: 10))
-          .then((value) {
+      await InternetAddress.lookup("$ip").timeout(Duration(seconds: 10)).then((value) {
         if (value.isNotEmpty && value[0].rawAddress.isNotEmpty) {
           return true;
         }
@@ -162,10 +159,8 @@ class LoginScreenView extends State<LoginViewCommand> {
         )));
       } else {
         Map menuMap = Map<String, dynamic>();
-        menuMap.putIfAbsent(
-            'Sipariş İşlemleri', () => SiparisIslemleriMenuScreen());
-        menuMap.putIfAbsent('Stok İşlemleri',
-            () => LoadingScreenViewCommand("Henüz Yükleniyor.."));
+        menuMap.putIfAbsent('Sipariş İşlemleri', () => SiparisIslemleriMenuScreen());
+        menuMap.putIfAbsent('Stok İşlemleri', () => LoadingScreenViewCommand("Henüz Yükleniyor.."));
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return MainMenuView(menuMap, "Ana Menü");
         }));
@@ -177,8 +172,7 @@ class LoginScreenView extends State<LoginViewCommand> {
     ksm = null;
     var personel = perId.toString().trim();
     var sifreLink = sifre == null ? "" : sifre;
-    var url =
-        "http://$ip:$port/ERPService/login/kullanici?personel_kodu=$personel&sifre=$sifreLink&donem_kodu=$selectedDonem&sirket_kodu=$selectedSirket";
+    var url = "http://$ip:$port/ERPService/login/kullanici?personel_kodu=$personel&sifre=$sifreLink&donem_kodu=$selectedDonem&sirket_kodu=$selectedSirket";
     var response;
     try {
       response = await http.get(Uri.encodeFull(url));
@@ -194,9 +188,7 @@ class LoginScreenView extends State<LoginViewCommand> {
       var sirketMap = jsonDecode['sirket'];
       var donemMap = jsonDecode['donem'];
       var personelMap = jsonDecode['personel'];
-      if (personelMap['recorded'] == true &&
-          donemMap['recorded'] == true &&
-          sirketMap['recorded'] == true) {
+      if (personelMap['recorded'] == true && donemMap['recorded'] == true && sirketMap['recorded'] == true) {
         var per = PersonelModel.fromJson(personelMap);
         var sirket = SirketModel.fromJson(sirketMap);
         var donem = DonemModel.fromJson(donemMap);
@@ -234,10 +226,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                   SizedBox(height: 80.0),
                   TextField(
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20))),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
                       labelText: 'Kullanıcı Adı',
                       labelStyle: TextStyle(fontStyle: FontStyle.italic),
@@ -250,10 +239,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                   SizedBox(height: 24.0),
                   TextField(
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20))),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
                       labelText: 'Şifre',
                       filled: true,
@@ -266,11 +252,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                   ),
                   SizedBox(height: 24.0),
                   InputDecorator(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20)))),
+                    decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20)))),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         hint: Text(
@@ -290,11 +272,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                   ),
                   SizedBox(height: 24.0),
                   InputDecorator(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20)))),
+                    decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20)))),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         hint: Text(
@@ -359,10 +337,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                   SizedBox(height: 80.0),
                   TextField(
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20))),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
                       labelText: 'İç Ip',
                       labelStyle: TextStyle(fontStyle: FontStyle.italic),
@@ -373,10 +348,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                   SizedBox(height: 24.0),
                   TextField(
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20))),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                         contentPadding: EdgeInsets.all(20),
                         labelText: 'İç Port',
                         filled: true,
@@ -386,10 +358,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                   SizedBox(height: 24.0),
                   TextField(
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20))),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                         contentPadding: EdgeInsets.all(20),
                         labelText: 'Dış Ip',
                         labelStyle: TextStyle(fontStyle: FontStyle.italic),
@@ -399,10 +368,7 @@ class LoginScreenView extends State<LoginViewCommand> {
                   SizedBox(height: 24.0),
                   TextField(
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20))),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
                       labelText: 'Dış Port',
                       filled: true,

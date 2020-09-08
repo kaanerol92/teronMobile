@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
 import 'package:teronmobile/view/LoginScreen.dart';
@@ -112,13 +110,11 @@ class MusteriSiparisiModel {
 
   DateTime get getSiparisTarihi => siparisTarihi;
 
-  set setSiparisTarihi(DateTime siparisTarihi) =>
-      this.siparisTarihi = siparisTarihi;
+  set setSiparisTarihi(DateTime siparisTarihi) => this.siparisTarihi = siparisTarihi;
 
   DateTime get getTerminTarihi => terminTarihi;
 
-  set setTerminTarihi(DateTime terminTarihi) =>
-      this.terminTarihi = terminTarihi;
+  set setTerminTarihi(DateTime terminTarihi) => this.terminTarihi = terminTarihi;
 
   String get getCariKodu => cariKodu;
 

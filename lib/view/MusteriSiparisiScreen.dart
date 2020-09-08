@@ -3,12 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
-import 'package:teronmobile/main.dart';
-import 'package:teronmobile/main.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
 import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
-import 'package:teronmobile/view/LoginScreen.dart';
 
 class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   final labelWidth = 120.0;
@@ -26,6 +23,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   FocusNode barkodFocus;
   List<MusteriSiparisiRowModel> satirlarModel = List();
   List<MusteriSiparisiRowModel> satirlarRowModel = List();
+  List<MusteriSiparisiRowModel> satirlarRefModel = List();
 
   TextEditingController sipTarihController = TextEditingController();
   TextEditingController terminTarihController = TextEditingController();
@@ -654,74 +652,98 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textCapitalization: TextCapitalization.characters,
                         onFieldSubmitted: (value) {
                           MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel();
-                          satirModel.setData(value, model).then((list) {
-                            setState(() {
-                              barkod = value;
-                              barkodFocus.requestFocus();
-                              barkodController.selection = TextSelection(baseOffset: 0, extentOffset: barkodController.text.length);
-                              if (list.length != 0) {
-                                for (var i = 0; i < list.length; i++) {
-                                  print(satirlarRowModel);
-                                  print(satirlarModel);
-                                  satirModel = list[i];
-                                  MusteriSiparisiRowModel satirRowModel = list[i];
-                                  bool addRow = true;
-                                  for (var i = 0; i < satirlarRowModel.length; i++) {
-                                    MusteriSiparisiRowModel m = satirlarRowModel[i];
-                                    if (m.getStokRenkBoyutId == satirRowModel.getStokRenkBoyutId) {
-                                      m.setMiktar = m.getMiktar + satirRowModel.getMiktar;
-                                      addRow = false;
-                                    }
-                                  }
+                          satirModel.setData(value, model).then((list) async {
+                            MusteriSiparisiRowModel tempModel;
+                            if (list.length != 0) {
+                              tempModel = list[0];
+                              await barkodMiktarDialog(tempModel).then((miktar) {
+                                print("miktar");
+                                print(miktar);
+                                setState(() {
+                                  barkod = value;
+                                  barkodFocus.requestFocus();
+                                  barkodController.selection = TextSelection(baseOffset: 0, extentOffset: barkodController.text.length);
+                                  for (var i = 0; i < miktar; i++) {
+                                    print("miktar for ici");
+                                    for (var i = 0; i < list.length; i++) {
+                                      print(satirlarRowModel);
+                                      print(satirlarModel);
 
-                                  if (addRow == true) {
-                                    satirlarRowModel.add(satirRowModel);
-                                  }
+                                      satirModel = list[i];
 
-                                  bool add = true;
-                                  for (var i = 0; i < satirlarModel.length; i++) {
-                                    MusteriSiparisiRowModel m = satirlarModel[i];
-                                    if (m.barkod == satirModel.barkod && m.stokId == satirModel.stokId && m.renkId == satirModel.renkId) {
-                                      m.setMiktar = m.getMiktar + satirModel.getMiktar;
-                                      add = false;
-                                    }
-                                  }
+                                      bool addRow = true;
+                                      for (var i = 0; i < satirlarRowModel.length; i++) {
+                                        MusteriSiparisiRowModel m = satirlarRowModel[i];
+                                        if (m.getStokRenkBoyutId == satirModel.getStokRenkBoyutId) {
+                                          m.setMiktar = m.getMiktar + satirModel.getMiktar;
+                                          addRow = false;
+                                        }
+                                      }
 
-                                  if (add == true) {
-                                    /*if (satirModel.lot == 0) {
+                                      if (addRow == true) {
+                                        MusteriSiparisiRowModel refModel = MusteriSiparisiRowModel();
+                                        refModel.setBarkod = satirModel.getBarkod;
+                                        refModel.setKodu = satirModel.getKodu;
+                                        refModel.setAdi = satirModel.getAdi;
+                                        refModel.setRenk = satirModel.getRenk;
+                                        refModel.setParaBirimi = satirModel.getParaBirimi;
+                                        refModel.setFiyat = satirModel.getFiyat;
+                                        refModel.setMiktar = satirModel.getMiktar;
+                                        refModel.setStokId = satirModel.getStokId;
+                                        refModel.setRenkId = satirModel.getRenkId;
+                                        refModel.setBeden = satirModel.getBeden;
+                                        refModel.setStokRenkBoyutId = satirModel.getStokRenkBoyutId;
+                                        refModel.lot = satirModel.lot;
+                                        refModel.lotAdeti = satirModel.lotAdeti;
+                                        refModel.setBoyut1Id = satirModel.getBoyut1Id;
+                                        satirlarRowModel.add(refModel);
+                                      }
+
+                                      bool add = true;
+                                      for (var i = 0; i < satirlarModel.length; i++) {
+                                        MusteriSiparisiRowModel m = satirlarModel[i];
+                                        if (m.barkod == satirModel.barkod && m.stokId == satirModel.stokId && m.renkId == satirModel.renkId) {
+                                          m.setMiktar = m.getMiktar + satirModel.getMiktar;
+                                          print(satirModel.getMiktar);
+                                          add = false;
+                                        }
+                                      }
+
+                                      if (add == true) {
+                                        /*if (satirModel.lot == 0) {
                                       satirlarModel.add(satirModel);
                                     } else {*/
-                                    MusteriSiparisiRowModel lotModel = MusteriSiparisiRowModel();
-                                    lotModel.setBarkod = satirModel.getBarkod;
-                                    lotModel.setKodu = satirModel.getKodu;
-                                    lotModel.setAdi = satirModel.getAdi;
-                                    lotModel.setRenk = satirModel.getRenk;
-                                    lotModel.setParaBirimi = satirModel.getParaBirimi;
-                                    lotModel.setFiyat = satirModel.getFiyat;
-                                    lotModel.setMiktar = satirModel.getMiktar;
-                                    lotModel.setStokId = satirModel.getStokId;
-                                    lotModel.setRenkId = satirModel.getRenkId;
-                                    lotModel.setBeden = satirModel.getBeden;
-                                    lotModel.lot = satirModel.lot;
-                                    lotModel.lotAdeti = satirModel.lotAdeti;
-                                    satirlarModel.add(lotModel);
-                                    /*}*/
+                                        MusteriSiparisiRowModel lotModel = MusteriSiparisiRowModel();
+                                        lotModel.setBarkod = satirModel.getBarkod;
+                                        lotModel.setKodu = satirModel.getKodu;
+                                        lotModel.setAdi = satirModel.getAdi;
+                                        lotModel.setRenk = satirModel.getRenk;
+                                        lotModel.setParaBirimi = satirModel.getParaBirimi;
+                                        lotModel.setFiyat = satirModel.getFiyat;
+                                        lotModel.setMiktar = satirModel.getMiktar;
+                                        lotModel.setStokId = satirModel.getStokId;
+                                        lotModel.setRenkId = satirModel.getRenkId;
+                                        lotModel.setBeden = satirModel.getBeden;
+                                        lotModel.lot = satirModel.lot;
+                                        lotModel.lotAdeti = satirModel.lotAdeti;
+                                        lotModel.setBoyut1Id = satirModel.getBoyut1Id;
+                                        satirlarModel.add(lotModel);
+                                        /*}*/
+                                      }
+                                    }
                                   }
-
-                                  print(satirlarModel);
-                                  print(satirlarRowModel);
-                                }
-                              } else {
-                                scaffoldKey.currentState.showSnackBar(SnackBar(
-                                    content: Row(
-                                  children: [
-                                    Icon(Icons.announcement),
-                                    Padding(padding: EdgeInsets.all(20)),
-                                    Text("Barkod Bulunamadı."),
-                                  ],
-                                )));
-                              }
-                            });
+                                });
+                              });
+                            } else {
+                              scaffoldKey.currentState.showSnackBar(SnackBar(
+                                  content: Row(
+                                children: [
+                                  Icon(Icons.announcement),
+                                  Padding(padding: EdgeInsets.all(20)),
+                                  Text("Barkod Bulunamadı."),
+                                ],
+                              )));
+                            }
                           });
                         },
                       )),
@@ -968,8 +990,8 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   Widget table(MusteriSiparisiRowModel model, index) {
     Color baslik = Colors.blueGrey;
     Color value = Colors.black;
-    double baslikSize = 11;
-    double valueSize = 15;
+    double baslikSize = 10;
+    double valueSize = 13;
     return Table(
       key: UniqueKey(),
       /*border: TableBorder.symmetric(
@@ -1007,7 +1029,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           ),
           Text(model.getKodu, style: TextStyle(color: value, fontSize: valueSize)),
           Text(
-            model.lot == 1 ? "Lot Adeti" : "Beden",
+            model.lot == 1 ? "Lot İçi Adeti" : "Beden",
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
           Text(model.lot == 1 ? model.lotAdeti.toString() : model.getBeden, style: TextStyle(color: value, fontSize: valueSize)),
@@ -1026,12 +1048,15 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
             ),
             Text(model.getAdi, style: TextStyle(color: value, fontSize: valueSize)),
             Text(
-              model.lot == 1 ? "Lot İçi Adeti" : "Miktar",
+              model.lot == 1 ? "Lot Adeti" : "Miktar",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
-            Text(""),
-            Text(""),
+            Text(model.lot == 1 ? (model.getMiktar / model.lotAdeti).toString() : model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
+            Text(
+              model.lot == 1 ? "Toplam Adet" : "",
+              style: TextStyle(color: baslik, fontSize: baslikSize),
+            ),
+            Text(model.lot == 1 ? model.getMiktar.toString() : ""),
           ],
           /*decoration: BoxDecoration(
               border: Border(
@@ -1054,7 +1079,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           caption: 'Düzenle',
           color: Colors.black45,
           icon: Icons.edit,
-          onTap: () => dialog(model),
+          onTap: () => editDialog(model),
         ),
         IconSlideAction(
           caption: 'Sil',
@@ -1091,7 +1116,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     );
   }
 
-  void dialog(MusteriSiparisiRowModel model) {
+  void editDialog(MusteriSiparisiRowModel model) {
     TextEditingController controller = TextEditingController();
     showDialog(
         context: context,
@@ -1138,5 +1163,115 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
             ),
           );
         });
+  }
+
+  Future<int> barkodMiktarDialog(MusteriSiparisiRowModel tempModel) async {
+    TextEditingController controller = TextEditingController();
+    int miktar = 0;
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+            child: Container(
+              height: 200,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /*Center(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Stok Kodu  - ",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(tempModel.getKodu),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Stok Adı  - ",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(tempModel.getAdi),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),*/
+                    Table(
+                      columnWidths: {
+                        0: FractionColumnWidth(.3),
+                        1: FractionColumnWidth(.7),
+                      },
+                      children: [
+                        TableRow(children: [
+                          Text(
+                            "Stok Kodu",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          Text(tempModel.getKodu),
+                        ]),
+                        TableRow(children: [
+                          Text(
+                            "Stok Adı",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          Text(tempModel.getAdi),
+                        ])
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
+                      controller: controller,
+                      decoration: InputDecoration(border: InputBorder.none, hintText: 'Miktarı giriniz.'),
+                    ),
+                    Center(
+                      child: SizedBox(
+                        width: 320.0,
+                        child: RaisedButton(
+                          onPressed: () {
+                            setState(() {
+                              miktar = int.parse(controller.text);
+                              Navigator.pop(context);
+                            });
+                          },
+                          child: Text(
+                            "Kaydet",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          color: const Color(0xFF1BC0C5),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).then((value) {
+      return miktar;
+    });
+    return miktar;
   }
 }
