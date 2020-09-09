@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
 import 'package:teronmobile/view/LoginScreen.dart';
 
-class MusteriSiparisiModel {
+class StokIslemiModel {
   int id;
   int cariId;
   int sevkCariId;
@@ -15,13 +15,16 @@ class MusteriSiparisiModel {
   String cariAdi;
   String sevkCariKodu;
   String sevkCariAdi;
-  String depoKodu;
-  String depoAdi;
-  String musSipNo;
+  String girisDepoKodu;
+  String girisDepoAdi;
+  String cikisDepoKodu;
+  String cikisDepoAdi;
+  String paraBrm;
   String aciklama;
   int sipNo;
+  int fisTip;
 
-  MusteriSiparisiModel() {
+  StokIslemiModel() {
     DateTime now = DateTime.now();
     this.siparisTarihi = now;
     this.terminTarihi = now;
@@ -29,30 +32,36 @@ class MusteriSiparisiModel {
     this.cariAdi = "";
     this.sevkCariKodu = "";
     this.sevkCariAdi = "";
-    this.depoKodu = "";
-    this.depoAdi = "";
-    this.musSipNo = "";
+    this.girisDepoKodu = "";
+    this.girisDepoAdi = "";
+    this.cikisDepoKodu = "";
+    this.cikisDepoAdi = "";
+    this.paraBrm = "TL";
     this.aciklama = "";
   }
 
   Future insert(List<MusteriSiparisiRowModel> satirlarModel) async {
     var map = Map<String, dynamic>();
-    map['musteriSiparisNo'] = getMusSipNo;
-    map['musteriCariKodu'] = getCariKodu;
-    map['sevkCariKod'] = getSevkCariKodu;
-    map['depoKodu'] = getDepoKodu;
-    map['siparisTarihi'] = getSiparisTarihi.toIso8601String();
-    map['terminTarihi'] = getTerminTarihi.toIso8601String();
+    map['fisTipi'] = fisTip.toString();
+    map['paraBirimi'] = paraBrm;
+    map['cariKodu'] = getCariKodu;
+    map['sevkCariKodu'] = getSevkCariKodu;
+    map['girisDepoKodu'] = girisDepoKodu;
+    map['girisDepoAdi'] = girisDepoAdi;
+    map['cikisDepoKodu'] = cikisDepoKodu;
+    map['cikisDepoAdi'] = cikisDepoAdi;
+    map['fisTarihi'] = getSiparisTarihi.toIso8601String();
+    map['sevkTarihi'] = getTerminTarihi.toIso8601String();
     map['aciklama'] = getAciklama;
-    map['perId'] = LoginScreenView.ksm.getPersonel.getPerId;
-    map['donemId'] = LoginScreenView.ksm.getDonem.getKod;
-    map['sirketId'] = LoginScreenView.ksm.getSirket.getKod;
+    //map['perId'] = LoginScreenView.ksm.getPersonel.getPerId;
+    //map['donemId'] = LoginScreenView.ksm.getDonem.getKod;
+    //map['sirketId'] = LoginScreenView.ksm.getSirket.getKod;
 
     String ip = LoginScreenView.ip;
     String port = LoginScreenView.port;
 
     await http
-        .post('http://$ip:$port/ERPService/musterisiparisi/insert',
+        .post('http://$ip:$port/ERPService/mamulstokfisi/insert',
             headers: <String, String>{
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -66,11 +75,13 @@ class MusteriSiparisiModel {
       String resp = Utf8Decoder().convert(response.bodyBytes);
       var jsonDecode = json.decode(resp);
       id = jsonDecode['id'];
-      cariId = jsonDecode['musteriCariId'];
-      sevkCariId = jsonDecode['sevkCariId'];
-      depoId = jsonDecode['depoId'];
-      sipNo = jsonDecode['siparisNo'];
-      insertRows(satirlarModel);
+
+      //cariId = jsonDecode['musteriCariId'];
+      //sevkCariId = jsonDecode['sevkCariId'];
+      //depoId = jsonDecode['depoId'];
+      //fisTip = jsonDecode['fisTipi'];
+      sipNo = jsonDecode['fisNo'];
+      //insertRows(satirlarModel);
     });
   }
 
@@ -130,17 +141,17 @@ class MusteriSiparisiModel {
 
   set setSevkCariAdi(String sevkCariAdi) => this.sevkCariAdi = sevkCariAdi;
 
-  String get getDepoKodu => depoKodu;
+  String get getGirisDepoKodu => girisDepoKodu;
 
-  set setDepoKodu(String depoKodu) => this.depoKodu = depoKodu;
+  set setGirisDepoKodu(String girisDepoKodu) => this.girisDepoKodu = girisDepoKodu;
 
-  String get getDepoAdi => depoAdi;
+  String get getGirisDepoAdi => girisDepoAdi;
 
-  set setDepoAdi(String depoAdi) => this.depoAdi = depoAdi;
+  set setGirisDepoAdi(String girisDepoAdi) => this.girisDepoAdi = girisDepoAdi;
 
-  String get getMusSipNo => musSipNo;
+  String get getParaBrm => paraBrm;
 
-  set setMusSipNo(String musSipNo) => this.musSipNo = musSipNo;
+  set setParaBrm(String paraBrm) => this.paraBrm = paraBrm;
 
   String get getAciklama => aciklama;
 

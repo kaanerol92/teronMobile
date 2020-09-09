@@ -2,15 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
+import 'package:teronmobile/command/StokIslemiScreenCommand.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
-import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
+import 'package:teronmobile/model/StokIslemiModel.dart';
 
-class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
+class StokIslemiScreen extends State<StokIslemiScreenCommand> {
+  int fisTipi;
+  int depoType;
+  StokIslemiModel model;
+  StokIslemiScreen(int fisTipi) {
+    this.fisTipi = fisTipi;
+    model = StokIslemiModel();
+    model.fisTip = fisTipi;
+    if (fisTipi == 1) {
+      depoType = 0;
+    } else if (fisTipi == 30 || fisTipi == 31) {
+      depoType = 1;
+    }
+  }
+
   final labelWidth = 120.0;
   var label;
-  MusteriSiparisiModel model;
+
   List<Step> steps;
   Map stepIndex;
   int currentStep = 0;
@@ -18,22 +32,25 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   int maxStep = 0;
   bool cariRed = false;
   bool sevkRed = false;
-  bool depoRed = false;
+  bool cikisDepoRed = false;
+  bool girisDepoRed = false;
   String barkod;
   FocusNode barkodFocus;
   List<MusteriSiparisiRowModel> satirlarModel = List();
   List<MusteriSiparisiRowModel> satirlarRowModel = List();
   List<MusteriSiparisiRowModel> satirlarRefModel = List();
-
+  String selectedParaBirimi = "TL";
   TextEditingController sipTarihController = TextEditingController();
   TextEditingController terminTarihController = TextEditingController();
   TextEditingController cariKoduController = TextEditingController();
   TextEditingController cariAdiController = TextEditingController();
   TextEditingController sevkCariKoduController = TextEditingController();
   TextEditingController sevkCariAdiController = TextEditingController();
-  TextEditingController depoKoduController = TextEditingController();
-  TextEditingController depoAdiController = TextEditingController();
-  TextEditingController musSipNoController = TextEditingController();
+  TextEditingController girisDepoKoduController = TextEditingController();
+  TextEditingController girisDepoAdiController = TextEditingController();
+  TextEditingController cikisDepoKoduController = TextEditingController();
+  TextEditingController cikisDepoAdiController = TextEditingController();
+  TextEditingController belgeAciklamaController = TextEditingController();
   TextEditingController aciklamaController = TextEditingController();
   TextEditingController barkodController = TextEditingController();
   TextEditingController ozetCariKoduController = TextEditingController();
@@ -90,14 +107,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         key: scaffoldKey,
         resizeToAvoidBottomPadding: true,
         resizeToAvoidBottomInset: true,
-        /*appBar: AppBar(
-          elevation: 0.0,
-          backgroundColor: Colors.transparent,
-          centerTitle: true,
-          title: Text("Müşteri Siparişi"),
-          textTheme: Theme.of(context).textTheme,
-          iconTheme: Theme.of(context).iconTheme,
-        ),*/
         body: SafeArea(
           child: Builder(
               builder: (context) => Stack(children: [
@@ -144,7 +153,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       1: false,
       2: false
     };
-    model = MusteriSiparisiModel();
+
     sipTarihController.text = "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
     terminTarihController.text = "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
 
@@ -152,9 +161,10 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     cariAdiController.text = model.getCariAdi;
     sevkCariKoduController.text = model.getSevkCariKodu;
     sevkCariAdiController.text = model.getSevkCariAdi;
-    depoKoduController.text = model.getDepoKodu;
-    depoAdiController.text = model.getDepoAdi;
-    musSipNoController.text = model.getMusSipNo;
+    girisDepoKoduController.text = model.getGirisDepoKodu;
+    girisDepoAdiController.text = model.getGirisDepoAdi;
+    cikisDepoKoduController.text = model.cikisDepoKodu;
+    cikisDepoAdiController.text = model.cikisDepoAdi;
     aciklamaController.text = model.getAciklama;
     barkodFocus = FocusNode();
   }
@@ -172,6 +182,17 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   }
 
   next(BuildContext context) {
+    /*if (currentStep == 1 && satirlarModel.length == 0) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Row(
+        children: [
+          Icon(Icons.announcement),
+          Padding(padding: EdgeInsets.all(20)),
+          Text("Detay satırları boş geçilemez!"),
+        ],
+      )));
+      return;
+    }*/
     currentStep + 1 != steps.length
         ? goTo(context, currentStep + 1)
         : setState(() {
@@ -243,7 +264,8 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       setState(() {
         cariRed = false;
         sevkRed = false;
-        depoRed = false;
+        girisDepoRed = false;
+        cikisDepoRed = false;
       });
       if (cariKoduController.text == null || cariKoduController.text == "") {
         setState(() {
@@ -257,11 +279,22 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           sevkRed = true;
         });
       }
-      if (depoKoduController.text == null || depoKoduController.text == "") {
-        setState(() {
-          ret = true;
-          depoRed = true;
-        });
+      if (depoType == 0 || depoType == 2) {
+        if (girisDepoKoduController.text == null || girisDepoKoduController.text == "") {
+          setState(() {
+            ret = true;
+            girisDepoRed = true;
+          });
+        }
+      }
+
+      if (depoType == 1 || depoType == 2) {
+        if (cikisDepoKoduController.text == null || cikisDepoKoduController.text == "") {
+          setState(() {
+            ret = true;
+            cikisDepoRed = true;
+          });
+        }
       }
 
       if (ret == true) {
@@ -275,16 +308,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         )));
         return;
       }
-    } else if (currentStep == 1 && satirlarModel.length == 0) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Row(
-        children: [
-          Icon(Icons.announcement),
-          Padding(padding: EdgeInsets.all(20)),
-          Text("Detay satırları boş geçilemez!"),
-        ],
-      )));
-      return;
     }
     if (step == 2) {
       setOzet();
@@ -299,6 +322,18 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   }
 
   setSteps() {
+    List<DropdownMenuItem<String>> asd = List();
+    asd.add(DropdownMenuItem(
+      child: Text("TL"),
+      value: "TL",
+    ));
+    asd.add(DropdownMenuItem(
+      child: Text("EUR"),
+      value: "EUR",
+    ));
+
+    int deneme = 0;
+
     steps = [
       Step(
         title: const Text('Başlık'),
@@ -502,9 +537,9 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               SizedBox(
                 height: 5,
               ),
-              Row(
+              /*Row(
                 children: [
-                  Container(child: Text("Depo Kodu"), width: labelWidth),
+                  Container(child: Text("Giriş Depo Kodu"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -547,7 +582,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               ),
               Row(
                 children: [
-                  Container(child: Text("Depo Adı"), width: labelWidth),
+                  Container(child: Text("Giriş Depo Adı"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -568,25 +603,189 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
               ),
               SizedBox(
                 height: 5,
-              ),
+              ),*/
+              depoType == 0 || depoType == 2
+                  ? Row(
+                      children: [
+                        Container(child: Text("Giriş Depo Kodu"), width: labelWidth),
+                        Padding(padding: EdgeInsets.only(right: 10)),
+                        Container(
+                            width: 150,
+                            height: 35,
+                            child: TypeAheadField(
+                              suggestionsCallback: (pattern) async {
+                                if (pattern != null && pattern != "") {
+                                  return await CariDepoAutoComp.getDepoJson(pattern);
+                                }
+                                return null;
+                              },
+                              autoFlipDirection: true,
+                              noItemsFoundBuilder: (context) {
+                                return Text(
+                                  "Depo kodu bulunamadı..",
+                                  style: TextStyle(fontSize: 18),
+                                );
+                              },
+                              itemBuilder: (context, suggestion) {
+                                return ListTile(
+                                  title: Text(suggestion.keys.elementAt(0)),
+                                  subtitle: Text(suggestion.values.elementAt(0)),
+                                );
+                              },
+                              onSuggestionSelected: (suggestion) {
+                                girisDepoKoduController.text = suggestion.keys.elementAt(0);
+                                girisDepoAdiController.text = suggestion.values.elementAt(0);
+                                model.girisDepoKodu = girisDepoAdiController.text;
+                              },
+                              textFieldConfiguration: TextFieldConfiguration(
+                                decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: girisDepoRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
+                                textAlign: TextAlign.left,
+                                controller: girisDepoKoduController,
+                              ),
+                            )),
+                      ],
+                    )
+                  : SizedBox(
+                      height: 0,
+                      width: 0,
+                    ),
+              depoType == 0 || depoType == 2
+                  ? SizedBox(
+                      height: 5,
+                    )
+                  : SizedBox(),
+              depoType == 0 || depoType == 2
+                  ? Row(
+                      children: [
+                        Container(child: Text("Giriş Depo Adı"), width: labelWidth),
+                        Padding(padding: EdgeInsets.only(right: 10)),
+                        Container(
+                            width: 150,
+                            height: 35,
+                            child: TextField(
+                              style: TextStyle(color: Colors.black),
+                              decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
+                              textAlign: TextAlign.left,
+                              readOnly: true,
+                              controller: girisDepoAdiController,
+                              onChanged: (newText) {
+                                if (newText != null) {
+                                  model.setGirisDepoAdi = newText;
+                                }
+                              },
+                            )),
+                      ],
+                    )
+                  : SizedBox(
+                      height: 0,
+                      width: 0,
+                    ),
+              depoType == 0 || depoType == 2
+                  ? SizedBox(
+                      height: 5,
+                    )
+                  : SizedBox(),
+              depoType == 1 || depoType == 2
+                  ? Row(
+                      children: [
+                        Container(child: Text("Çıkış Depo Kodu"), width: labelWidth),
+                        Padding(padding: EdgeInsets.only(right: 10)),
+                        Container(
+                            width: 150,
+                            height: 35,
+                            child: TypeAheadField(
+                              suggestionsCallback: (pattern) async {
+                                if (pattern != null && pattern != "") {
+                                  return await CariDepoAutoComp.getDepoJson(pattern);
+                                }
+                                return null;
+                              },
+                              autoFlipDirection: true,
+                              noItemsFoundBuilder: (context) {
+                                return Text(
+                                  "Depo kodu bulunamadı..",
+                                  style: TextStyle(fontSize: 18),
+                                );
+                              },
+                              itemBuilder: (context, suggestion) {
+                                return ListTile(
+                                  title: Text(suggestion.keys.elementAt(0)),
+                                  subtitle: Text(suggestion.values.elementAt(0)),
+                                );
+                              },
+                              onSuggestionSelected: (suggestion) {
+                                cikisDepoKoduController.text = suggestion.keys.elementAt(0);
+                                cikisDepoAdiController.text = suggestion.values.elementAt(0);
+                                model.cikisDepoKodu = cikisDepoKoduController.text;
+                              },
+                              textFieldConfiguration: TextFieldConfiguration(
+                                decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cikisDepoRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
+                                textAlign: TextAlign.left,
+                                controller: cikisDepoKoduController,
+                              ),
+                            )),
+                      ],
+                    )
+                  : SizedBox(
+                      height: 0,
+                      width: 0,
+                    ),
+              depoType == 1 || depoType == 2
+                  ? SizedBox(
+                      height: 5,
+                    )
+                  : SizedBox(),
+              depoType == 1 || depoType == 2
+                  ? Row(
+                      children: [
+                        Container(child: Text("Çıkış Depo Adı"), width: labelWidth),
+                        Padding(padding: EdgeInsets.only(right: 10)),
+                        Container(
+                            width: 150,
+                            height: 35,
+                            child: TextField(
+                              style: TextStyle(color: Colors.black),
+                              decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
+                              textAlign: TextAlign.left,
+                              readOnly: true,
+                              controller: cikisDepoAdiController,
+                              onChanged: (newText) {
+                                if (newText != null) {
+                                  model.cikisDepoAdi = newText;
+                                }
+                              },
+                            )),
+                      ],
+                    )
+                  : SizedBox(
+                      height: 0,
+                      width: 0,
+                    ),
+              depoType == 1 || depoType == 2
+                  ? SizedBox(
+                      height: 5,
+                    )
+                  : SizedBox(),
               Row(
                 children: [
-                  Container(child: Text("Müşteri Sipariş No"), width: labelWidth),
+                  Container(child: Text("Para Birimi"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
-                      width: 150,
-                      height: 35,
-                      child: TextField(
-                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
-                        textAlign: TextAlign.left,
-                        readOnly: false,
-                        controller: musSipNoController,
-                        onChanged: (newText) {
-                          if (newText != null) {
-                            model.setMusSipNo = newText;
-                          }
-                        },
-                      )),
+                    width: 150,
+                    height: 35,
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(border: Border.all(width: 0), borderRadius: BorderRadius.circular(5)),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                          value: selectedParaBirimi,
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedParaBirimi = newValue;
+                            });
+                          },
+                          items: asd),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(
@@ -647,7 +846,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textInputAction: TextInputAction.done,
                         textCapitalization: TextCapitalization.characters,
                         onFieldSubmitted: (value) {
-                          MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel();
+                          /*MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel();
                           satirModel.setData(value, model).then((list) async {
                             MusteriSiparisiRowModel tempModel;
                             if (list.length != 0) {
@@ -749,7 +948,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                                 ],
                               )));
                             }
-                          });
+                          });*/
                         },
                       )),
                 ),

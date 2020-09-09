@@ -11,6 +11,7 @@ import 'package:teronmobile/model/PersonelModel.dart';
 import 'package:teronmobile/model/SirketModel.dart';
 import 'package:teronmobile/view/MainMenuScreen.dart';
 import 'package:teronmobile/view/SiparisIslemleriMenuScreen.dart';
+import 'package:teronmobile/view/StokIslemleriMenuScreen.dart';
 
 class LoginScreenView extends State<LoginViewCommand> {
   static String ip;
@@ -160,7 +161,7 @@ class LoginScreenView extends State<LoginViewCommand> {
       } else {
         Map menuMap = Map<String, dynamic>();
         menuMap.putIfAbsent('Sipariş İşlemleri', () => SiparisIslemleriMenuScreen());
-        menuMap.putIfAbsent('Stok İşlemleri', () => LoadingScreenViewCommand("Henüz Yükleniyor.."));
+        menuMap.putIfAbsent('Stok İşlemleri', () => StokIslemleriMenuScreen());
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return MainMenuView(menuMap, "Ana Menü");
         }));
