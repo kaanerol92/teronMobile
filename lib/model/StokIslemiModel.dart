@@ -81,7 +81,7 @@ class StokIslemiModel {
       //depoId = jsonDecode['depoId'];
       //fisTip = jsonDecode['fisTipi'];
       sipNo = jsonDecode['fisNo'];
-      //insertRows(satirlarModel);
+      insertRows(satirlarModel);
     });
   }
 
@@ -100,7 +100,7 @@ class StokIslemiModel {
     String port = LoginScreenView.port;
 
     http
-        .post('http://$ip:$port/ERPService/barkodservice/insertbarkod',
+        .post('http://$ip:$port/ERPService/stokbarkodservice/insertbarkod',
             headers: <String, String>{
               'Content-Type': 'application/json',
               'Accept': 'application/json',

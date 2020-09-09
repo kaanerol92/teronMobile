@@ -42,7 +42,7 @@ class MusteriSiparisiRowModel {
         body: jsonEncode(map));
   }*/
 
-  Future<List<MusteriSiparisiRowModel>> setData(String barkod, MusteriSiparisiModel sipModel) async {
+  Future<List<MusteriSiparisiRowModel>> setData(String barkod, var sipModel) async {
     String ip = LoginScreenView.ip;
     String port = LoginScreenView.port;
     var url = 'http://$ip:$port/ERPService/musterisiparisibarkod/specific?master_value=$barkod';
@@ -77,6 +77,7 @@ class MusteriSiparisiRowModel {
   Map<String, String> toJson() {
     var map = Map<String, String>();
     map['stokId'] = this.stokId.toString();
+    map['stokKodu'] = this.kodu;
     map['stokRenkBoyutId'] = this.stokRenkBoyutId.toString();
     map['boyut1Id'] = this.boyut1Id.toString();
     map['stokRenkBoyutId'] = this.stokRenkBoyutId.toString();
@@ -89,7 +90,7 @@ class MusteriSiparisiRowModel {
     return map;
   }
 
-  Future<MusteriSiparisiRowModel> fromJson(var json, MusteriSiparisiModel sipModel) async {
+  Future<MusteriSiparisiRowModel> fromJson(var json, var sipModel) async {
     this.barkod = json['barkodu'];
     this.kodu = json['stokKodu'];
     this.adi = json['stokAdi'];
@@ -109,7 +110,7 @@ class MusteriSiparisiRowModel {
     return this;
   }
 
-  Future<MusteriSiparisiRowModel> fillFiyat(MusteriSiparisiRowModel model, MusteriSiparisiModel sipModel) async {
+  Future<MusteriSiparisiRowModel> fillFiyat(MusteriSiparisiRowModel model, var sipModel) async {
     String whereClause = "cari=" + sipModel.getCariKodu + "&stokid=" + stokId.toString() + "&renkid=" + renkId.toString() + "&boyutid=" + boyut1Id.toString() + "&sirket=" + LoginScreenView.ksm.getSirket.getKod;
 
     String ip = LoginScreenView.ip;
