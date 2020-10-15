@@ -1,26 +1,26 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/view/LoginScreen.dart';
 
 class CariDepoAutoComp {
-  static Future<List> getCariJson(String query) async {
+  static Future<List> getCariJson(LoginInterface loginInterface, String query) async {
     await Future.delayed(Duration(seconds: 1));
 
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
 
-    var url =
-        'http://$ip:$port/ERPService/cari/simple?constraint=$query&orderByCondition=cari_no&auto_complete=true';
+    var url = 'http://$ip:$port/ERPService/cari/simple?constraint=$query&orderByCondition=cari_no&auto_complete=true';
     var response = await http.get(
       Uri.encodeFull(url),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': "Basic " + LoginScreenView.ksm.userPass,
+        'Authorization': "Basic " + loginInterface.getKullaniciSession().userPass,
         'SessionType': '0',
-        'Sirket': LoginScreenView.ksm.getSirket.getKod,
-        'DonemModel': LoginScreenView.ksm.getDonem.getKod
+        'Sirket': loginInterface.getKullaniciSession().getSirket.getKod,
+        'DonemModel': loginInterface.getKullaniciSession().getDonem.getKod
       },
     );
 
@@ -41,23 +41,22 @@ class CariDepoAutoComp {
     return liste;
   }
 
-  static Future<List> getDepoJson(String query) async {
+  static Future<List> getDepoJson(LoginInterface loginInterface, String query) async {
     await Future.delayed(Duration(seconds: 1));
 
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
 
-    var url =
-        'http://$ip:$port/ERPService/depo/simple?constraint=$query&orderByCondition=depo_kod&auto_complete=true';
+    var url = 'http://$ip:$port/ERPService/depo/simple?constraint=$query&orderByCondition=depo_kod&auto_complete=true';
     var response = await http.get(
       Uri.encodeFull(url),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': "Basic " + LoginScreenView.ksm.userPass,
+        'Authorization': "Basic " + loginInterface.getKullaniciSession().userPass,
         'SessionType': '0',
-        'Sirket': LoginScreenView.ksm.getSirket.getKod,
-        'DonemModel': LoginScreenView.ksm.getDonem.getKod
+        'Sirket': loginInterface.getKullaniciSession().getSirket.getKod,
+        'DonemModel': loginInterface.getKullaniciSession().getDonem.getKod
       },
     );
 

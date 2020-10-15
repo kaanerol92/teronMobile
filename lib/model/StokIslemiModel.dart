@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
 import 'package:teronmobile/view/LoginScreen.dart';
 
@@ -23,8 +24,11 @@ class StokIslemiModel {
   String aciklama;
   int sipNo;
   int fisTip;
+  int kurType;
+  LoginInterface loginInterface;
 
-  StokIslemiModel() {
+  StokIslemiModel(LoginInterface loginInterface) {
+    this.loginInterface = loginInterface;
     DateTime now = DateTime.now();
     this.siparisTarihi = now;
     this.terminTarihi = now;
@@ -53,22 +57,23 @@ class StokIslemiModel {
     map['fisTarihi'] = getSiparisTarihi.toIso8601String();
     map['sevkTarihi'] = getTerminTarihi.toIso8601String();
     map['aciklama'] = getAciklama;
+    print(girisDepoKodu);
     //map['perId'] = LoginScreenView.ksm.getPersonel.getPerId;
     //map['donemId'] = LoginScreenView.ksm.getDonem.getKod;
     //map['sirketId'] = LoginScreenView.ksm.getSirket.getKod;
 
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
 
     await http
         .post('http://$ip:$port/ERPService/mamulstokfisi/insert',
             headers: <String, String>{
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'Authorization': "Basic " + LoginScreenView.ksm.userPass,
+              'Authorization': "Basic " + loginInterface.getKullaniciSession().userPass,
               'SessionType': '0',
-              'Sirket': LoginScreenView.ksm.getSirket.getKod,
-              'DonemModel': LoginScreenView.ksm.getDonem.getKod
+              'Sirket': loginInterface.getKullaniciSession().getSirket.getKod,
+              'DonemModel': loginInterface.getKullaniciSession().getDonem.getKod
             },
             body: jsonEncode(map))
         .then((http.Response response) {
@@ -81,6 +86,7 @@ class StokIslemiModel {
       //depoId = jsonDecode['depoId'];
       //fisTip = jsonDecode['fisTipi'];
       sipNo = jsonDecode['fisNo'];
+      kurType = jsonDecode['kurType'];
       insertRows(satirlarModel);
     });
   }
@@ -90,24 +96,26 @@ class StokIslemiModel {
     for (var i = 0; i < satirlarModel.length; i++) {
       MusteriSiparisiRowModel model = satirlarModel.elementAt(i);
       model.setMusSipId = this.id;
+      model.headerKurType = this.kurType;
+      model.headerTarih = this.siparisTarihi;
       list.add(model.toJson());
     }
 
     Map jsonMap = Map();
     jsonMap.putIfAbsent("rowList", () => list);
 
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
 
     http
         .post('http://$ip:$port/ERPService/stokbarkodservice/insertbarkod',
             headers: <String, String>{
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'Authorization': "Basic " + LoginScreenView.ksm.userPass,
+              'Authorization': "Basic " + loginInterface.getKullaniciSession().userPass,
               'SessionType': '0',
-              'Sirket': LoginScreenView.ksm.getSirket.getKod,
-              'DonemModel': LoginScreenView.ksm.getDonem.getKod
+              'Sirket': loginInterface.getKullaniciSession().getSirket.getKod,
+              'DonemModel': loginInterface.getKullaniciSession().getDonem.getKod
             },
             body: jsonEncode(jsonMap))
         .then((value) => print("Satırlar eklendi"));

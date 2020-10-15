@@ -1,3 +1,9 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:teronmobile/Utility/HttpManager.dart';
+import 'package:teronmobile/interface/LoginInterface.dart';
+
 class SirketModel {
   String kod;
   String sifre;
@@ -115,6 +121,23 @@ class SirketModel {
     this.adi = json['adi'];
   }
 
+  static Future<List> futureSirket(LoginInterface loginInterface) async {
+    List<DropdownMenuItem<String>> sirketList = new List();
+    await loginInterface.getHttpManager().httpGet("/ERPService/sirket/list").then((value) {
+      if (value != null) {
+        String resp = Utf8Decoder().convert(value.bodyBytes);
+        var jsonDecode = json.decode(resp);
+        for (var jsonSirket in jsonDecode) {
+          sirketList.add(DropdownMenuItem(
+            child: Text(jsonSirket['kod'] + " - " + jsonSirket['adi']),
+            value: jsonSirket['kod'].toString(),
+          ));
+        }
+      }
+    });
+    return sirketList;
+  }
+
   String get getKod => kod;
 
   set setKod(String kod) => this.kod = kod;
@@ -205,8 +228,7 @@ class SirketModel {
 
   String get getHesapDelimiter => hesapDelimiter;
 
-  set setHesapDelimiter(String hesapDelimiter) =>
-      this.hesapDelimiter = hesapDelimiter;
+  set setHesapDelimiter(String hesapDelimiter) => this.hesapDelimiter = hesapDelimiter;
 
   int get getSyNo => syNo;
 
@@ -442,8 +464,7 @@ class SirketModel {
 
   String get getTicariSicilNo => ticariSicilNo;
 
-  set setTicariSicilNo(String ticariSicilNo) =>
-      this.ticariSicilNo = ticariSicilNo;
+  set setTicariSicilNo(String ticariSicilNo) => this.ticariSicilNo = ticariSicilNo;
 
   String get getAkdv1 => akdv1;
 
@@ -527,23 +548,19 @@ class SirketModel {
 
   String get getEFaturaKullaniciAdi => eFaturaKullaniciAdi;
 
-  set setEFaturaKullaniciAdi(String eFaturaKullaniciAdi) =>
-      this.eFaturaKullaniciAdi = eFaturaKullaniciAdi;
+  set setEFaturaKullaniciAdi(String eFaturaKullaniciAdi) => this.eFaturaKullaniciAdi = eFaturaKullaniciAdi;
 
   String get getEFaturaKullaniciSifresi => eFaturaKullaniciSifresi;
 
-  set setEFaturaKullaniciSifresi(String eFaturaKullaniciSifresi) =>
-      this.eFaturaKullaniciSifresi = eFaturaKullaniciSifresi;
+  set setEFaturaKullaniciSifresi(String eFaturaKullaniciSifresi) => this.eFaturaKullaniciSifresi = eFaturaKullaniciSifresi;
 
   String get getEFaturaUserLoginLink => eFaturaUserLoginLink;
 
-  set setEFaturaUserLoginLink(String eFaturaUserLoginLink) =>
-      this.eFaturaUserLoginLink = eFaturaUserLoginLink;
+  set setEFaturaUserLoginLink(String eFaturaUserLoginLink) => this.eFaturaUserLoginLink = eFaturaUserLoginLink;
 
   String get getEFaturaConnectorLink => eFaturaConnectorLink;
 
-  set setEFaturaConnectorLink(String eFaturaConnectorLink) =>
-      this.eFaturaConnectorLink = eFaturaConnectorLink;
+  set setEFaturaConnectorLink(String eFaturaConnectorLink) => this.eFaturaConnectorLink = eFaturaConnectorLink;
 
   String get getSermaye => sermaye;
 

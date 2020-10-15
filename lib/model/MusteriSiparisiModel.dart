@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
 import 'package:teronmobile/view/LoginScreen.dart';
 
 class MusteriSiparisiModel {
+  LoginInterface loginInterface;
   int id;
   int cariId;
   int sevkCariId;
@@ -20,8 +22,10 @@ class MusteriSiparisiModel {
   String musSipNo;
   String aciklama;
   int sipNo;
+  int kurType;
 
-  MusteriSiparisiModel() {
+  MusteriSiparisiModel(LoginInterface loginInterface) {
+    this.loginInterface = loginInterface;
     DateTime now = DateTime.now();
     this.siparisTarihi = now;
     this.terminTarihi = now;
@@ -44,22 +48,22 @@ class MusteriSiparisiModel {
     map['siparisTarihi'] = getSiparisTarihi.toIso8601String();
     map['terminTarihi'] = getTerminTarihi.toIso8601String();
     map['aciklama'] = getAciklama;
-    map['perId'] = LoginScreenView.ksm.getPersonel.getPerId;
-    map['donemId'] = LoginScreenView.ksm.getDonem.getKod;
-    map['sirketId'] = LoginScreenView.ksm.getSirket.getKod;
+    map['perId'] = loginInterface.getKullaniciSession().getPersonel.getPerId;
+    map['donemId'] = loginInterface.getKullaniciSession().getDonem.getKod;
+    map['sirketId'] = loginInterface.getKullaniciSession().getSirket.getKod;
 
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
 
     await http
         .post('http://$ip:$port/ERPService/musterisiparisi/insert',
             headers: <String, String>{
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'Authorization': "Basic " + LoginScreenView.ksm.userPass,
+              'Authorization': "Basic " + loginInterface.getKullaniciSession().userPass,
               'SessionType': '0',
-              'Sirket': LoginScreenView.ksm.getSirket.getKod,
-              'DonemModel': LoginScreenView.ksm.getDonem.getKod
+              'Sirket': loginInterface.getKullaniciSession().getSirket.getKod,
+              'DonemModel': loginInterface.getKullaniciSession().getDonem.getKod
             },
             body: jsonEncode(map))
         .then((http.Response response) {
@@ -70,6 +74,7 @@ class MusteriSiparisiModel {
       sevkCariId = jsonDecode['sevkCariId'];
       depoId = jsonDecode['depoId'];
       sipNo = jsonDecode['siparisNo'];
+      kurType = jsonDecode['kurType'];
       insertRows(satirlarModel);
     });
   }
@@ -79,24 +84,26 @@ class MusteriSiparisiModel {
     for (var i = 0; i < satirlarModel.length; i++) {
       MusteriSiparisiRowModel model = satirlarModel.elementAt(i);
       model.setMusSipId = this.id;
+      model.headerKurType = this.kurType;
+      model.headerTarih = this.siparisTarihi;
       list.add(model.toJson());
     }
 
     Map jsonMap = Map();
     jsonMap.putIfAbsent("rowList", () => list);
 
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
 
     http
         .post('http://$ip:$port/ERPService/barkodservice/insertbarkod',
             headers: <String, String>{
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'Authorization': "Basic " + LoginScreenView.ksm.userPass,
+              'Authorization': "Basic " + loginInterface.getKullaniciSession().userPass,
               'SessionType': '0',
-              'Sirket': LoginScreenView.ksm.getSirket.getKod,
-              'DonemModel': LoginScreenView.ksm.getDonem.getKod
+              'Sirket': loginInterface.getKullaniciSession().getSirket.getKod,
+              'DonemModel': loginInterface.getKullaniciSession().getDonem.getKod
             },
             body: jsonEncode(jsonMap))
         .then((value) => print("Satırlar eklendi"));

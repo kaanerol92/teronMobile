@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
+import 'package:teronmobile/command/StokIslemiScreenCommand.dart';
 import 'command/LoginScreenCommand.dart';
 
 void main() {
+  LoginViewCommand lvc = LoginViewCommand();
+
   runApp(MaterialApp(
       theme: ThemeData(
         brightness: Brightness.light,
@@ -21,8 +24,11 @@ void main() {
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginViewCommand(),
-        '/musterisiparisi': (context) => MusteriSiparisiScreenCommand(),
+        '/': (context) => lvc,
+        '/musterisiparisi': (context) => MusteriSiparisiScreenCommand(lvc.getLsv),
+        '/malalim': (context) => StokIslemiScreenCommand(lvc.getLsv, 1),
+        '/toptansatis': (context) => StokIslemiScreenCommand(lvc.getLsv, 30),
+        '/perakendesatis': (context) => StokIslemiScreenCommand(lvc.getLsv, 31)
       }));
   // home: LoginViewCommand()));
 }

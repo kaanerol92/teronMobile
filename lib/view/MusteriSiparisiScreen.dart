@@ -1,15 +1,28 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:teronmobile/command/LoadingScreenCommand.dart';
 import 'package:teronmobile/command/MusteriSiparisiScreenCommand.dart';
+import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
 import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
+import 'package:http/http.dart' as http;
+
+import 'LoginScreen.dart';
 
 class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
+  LoginInterface loginInterface;
+  MusteriSiparisiScreen(LoginInterface loginInterface) {
+    this.loginInterface = loginInterface;
+  }
+
   final labelWidth = 120.0;
   var label;
+  bool isPBOk = false;
   MusteriSiparisiModel model;
   List<Step> steps;
   Map stepIndex;
@@ -24,6 +37,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   List<MusteriSiparisiRowModel> satirlarModel = List();
   List<MusteriSiparisiRowModel> satirlarRowModel = List();
   List<MusteriSiparisiRowModel> satirlarRefModel = List();
+  List<DropdownMenuItem<String>> paraBirimiList = new List();
 
   TextEditingController sipTarihController = TextEditingController();
   TextEditingController terminTarihController = TextEditingController();
@@ -45,6 +59,8 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   VoidCallback _onStepCancel;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+
+  String paraBrm;
 
   Widget _bottomBar() {
     return Container(
@@ -84,13 +100,15 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   @override
   Widget build(BuildContext context) {
     setSteps();
-    return WillPopScope(
-      onWillPop: () => backPress(),
-      child: Scaffold(
-        key: scaffoldKey,
-        resizeToAvoidBottomPadding: true,
-        resizeToAvoidBottomInset: true,
-        /*appBar: AppBar(
+    return !isPBOk
+        ? LoadingScreenViewCommand("Yükleniyor..")
+        : WillPopScope(
+            onWillPop: () => backPress(),
+            child: Scaffold(
+              key: scaffoldKey,
+              resizeToAvoidBottomPadding: true,
+              resizeToAvoidBottomInset: true,
+              /*appBar: AppBar(
           elevation: 0.0,
           backgroundColor: Colors.transparent,
           centerTitle: true,
@@ -98,53 +116,54 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
           textTheme: Theme.of(context).textTheme,
           iconTheme: Theme.of(context).iconTheme,
         ),*/
-        body: SafeArea(
-          child: Builder(
-              builder: (context) => Stack(children: [
-                    Stepper(
-                        steps: steps,
-                        physics: ClampingScrollPhysics(),
-                        type: StepperType.horizontal,
-                        currentStep: currentStep,
-                        onStepCancel: () {
-                          cancel(context);
-                        },
-                        onStepContinue: () {
-                          next(context);
-                        },
-                        onStepTapped: (step) {
-                          if (stepIndex[step] == true) {
-                            goTo(context, step);
-                          }
-                        },
-                        controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
-                          _onStepCancel = onStepCancel;
-                          _onStepContinue = onStepContinue;
-                          return Column(children: [
-                            SizedBox(
-                              width: 50,
-                            ),
-                          ]);
-                        }),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: _bottomBar(),
-                    )
-                  ])),
-        ),
-      ),
-    );
+              body: SafeArea(
+                child: Builder(
+                    builder: (context) => Stack(children: [
+                          Stepper(
+                              steps: steps,
+                              physics: ClampingScrollPhysics(),
+                              type: StepperType.horizontal,
+                              currentStep: currentStep,
+                              onStepCancel: () {
+                                cancel(context);
+                              },
+                              onStepContinue: () {
+                                next(context);
+                              },
+                              onStepTapped: (step) {
+                                if (stepIndex[step] == true) {
+                                  goTo(context, step);
+                                }
+                              },
+                              controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                                _onStepCancel = onStepCancel;
+                                _onStepContinue = onStepContinue;
+                                return Column(children: [
+                                  SizedBox(
+                                    width: 50,
+                                  ),
+                                ]);
+                              }),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: _bottomBar(),
+                          )
+                        ])),
+              ),
+            ),
+          );
   }
 
   @override
   void initState() {
     super.initState();
+    setParaBrm();
     stepIndex = {
       0: true,
       1: false,
       2: false
     };
-    model = MusteriSiparisiModel();
+    model = MusteriSiparisiModel(loginInterface);
     sipTarihController.text = "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
     terminTarihController.text = "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
 
@@ -172,6 +191,18 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
   }
 
   next(BuildContext context) {
+    if (currentStep == 1 && satirlarModel.length == 0) {
+      Scaffold.of(context).showSnackBar(SnackBar(
+          content: Row(
+        children: [
+          Icon(Icons.announcement),
+          Padding(padding: EdgeInsets.all(20)),
+          Text("Detay satırları boş geçilemez!"),
+        ],
+      )));
+      return;
+    }
+
     currentStep + 1 != steps.length
         ? goTo(context, currentStep + 1)
         : setState(() {
@@ -275,16 +306,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
         )));
         return;
       }
-    } else if (currentStep == 1 && satirlarModel.length == 0) {
-      Scaffold.of(context).showSnackBar(SnackBar(
-          content: Row(
-        children: [
-          Icon(Icons.announcement),
-          Padding(padding: EdgeInsets.all(20)),
-          Text("Detay satırları boş geçilemez!"),
-        ],
-      )));
-      return;
     }
     if (step == 2) {
       setOzet();
@@ -370,7 +391,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
                           if (pattern != null && pattern != "") {
-                            return await CariDepoAutoComp.getCariJson(pattern);
+                            return await CariDepoAutoComp.getCariJson(loginInterface, pattern);
                           }
                           return null;
                         },
@@ -446,7 +467,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
                           if (pattern != null && pattern != "") {
-                            return await CariDepoAutoComp.getCariJson(pattern);
+                            return await CariDepoAutoComp.getCariJson(loginInterface, pattern);
                           }
                           return null;
                         },
@@ -512,7 +533,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
                           if (pattern != null && pattern != "") {
-                            return await CariDepoAutoComp.getDepoJson(pattern);
+                            return await CariDepoAutoComp.getDepoJson(loginInterface, pattern);
                           }
                           return null;
                         },
@@ -647,7 +668,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                         textInputAction: TextInputAction.done,
                         textCapitalization: TextCapitalization.characters,
                         onFieldSubmitted: (value) {
-                          MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel();
+                          MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel(loginInterface);
                           satirModel.setData(value, model).then((list) async {
                             MusteriSiparisiRowModel tempModel;
                             if (list.length != 0) {
@@ -667,34 +688,6 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
 
                                       satirModel = list[i];
 
-                                      bool addRow = true;
-                                      for (var i = 0; i < satirlarRowModel.length; i++) {
-                                        MusteriSiparisiRowModel m = satirlarRowModel[i];
-                                        if (m.getStokRenkBoyutId == satirModel.getStokRenkBoyutId) {
-                                          m.setMiktar = m.getMiktar + satirModel.getMiktar;
-                                          addRow = false;
-                                        }
-                                      }
-
-                                      if (addRow == true) {
-                                        MusteriSiparisiRowModel refModel = MusteriSiparisiRowModel();
-                                        refModel.setBarkod = satirModel.getBarkod;
-                                        refModel.setKodu = satirModel.getKodu;
-                                        refModel.setAdi = satirModel.getAdi;
-                                        refModel.setRenk = satirModel.getRenk;
-                                        refModel.setParaBirimi = satirModel.getParaBirimi;
-                                        refModel.setFiyat = satirModel.getFiyat;
-                                        refModel.setMiktar = satirModel.getMiktar;
-                                        refModel.setStokId = satirModel.getStokId;
-                                        refModel.setRenkId = satirModel.getRenkId;
-                                        refModel.setBeden = satirModel.getBeden;
-                                        refModel.setStokRenkBoyutId = satirModel.getStokRenkBoyutId;
-                                        refModel.lot = satirModel.lot;
-                                        refModel.lotAdeti = satirModel.lotAdeti;
-                                        refModel.setBoyut1Id = satirModel.getBoyut1Id;
-                                        satirlarRowModel.add(refModel);
-                                      }
-
                                       bool add = true;
                                       for (var i = 0; i < satirlarModel.length; i++) {
                                         MusteriSiparisiRowModel m = satirlarModel[i];
@@ -706,7 +699,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                                       }
 
                                       if (add == true) {
-                                        MusteriSiparisiRowModel lotModel = MusteriSiparisiRowModel();
+                                        MusteriSiparisiRowModel lotModel = MusteriSiparisiRowModel(loginInterface);
                                         lotModel.setBarkod = satirModel.getBarkod;
                                         lotModel.setKodu = satirModel.getKodu;
                                         lotModel.setAdi = satirModel.getAdi;
@@ -722,6 +715,35 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
                                         lotModel.setBoyut1Id = satirModel.getBoyut1Id;
                                         lotModel.setStokRenkBoyutId = satirModel.getStokRenkBoyutId;
                                         satirlarModel.add(lotModel);
+                                      }
+
+                                      bool addRow = true;
+                                      for (var i = 0; i < satirlarRowModel.length; i++) {
+                                        MusteriSiparisiRowModel m = satirlarRowModel[i];
+                                        if (m.getStokRenkBoyutId == satirModel.getStokRenkBoyutId) {
+                                          m.setMiktar = m.getMiktar + satirModel.getMiktar;
+                                          addRow = false;
+                                        }
+                                      }
+
+                                      if (addRow == true) {
+                                        MusteriSiparisiRowModel refModel = MusteriSiparisiRowModel(loginInterface);
+                                        refModel.setBarkod = satirModel.getBarkod;
+                                        refModel.setKodu = satirModel.getKodu;
+                                        refModel.setAdi = satirModel.getAdi;
+                                        refModel.setRenk = satirModel.getRenk;
+                                        refModel.setParaBirimi = satirModel.getParaBirimi;
+                                        refModel.setFiyat = satirModel.getFiyat;
+                                        refModel.setMiktar = satirModel.getMiktar;
+                                        refModel.kur = satirModel.kur;
+                                        refModel.setStokId = satirModel.getStokId;
+                                        refModel.setRenkId = satirModel.getRenkId;
+                                        refModel.setBeden = satirModel.getBeden;
+                                        refModel.setStokRenkBoyutId = satirModel.getStokRenkBoyutId;
+                                        refModel.lot = satirModel.lot;
+                                        refModel.lotAdeti = satirModel.lotAdeti;
+                                        refModel.setBoyut1Id = satirModel.getBoyut1Id;
+                                        satirlarRowModel.add(refModel);
                                       }
 
                                       bool addRef = true;
@@ -887,7 +909,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(child: Text("Toplam Miktar"), width: 100),
+                Container(child: Text("Toplam Adet"), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
                     width: 100,
@@ -915,7 +937,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       MusteriSiparisiRowModel model = satirlarModel[i];
       MusteriSiparisiRowModel toplamModel = paraBrmMap[model.getParaBirimi];
       if (toplamModel == null) {
-        toplamModel = MusteriSiparisiRowModel();
+        toplamModel = MusteriSiparisiRowModel(loginInterface);
         toplamModel.setParaBirimi = model.getParaBirimi;
         paraBrmMap.putIfAbsent(model.getParaBirimi, () => toplamModel);
       }
@@ -1084,7 +1106,7 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
     );
   }
 
-  void editDialog(MusteriSiparisiRowModel model) {
+  /*void editDialog(MusteriSiparisiRowModel model) {
     TextEditingController controller = TextEditingController();
     showDialog(
         context: context,
@@ -1159,9 +1181,139 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
             ),
           );
         });
+  }*/
+
+  void editDialog(MusteriSiparisiRowModel model) {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (BuildContext context) {
+          paraBrm = model.paraBirimi;
+          TextEditingController miktarController = TextEditingController();
+          TextEditingController fiyatController = TextEditingController();
+          fiyatController.text = model.getFiyat.toString();
+          miktarController.text = model.lot == 0 ? model.getMiktar.toString() : (model.getMiktar ~/ model.lotAdeti).toInt().toString();
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Container(
+                  height: 300,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InputDecorator(
+                          decoration: InputDecoration(labelText: "Para Birimi", border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              hint: Text(
+                                "Para Birimi",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                              isDense: true,
+                              value: paraBrm,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  print(paraBrm);
+                                  paraBrm = newValue;
+                                  print(paraBrm);
+                                });
+                              },
+                              items: paraBirimiList,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        TextField(
+                          keyboardType: TextInputType.number,
+                          /*inputFormatters: <TextInputFormatter>[ // SADECE NUMARA - VIRGUL BILE ISLEMIYOR 0-9
+                          FilteringTextInputFormatter.digitsOnly
+                        ],*/
+                          controller: fiyatController,
+                          decoration: InputDecoration(labelText: "Fiyat", border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni fiyatı giriniz.'),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        TextField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          controller: miktarController,
+                          decoration: InputDecoration(labelText: (model.lot == 1 ? "Lot Adedi" : "Adet"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni miktarı giriniz.'),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Center(
+                          child: SizedBox(
+                            width: 320.0,
+                            child: RaisedButton(
+                              onPressed: () {
+                                setState(() {
+                                  if (model.lot == 0) {
+                                    model.setMiktar = int.parse(miktarController.text);
+                                    model.setFiyat = double.parse(fiyatController.text);
+                                    model.setParaBirimi = paraBrm;
+                                    print("TEKLI MIKTAR GIRISI");
+                                    for (var i = 0; i < satirlarRowModel.length; i++) {
+                                      MusteriSiparisiRowModel rowModel = satirlarRowModel[i];
+                                      if (rowModel.stokRenkBoyutId == model.stokRenkBoyutId) {
+                                        rowModel.setMiktar = int.parse(miktarController.text);
+                                        rowModel.setFiyat = double.parse(fiyatController.text);
+                                        rowModel.setParaBirimi = paraBrm;
+                                      }
+                                    }
+                                  } else {
+                                    //GORUNEN LOT
+                                    model.setMiktar = model.lotAdeti * int.parse(miktarController.text);
+                                    model.setFiyat = double.parse(fiyatController.text);
+                                    model.setParaBirimi = paraBrm;
+
+                                    //ARKA PLANDAKI LOT ICI TEKLISI
+                                    for (var i = 0; i < satirlarRefModel.length; i++) {
+                                      MusteriSiparisiRowModel refModel = satirlarRefModel[i];
+                                      if (refModel.barkod == model.barkod && refModel.stokId == model.stokId && refModel.renkId == model.renkId) {
+                                        for (var k = 0; k < satirlarRowModel.length; k++) {
+                                          MusteriSiparisiRowModel rowModel = satirlarRowModel[k];
+                                          if (rowModel.getStokRenkBoyutId == refModel.getStokRenkBoyutId) {
+                                            rowModel.setMiktar = refModel.getMiktar * int.parse(miktarController.text);
+                                            rowModel.setFiyat = double.parse(fiyatController.text);
+                                            rowModel.setParaBirimi = paraBrm;
+                                          }
+                                        }
+                                      }
+                                    }
+                                    print("LOT MIKTAR GIRISI");
+                                  }
+                                });
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                "Kaydet",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              color: const Color(0xFF1BC0C5),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        });
   }
 
-  Future<int> barkodMiktarDialog(MusteriSiparisiRowModel tempModel) async {
+  /*Future<int> barkodMiktarDialog(MusteriSiparisiRowModel tempModel) async {
     TextEditingController controller = TextEditingController();
     int miktar = 1;
     controller.text = miktar.toString();
@@ -1277,5 +1429,170 @@ class MusteriSiparisiScreen extends State<MusteriSiparisiScreenCommand> {
       return miktar;
     });
     return miktar;
+  }*/
+
+  Future<int> barkodMiktarDialog(MusteriSiparisiRowModel tempModel) async {
+    TextEditingController controller = TextEditingController();
+    int miktar = 1;
+    controller.text = miktar.toString();
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+            child: Container(
+              height: 250,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    /*Center(
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Stok Kodu  - ",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(tempModel.getKodu),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Stok Adı  - ",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(tempModel.getAdi),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),*/
+                    Table(
+                      columnWidths: {
+                        0: FractionColumnWidth(.3),
+                        1: FractionColumnWidth(.7),
+                      },
+                      children: [
+                        TableRow(children: [
+                          Text(
+                            "Stok Kodu",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          Text(tempModel.getKodu),
+                        ]),
+                        TableRow(children: [
+                          Text(
+                            "Stok Adı",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          Text(tempModel.getAdi),
+                        ]),
+                        TableRow(children: [
+                          Text(
+                            "Renk",
+                            style: TextStyle(fontStyle: FontStyle.italic),
+                          ),
+                          Text(tempModel.getRenk),
+                        ]),
+                        tempModel.lot == 1
+                            ? TableRow(children: [
+                                Text(
+                                  "Lot içi adedi",
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                                Text(tempModel.lotAdeti.toString()),
+                              ])
+                            : TableRow(children: [
+                                Text(
+                                  "Beden",
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                                Text(tempModel.getBeden.toString()),
+                              ])
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    TextField(
+                      keyboardType: TextInputType.number,
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
+                      controller: controller,
+                      decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Miktarı giriniz.', labelText: (tempModel.lot == 0 ? "Adet" : "Lot Adedi")),
+                    ),
+                    Center(
+                      child: SizedBox(
+                        width: 320.0,
+                        child: RaisedButton(
+                          onPressed: () {
+                            setState(() {
+                              miktar = int.parse(controller.text);
+                              Navigator.pop(context);
+                            });
+                          },
+                          child: Text(
+                            "Kaydet",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          color: const Color(0xFF1BC0C5),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).then((value) {
+      return miktar;
+    });
+    return 0;
+  }
+
+  Future<List> futureParaBirimi() async {
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
+    var url = "http://$ip:$port/ERPService/parabirimi/list";
+    await http.get(url).then((value) {
+      paraBirimiList.clear();
+      if (value.statusCode == 200) {
+        String resp = Utf8Decoder().convert(value.bodyBytes);
+        var jsonDecode = json.decode(resp);
+        print(jsonDecode);
+        for (var jsonPB in jsonDecode) {
+          paraBirimiList.add(DropdownMenuItem(
+            child: Text(jsonPB['paraBirimi']),
+            value: jsonPB['paraBirimi'].toString(),
+          ));
+        }
+      }
+    });
+    return paraBirimiList;
+  }
+
+  void setParaBrm() {
+    futureParaBirimi().then((value) {
+      setState(() {
+        paraBirimiList = value;
+        if (paraBirimiList.length != 0) {
+          isPBOk = true;
+        }
+      });
+    });
   }
 }

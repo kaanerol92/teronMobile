@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:teronmobile/model/MusteriSiparisiModel.dart';
+import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/view/LoginScreen.dart';
 
 class MusteriSiparisiRowModel {
+  LoginInterface loginInterface;
   String barkod = "";
   String kodu = "";
   String adi = "";
@@ -23,6 +24,8 @@ class MusteriSiparisiRowModel {
   int boyut1Id;
   int lot;
   int lotAdeti;
+  int headerKurType;
+  DateTime headerTarih;
 
   /*Future<http.Response> insert() {
     var map = Map<String, dynamic>();
@@ -42,9 +45,13 @@ class MusteriSiparisiRowModel {
         body: jsonEncode(map));
   }*/
 
+  MusteriSiparisiRowModel(LoginInterface loginInterface) {
+    this.loginInterface = loginInterface;
+  }
+
   Future<List<MusteriSiparisiRowModel>> setData(String barkod, var sipModel) async {
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
     var url = 'http://$ip:$port/ERPService/musterisiparisibarkod/specific?master_value=$barkod';
     List<MusteriSiparisiRowModel> list = List();
     await http.get(Uri.encodeFull(url)).then((value) async {
@@ -54,7 +61,7 @@ class MusteriSiparisiRowModel {
         List jsonDecode = json.decode(resp);
         int lotAdet = 0;
         for (var json in jsonDecode) {
-          await MusteriSiparisiRowModel().fromJson(json, sipModel).then((value) async {
+          await MusteriSiparisiRowModel(loginInterface).fromJson(loginInterface, json, sipModel).then((value) async {
             await value.fillFiyat(value, sipModel).then((value) {
               lotAdet += json['miktar'];
               list.add(value);
@@ -72,8 +79,6 @@ class MusteriSiparisiRowModel {
     return list;
   }
 
-  MusteriSiparisiRowModel();
-
   Map<String, String> toJson() {
     var map = Map<String, String>();
     map['stokId'] = this.stokId.toString();
@@ -87,10 +92,13 @@ class MusteriSiparisiRowModel {
     map['planlananMiktar'] = this.miktar.toString();
     map['gecerliFiyat'] = this.fiyat.toString();
     map['musteriSipId'] = this.musSipId.toString();
+    map['headerKurType'] = this.headerKurType.toString();
+    map['headerTarih'] = this.headerTarih.toIso8601String();
     return map;
   }
 
-  Future<MusteriSiparisiRowModel> fromJson(var json, var sipModel) async {
+  Future<MusteriSiparisiRowModel> fromJson(LoginInterface loginInterface, var json, var sipModel) async {
+    this.loginInterface = loginInterface;
     this.barkod = json['barkodu'];
     this.kodu = json['stokKodu'];
     this.adi = json['stokAdi'];
@@ -100,6 +108,7 @@ class MusteriSiparisiRowModel {
     this.stokRenkBoyutId = json['stokRenkBoyutId'];
     this.boyut1Id = json['boyut1Id'];
     this.renkId = json['renkId'];
+    this.kur = json['kur'];
     this.lot = json['lot'];
     if (json['miktar'] == 0) {
       this.miktar = 1;
@@ -111,10 +120,10 @@ class MusteriSiparisiRowModel {
   }
 
   Future<MusteriSiparisiRowModel> fillFiyat(MusteriSiparisiRowModel model, var sipModel) async {
-    String whereClause = "cari=" + sipModel.getCariKodu + "&stokid=" + stokId.toString() + "&renkid=" + renkId.toString() + "&boyutid=" + boyut1Id.toString() + "&sirket=" + LoginScreenView.ksm.getSirket.getKod;
+    String whereClause = "cari=" + sipModel.getCariKodu + "&stokid=" + stokId.toString() + "&renkid=" + renkId.toString() + "&boyutid=" + boyut1Id.toString() + "&sirket=" + loginInterface.getKullaniciSession().getSirket.getKod;
 
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
 
     var url = 'http://$ip:$port/ERPService/barkodluislem/specific_barkod?$whereClause';
     await http.get(Uri.encodeFull(url)).then((value) {

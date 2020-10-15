@@ -6,6 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:teronmobile/command/LoadingScreenCommand.dart';
 import 'package:teronmobile/command/StokIslemiScreenCommand.dart';
+import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
 import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
 import 'package:teronmobile/model/StokIslemiModel.dart';
@@ -13,12 +14,14 @@ import 'package:http/http.dart' as http;
 import 'package:teronmobile/view/LoginScreen.dart';
 
 class StokIslemiScreen extends State<StokIslemiScreenCommand> {
+  LoginInterface loginInterface;
   int fisTipi;
   int depoType;
   StokIslemiModel model;
-  StokIslemiScreen(int fisTipi) {
+  StokIslemiScreen(LoginInterface loginInterface, int fisTipi) {
+    this.loginInterface = loginInterface;
     this.fisTipi = fisTipi;
-    model = StokIslemiModel();
+    model = StokIslemiModel(loginInterface);
     model.fisTip = fisTipi;
     if (fisTipi == 1) {
       depoType = 0;
@@ -69,103 +72,105 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
+  String paraBrm;
+
   Widget _bottomBar() {
     return Container(
-      child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            (currentStep != 0
-                ? Container(
-                    margin: EdgeInsets.only(left: 10, bottom: 5),
-                    child: RaisedButton(
-                      color: Colors.blueAccent,
-                      onPressed: () => _onStepCancel(),
-                      child: Icon(
-                        Icons.navigate_before,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink()),
-            Container(
-              margin: EdgeInsets.only(right: 10, bottom: 5),
-              child: RaisedButton(
-                  color: currentStep == 2 ? Colors.green : Colors.blueAccent,
-                  onPressed: () => _onStepContinue(),
-                  child: currentStep == 2
-                      ? Icon(
-                          Icons.done,
-                          color: Colors.white,
-                        )
-                      : Icon(
-                          Icons.navigate_next,
-                          color: Colors.white,
-                        )),
-            ),
-          ]),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
+        (currentStep != 0
+            ? Container(
+                margin: EdgeInsets.only(left: 10, bottom: 5),
+                child: RaisedButton(
+                  color: Colors.blueAccent,
+                  onPressed: () => _onStepCancel(),
+                  child: Icon(
+                    Icons.navigate_before,
+                    color: Colors.white,
+                  ),
+                ),
+              )
+            : SizedBox.shrink()),
+        Container(
+          margin: EdgeInsets.only(right: 10, bottom: 5),
+          child: RaisedButton(
+              color: currentStep == 2 ? Colors.green : Colors.blueAccent,
+              onPressed: () => _onStepContinue(),
+              child: currentStep == 2
+                  ? Icon(
+                      Icons.done,
+                      color: Colors.white,
+                    )
+                  : Icon(
+                      Icons.navigate_next,
+                      color: Colors.white,
+                    )),
+        ),
+      ]),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     setSteps();
-    
-    return !isPBOk ? LoadingScreenViewCommand("Yükleniyor..") : WillPopScope(
-      onWillPop: () => backPress(),
-      child: Scaffold(
-        key: scaffoldKey,
-        resizeToAvoidBottomPadding: true,
-        resizeToAvoidBottomInset: true,
-        body: SafeArea(
-          child: Builder(
-              builder: (context) => Stack(children: [
-                    Stepper(
-                        steps: steps,
-                        physics: ClampingScrollPhysics(),
-                        type: StepperType.horizontal,
-                        currentStep: currentStep,
-                        onStepCancel: () {
-                          cancel(context);
-                        },
-                        onStepContinue: () {
-                          next(context);
-                        },
-                        onStepTapped: (step) {
-                          if (stepIndex[step] == true) {
-                            goTo(context, step);
-                          }
-                        },
-                        controlsBuilder: (BuildContext context,
-                            {VoidCallback onStepContinue,
-                            VoidCallback onStepCancel}) {
-                          _onStepCancel = onStepCancel;
-                          _onStepContinue = onStepContinue;
-                          return Column(children: [
-                            SizedBox(
-                              width: 50,
-                            ),
-                          ]);
-                        }),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: _bottomBar(),
-                    )
-                  ])),
-        ),
-      ),
-    );
+
+    return !isPBOk
+        ? LoadingScreenViewCommand("Yükleniyor..")
+        : WillPopScope(
+            onWillPop: () => backPress(),
+            child: Scaffold(
+              key: scaffoldKey,
+              resizeToAvoidBottomPadding: true,
+              resizeToAvoidBottomInset: true,
+              body: SafeArea(
+                child: Builder(
+                    builder: (context) => Stack(children: [
+                          Stepper(
+                              steps: steps,
+                              physics: ClampingScrollPhysics(),
+                              type: StepperType.horizontal,
+                              currentStep: currentStep,
+                              onStepCancel: () {
+                                cancel(context);
+                              },
+                              onStepContinue: () {
+                                next(context);
+                              },
+                              onStepTapped: (step) {
+                                if (stepIndex[step] == true) {
+                                  goTo(context, step);
+                                }
+                              },
+                              controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                                _onStepCancel = onStepCancel;
+                                _onStepContinue = onStepContinue;
+                                return Column(children: [
+                                  SizedBox(
+                                    width: 50,
+                                  ),
+                                ]);
+                              }),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: _bottomBar(),
+                          )
+                        ])),
+              ),
+            ),
+          );
   }
 
   @override
   void initState() {
     super.initState();
     setParaBrm();
-    stepIndex = {0: true, 1: false, 2: false};
+    stepIndex = {
+      0: true,
+      1: false,
+      2: false
+    };
 
-    sipTarihController.text =
-        "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
-    terminTarihController.text =
-        "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+    sipTarihController.text = "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
+    terminTarihController.text = "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
 
     cariKoduController.text = model.getCariKodu;
     cariAdiController.text = model.getCariAdi;
@@ -185,12 +190,8 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
         builder: (context) => AlertDialog(
               title: Text("Çıkmak istediğinize emin misiniz?"),
               actions: [
-                FlatButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: Text("Hayır")),
-                FlatButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: Text("Evet")),
+                FlatButton(onPressed: () => Navigator.pop(context, false), child: Text("Hayır")),
+                FlatButton(onPressed: () => Navigator.pop(context, true), child: Text("Evet")),
               ],
             ));
   }
@@ -215,6 +216,14 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
   }
 
   showIsOkDialog(BuildContext context) {
+    String fisStr;
+    if (fisTipi == 1) {
+      fisStr = "Mal alım";
+    } else if (fisTipi == 30) {
+      fisStr = "Toptan Satış";
+    } else if (fisTipi == 31) {
+      fisStr = "Perakende Satış";
+    }
     Widget cancelButton = FlatButton(
       child: Text("Hayır"),
       onPressed: () {
@@ -228,14 +237,21 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
         model.insert(satirlarRowModel).then((_) {
           Navigator.pop(context);
           String fisNo = model.sipNo.toString();
+
           AlertDialog alert = AlertDialog(
             title: Text("İşlem Başarılı!"),
-            content: Text("Siparişiniz $fisNo no ile oluşmuştur."),
+            content: Text("$fisStr fişiniz $fisNo no ile oluşmuştur."),
             actions: [
               FlatButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    Navigator.popAndPushNamed(context, '/musterisiparisi');
+                    if (fisTipi == 1) {
+                      Navigator.popAndPushNamed(context, '/malalim');
+                    } else if (fisTipi == 30) {
+                      Navigator.popAndPushNamed(context, '/toptansatis');
+                    } else if (fisTipi == 31) {
+                      Navigator.popAndPushNamed(context, '/perakendesatis');
+                    }
                   },
                   child: Text("Tamam")),
             ],
@@ -252,7 +268,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
     );
     AlertDialog alert = AlertDialog(
       title: Text("Uyarı!"),
-      content: Text("Müşteri Siparişi oluşturmak istediğinize emin misiniz?"),
+      content: Text("$fisStr fişi oluşturmak istediğinizden emin misiniz?"),
       actions: [
         cancelButton,
         continueButton,
@@ -287,16 +303,14 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
           cariRed = true;
         });
       }
-      if (sevkCariKoduController.text == null ||
-          sevkCariKoduController.text == "") {
+      if (sevkCariKoduController.text == null || sevkCariKoduController.text == "") {
         setState(() {
           ret = true;
           sevkRed = true;
         });
       }
       if (depoType == 0 || depoType == 2) {
-        if (girisDepoKoduController.text == null ||
-            girisDepoKoduController.text == "") {
+        if (girisDepoKoduController.text == null || girisDepoKoduController.text == "") {
           setState(() {
             ret = true;
             girisDepoRed = true;
@@ -305,8 +319,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
       }
 
       if (depoType == 1 || depoType == 2) {
-        if (cikisDepoKoduController.text == null ||
-            cikisDepoKoduController.text == "") {
+        if (cikisDepoKoduController.text == null || cikisDepoKoduController.text == "") {
           setState(() {
             ret = true;
             cikisDepoRed = true;
@@ -342,6 +355,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
     steps = [
       Step(
         title: const Text('Başlık'),
+        subtitle: Text("$fisTipi - Fiş Tipi"),
         isActive: stepIndex[0],
         state: maxStep > 0 ? StepState.complete : StepState.editing,
         content: SingleChildScrollView(
@@ -350,32 +364,21 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
             children: [
               Row(
                 children: [
-                  Container(child: Text("Sipariş Tarihi"), width: labelWidth),
+                  Container(child: Text("Tarih"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
                       height: 35,
                       child: TextField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: sipTarihController,
                         onTap: () {
-                          showDatePicker(
-                                  locale: const Locale('tr'),
-                                  context: context,
-                                  initialDate: model.getSiparisTarihi,
-                                  firstDate: DateTime(2010),
-                                  lastDate: DateTime(2030))
-                              .then((value) {
+                          showDatePicker(locale: const Locale('tr'), context: context, initialDate: model.getSiparisTarihi, firstDate: DateTime(2010), lastDate: DateTime(2030)).then((value) {
                             if (value != null) {
                               model.setSiparisTarihi = value;
-                              sipTarihController.text =
-                                  "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
+                              sipTarihController.text = "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
                             }
                           });
                         },
@@ -387,31 +390,21 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
               ),
               Row(
                 children: [
-                  Container(child: Text("Termin Tarihi"), width: labelWidth),
+                  Container(child: Text("Sevk Tarihi"), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
                       height: 35,
                       child: TextField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: terminTarihController,
                         onTap: () {
-                          showDatePicker(
-                                  context: context,
-                                  initialDate: model.getTerminTarihi,
-                                  firstDate: DateTime(2010),
-                                  lastDate: DateTime(2030))
-                              .then((value) {
+                          showDatePicker(context: context, initialDate: model.getTerminTarihi, firstDate: DateTime(2010), lastDate: DateTime(2030)).then((value) {
                             if (value != null) {
                               model.setTerminTarihi = value;
-                              terminTarihController.text =
-                                  "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+                              terminTarihController.text = "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
                             }
                           });
                         },
@@ -431,7 +424,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
                           if (pattern != null && pattern != "") {
-                            return await CariDepoAutoComp.getCariJson(pattern);
+                            return await CariDepoAutoComp.getCariJson(loginInterface, pattern);
                           }
                           return null;
                         },
@@ -448,29 +441,15 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                           );
                         },
                         onSuggestionSelected: (suggestion) {
-                          cariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          cariAdiController.text =
-                              suggestion.values.elementAt(0);
-                          sevkCariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          sevkCariAdiController.text =
-                              suggestion.values.elementAt(0);
+                          cariKoduController.text = suggestion.keys.elementAt(0);
+                          cariAdiController.text = suggestion.values.elementAt(0);
+                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text = suggestion.values.elementAt(0);
                           model.setCariKodu = cariKoduController.text;
                           model.setSevkCariKodu = sevkCariKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: cariRed == true
-                                      ? BorderSide(color: Colors.red, width: 2)
-                                      : BorderSide(width: 0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              contentPadding: EdgeInsets.all(8),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)))),
+                          decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cariRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                           textAlign: TextAlign.left,
                           controller: cariKoduController,
                           /*onChanged: (newText) {
@@ -496,13 +475,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                       height: 35,
                       child: TextField(
                         style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: cariAdiController,
@@ -527,7 +500,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
                           if (pattern != null && pattern != "") {
-                            return await CariDepoAutoComp.getCariJson(pattern);
+                            return await CariDepoAutoComp.getCariJson(loginInterface, pattern);
                           }
                           return null;
                         },
@@ -544,24 +517,12 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                           );
                         },
                         onSuggestionSelected: (suggestion) {
-                          sevkCariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          sevkCariAdiController.text =
-                              suggestion.values.elementAt(0);
+                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text = suggestion.values.elementAt(0);
                           model.sevkCariKodu = sevkCariKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: cariRed == true
-                                      ? BorderSide(color: Colors.red, width: 2)
-                                      : BorderSide(width: 0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              contentPadding: EdgeInsets.all(8),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)))),
+                          decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cariRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                           textAlign: TextAlign.left,
                           controller: sevkCariKoduController,
                         ),
@@ -580,13 +541,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                       height: 35,
                       child: TextField(
                         style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: sevkCariAdiController,
@@ -671,8 +626,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
               depoType == 0 || depoType == 2
                   ? Row(
                       children: [
-                        Container(
-                            child: Text("Giriş Depo Kodu"), width: labelWidth),
+                        Container(child: Text("Giriş Depo Kodu"), width: labelWidth),
                         Padding(padding: EdgeInsets.only(right: 10)),
                         Container(
                             width: 150,
@@ -680,8 +634,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                             child: TypeAheadField(
                               suggestionsCallback: (pattern) async {
                                 if (pattern != null && pattern != "") {
-                                  return await CariDepoAutoComp.getDepoJson(
-                                      pattern);
+                                  return await CariDepoAutoComp.getDepoJson(loginInterface, pattern);
                                 }
                                 return null;
                               },
@@ -695,31 +648,16 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                               itemBuilder: (context, suggestion) {
                                 return ListTile(
                                   title: Text(suggestion.keys.elementAt(0)),
-                                  subtitle:
-                                      Text(suggestion.values.elementAt(0)),
+                                  subtitle: Text(suggestion.values.elementAt(0)),
                                 );
                               },
                               onSuggestionSelected: (suggestion) {
-                                girisDepoKoduController.text =
-                                    suggestion.keys.elementAt(0);
-                                girisDepoAdiController.text =
-                                    suggestion.values.elementAt(0);
-                                model.girisDepoKodu =
-                                    girisDepoAdiController.text;
+                                girisDepoKoduController.text = suggestion.keys.elementAt(0);
+                                girisDepoAdiController.text = suggestion.values.elementAt(0);
+                                model.girisDepoKodu = girisDepoKoduController.text;
                               },
                               textFieldConfiguration: TextFieldConfiguration(
-                                decoration: InputDecoration(
-                                    enabledBorder: OutlineInputBorder(
-                                        borderSide: girisDepoRed == true
-                                            ? BorderSide(
-                                                color: Colors.red, width: 2)
-                                            : BorderSide(width: 0),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5))),
-                                    contentPadding: EdgeInsets.all(8),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5)))),
+                                decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: girisDepoRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                                 textAlign: TextAlign.left,
                                 controller: girisDepoKoduController,
                               ),
@@ -738,21 +676,14 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
               depoType == 0 || depoType == 2
                   ? Row(
                       children: [
-                        Container(
-                            child: Text("Giriş Depo Adı"), width: labelWidth),
+                        Container(child: Text("Giriş Depo Adı"), width: labelWidth),
                         Padding(padding: EdgeInsets.only(right: 10)),
                         Container(
                             width: 150,
                             height: 35,
                             child: TextField(
                               style: TextStyle(color: Colors.black),
-                              decoration: InputDecoration(
-                                  fillColor: Colors.yellow[100],
-                                  filled: true,
-                                  contentPadding: EdgeInsets.all(8),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5)))),
+                              decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                               textAlign: TextAlign.left,
                               readOnly: true,
                               controller: girisDepoAdiController,
@@ -776,8 +707,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
               depoType == 1 || depoType == 2
                   ? Row(
                       children: [
-                        Container(
-                            child: Text("Çıkış Depo Kodu"), width: labelWidth),
+                        Container(child: Text("Çıkış Depo Kodu"), width: labelWidth),
                         Padding(padding: EdgeInsets.only(right: 10)),
                         Container(
                             width: 150,
@@ -785,8 +715,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                             child: TypeAheadField(
                               suggestionsCallback: (pattern) async {
                                 if (pattern != null && pattern != "") {
-                                  return await CariDepoAutoComp.getDepoJson(
-                                      pattern);
+                                  return await CariDepoAutoComp.getDepoJson(loginInterface, pattern);
                                 }
                                 return null;
                               },
@@ -800,31 +729,16 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                               itemBuilder: (context, suggestion) {
                                 return ListTile(
                                   title: Text(suggestion.keys.elementAt(0)),
-                                  subtitle:
-                                      Text(suggestion.values.elementAt(0)),
+                                  subtitle: Text(suggestion.values.elementAt(0)),
                                 );
                               },
                               onSuggestionSelected: (suggestion) {
-                                cikisDepoKoduController.text =
-                                    suggestion.keys.elementAt(0);
-                                cikisDepoAdiController.text =
-                                    suggestion.values.elementAt(0);
-                                model.cikisDepoKodu =
-                                    cikisDepoKoduController.text;
+                                cikisDepoKoduController.text = suggestion.keys.elementAt(0);
+                                cikisDepoAdiController.text = suggestion.values.elementAt(0);
+                                model.cikisDepoKodu = cikisDepoKoduController.text;
                               },
                               textFieldConfiguration: TextFieldConfiguration(
-                                decoration: InputDecoration(
-                                    enabledBorder: OutlineInputBorder(
-                                        borderSide: cikisDepoRed == true
-                                            ? BorderSide(
-                                                color: Colors.red, width: 2)
-                                            : BorderSide(width: 0),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5))),
-                                    contentPadding: EdgeInsets.all(8),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5)))),
+                                decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cikisDepoRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                                 textAlign: TextAlign.left,
                                 controller: cikisDepoKoduController,
                               ),
@@ -843,21 +757,14 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
               depoType == 1 || depoType == 2
                   ? Row(
                       children: [
-                        Container(
-                            child: Text("Çıkış Depo Adı"), width: labelWidth),
+                        Container(child: Text("Çıkış Depo Adı"), width: labelWidth),
                         Padding(padding: EdgeInsets.only(right: 10)),
                         Container(
                             width: 150,
                             height: 35,
                             child: TextField(
                               style: TextStyle(color: Colors.black),
-                              decoration: InputDecoration(
-                                  fillColor: Colors.yellow[100],
-                                  filled: true,
-                                  contentPadding: EdgeInsets.all(8),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5)))),
+                              decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                               textAlign: TextAlign.left,
                               readOnly: true,
                               controller: cikisDepoAdiController,
@@ -886,15 +793,14 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                     width: 150,
                     height: 35,
                     padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                        border: Border.all(width: 0),
-                        borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(border: Border.all(width: 0), borderRadius: BorderRadius.circular(5)),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton(
                           value: selectedParaBirimi,
                           onChanged: (newValue) {
                             setState(() {
                               selectedParaBirimi = newValue;
+                              model.paraBrm = newValue;
                             });
                           },
                           items: paraBirimiList),
@@ -913,11 +819,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                       width: 150,
                       child: TextField(
                         maxLines: 3,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: aciklamaController,
@@ -935,9 +837,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
       ),
       Step(
         isActive: stepIndex[1],
-        state: maxStep > 1
-            ? StepState.complete
-            : maxStep == 1 ? StepState.editing : StepState.indexed,
+        state: maxStep > 1 ? StepState.complete : maxStep == 1 ? StepState.editing : StepState.indexed,
         title: const Text('Detay'),
         content: SingleChildScrollView(
             child: Column(
@@ -958,11 +858,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                       width: 300,
                       height: 35,
                       child: TextFormField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: barkodController,
@@ -970,7 +866,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                         textInputAction: TextInputAction.done,
                         textCapitalization: TextCapitalization.characters,
                         onFieldSubmitted: (value) {
-                          MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel();
+                          MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel(loginInterface);
                           satirModel.setData(value, model).then((list) async {
                             MusteriSiparisiRowModel tempModel;
                             if (list.length != 0) {
@@ -1000,7 +896,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                                       }
 
                                       if (addRow == true) {
-                                        MusteriSiparisiRowModel refModel = MusteriSiparisiRowModel();
+                                        MusteriSiparisiRowModel refModel = MusteriSiparisiRowModel(loginInterface);
                                         refModel.setBarkod = satirModel.getBarkod;
                                         refModel.setKodu = satirModel.getKodu;
                                         refModel.setAdi = satirModel.getAdi;
@@ -1010,6 +906,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                                         refModel.setMiktar = satirModel.getMiktar;
                                         refModel.setStokId = satirModel.getStokId;
                                         refModel.setRenkId = satirModel.getRenkId;
+                                        refModel.kur = satirModel.kur;
                                         refModel.setBeden = satirModel.getBeden;
                                         refModel.setStokRenkBoyutId = satirModel.getStokRenkBoyutId;
                                         refModel.lot = satirModel.lot;
@@ -1029,7 +926,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                                       }
 
                                       if (add == true) {
-                                        MusteriSiparisiRowModel lotModel = MusteriSiparisiRowModel();
+                                        MusteriSiparisiRowModel lotModel = MusteriSiparisiRowModel(loginInterface);
                                         lotModel.setBarkod = satirModel.getBarkod;
                                         lotModel.setKodu = satirModel.getKodu;
                                         lotModel.setAdi = satirModel.getAdi;
@@ -1083,20 +980,14 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
               children: [
                 Expanded(
                   child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1.color,
-                              width: 1),
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.65,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
                         scrollDirection: Axis.vertical,
-                        itemBuilder: (context, index) =>
-                            slidableSatir(satirlarModel[index], index),
+                        itemBuilder: (context, index) => slidableSatir(satirlarModel[index], index),
                       )),
                 ),
               ],
@@ -1119,13 +1010,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.left,
                       readOnly: true,
                       controller: cariKoduController,
@@ -1144,13 +1029,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.left,
                       readOnly: true,
                       controller: cariAdiController,
@@ -1164,20 +1043,14 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
               children: [
                 Expanded(
                   child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1.color,
-                              width: 1),
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.33,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
                         scrollDirection: Axis.vertical,
-                        itemBuilder: (context, index) =>
-                            table(satirlarModel[index], index),
+                        itemBuilder: (context, index) => table(satirlarModel[index], index),
                       )),
                 ),
               ],
@@ -1209,11 +1082,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                     )),*/
                 Expanded(
                   child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            width: 1),
-                        borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.18,
                     child: SingleChildScrollView(
@@ -1238,20 +1107,14 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(child: Text("Toplam Miktar"), width: 100),
+                Container(child: Text("Toplam Adet"), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
                     width: 100,
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.right,
                       readOnly: true,
                       onChanged: (newText) {},
@@ -1272,14 +1135,13 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
       MusteriSiparisiRowModel model = satirlarModel[i];
       MusteriSiparisiRowModel toplamModel = paraBrmMap[model.getParaBirimi];
       if (toplamModel == null) {
-        toplamModel = MusteriSiparisiRowModel();
+        toplamModel = MusteriSiparisiRowModel(loginInterface);
         toplamModel.setParaBirimi = model.getParaBirimi;
         paraBrmMap.putIfAbsent(model.getParaBirimi, () => toplamModel);
       }
       setState(() {
         toplamModel.setMiktar = toplamModel.getMiktar + model.getMiktar;
-        toplamModel.setFiyat =
-            toplamModel.getFiyat + (model.getMiktar * model.getFiyat);
+        toplamModel.setFiyat = toplamModel.getFiyat + (model.getMiktar * model.getFiyat);
       });
     }
     int index = 0;
@@ -1287,8 +1149,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
       MusteriSiparisiRowModel toplamModel = paraBrmMap[keys];
       index++;
       list.add(DataRow(
-          color: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
+          color: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
             return index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100];
           }),
           cells: [
@@ -1332,73 +1193,53 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
         5: FractionColumnWidth(.1),
       },
       children: [
+        TableRow(decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]), children: [
+          Text(
+            "Barkod",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getBarkod, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            "Renk",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getRenk, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            "Para Birimi",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getParaBirimi, style: TextStyle(color: value, fontSize: valueSize)),
+        ]),
+        TableRow(decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]), children: [
+          Text(
+            "Kodu",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getKodu, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            model.lot == 1 ? "Lot İçi Adeti" : "Beden",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.lot == 1 ? model.lotAdeti.toString() : model.getBeden, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            "Fiyat",
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getFiyat.toString(), style: TextStyle(color: value, fontSize: valueSize)),
+        ]),
         TableRow(
-            decoration: BoxDecoration(
-                color:
-                    index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
-            children: [
-              Text(
-                "Barkod",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getBarkod,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                "Renk",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getRenk,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                "Para Birimi",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getParaBirimi,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-            ]),
-        TableRow(
-            decoration: BoxDecoration(
-                color:
-                    index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
-            children: [
-              Text(
-                "Kodu",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getKodu,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                model.lot == 1 ? "Lot İçi Adeti" : "Beden",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.lot == 1 ? model.lotAdeti.toString() : model.getBeden,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                "Fiyat",
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getFiyat.toString(),
-                  style: TextStyle(color: value, fontSize: valueSize)),
-            ]),
-        TableRow(
-          decoration: BoxDecoration(
-              color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
+          decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
           children: [
             Text(
               "Adi",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(model.getAdi,
-                style: TextStyle(color: value, fontSize: valueSize)),
+            Text(model.getAdi, style: TextStyle(color: value, fontSize: valueSize)),
             Text(
               model.lot == 1 ? "Lot Adeti" : "Miktar",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(
-                model.lot == 1
-                    ? (model.getMiktar / model.lotAdeti).toString()
-                    : model.getMiktar.toString(),
-                style: TextStyle(color: value, fontSize: valueSize)),
+            Text(model.lot == 1 ? (model.getMiktar / model.lotAdeti).toString() : model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
             Text(
               model.lot == 1 ? "Toplam Adet" : "",
               style: TextStyle(color: baslik, fontSize: baslikSize),
@@ -1438,12 +1279,8 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                 builder: (context) => AlertDialog(
                       title: Text("Silmek istediğinize emin misiniz?"),
                       actions: [
-                        FlatButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text("Hayır")),
-                        FlatButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text("Evet")),
+                        FlatButton(onPressed: () => Navigator.pop(context, false), child: Text("Hayır")),
+                        FlatButton(onPressed: () => Navigator.pop(context, true), child: Text("Evet")),
                       ],
                     )).then((value) {
               if (value == true) {
@@ -1451,11 +1288,8 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                   satirlarModel.removeAt(satirlarModel.indexOf(model));
                   for (var i = 0; i < satirlarRowModel.length; i++) {
                     MusteriSiparisiRowModel rowModel = satirlarRowModel[i];
-                    if (model.barkod == rowModel.barkod &&
-                        model.stokId == rowModel.stokId &&
-                        model.renkId == rowModel.renkId) {
-                      satirlarRowModel
-                          .removeAt(satirlarRowModel.indexOf(rowModel));
+                    if (model.barkod == rowModel.barkod && model.stokId == rowModel.stokId && model.renkId == rowModel.renkId) {
+                      satirlarRowModel.removeAt(satirlarRowModel.indexOf(rowModel));
                       i--;
                     }
                   }
@@ -1471,96 +1305,127 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
   }
 
   void editDialog(MusteriSiparisiRowModel model) {
-    TextEditingController controller = TextEditingController();
     showDialog(
         context: context,
         builder: (BuildContext context) {
+          paraBrm = model.paraBirimi;
+          TextEditingController miktarController = TextEditingController();
+          TextEditingController fiyatController = TextEditingController();
+          fiyatController.text = model.getFiyat.toString();
+          miktarController.text = model.lot == 0 ? model.getMiktar.toString() : (model.getMiktar ~/ model.lotAdeti).toInt().toString();
           return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)),
-            child: Container(
-              height: 200,
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      controller: controller,
-                      decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Yeni miktarı giriniz.'),
-                    ),
-                    Center(
-                      child: SizedBox(
-                        width: 320.0,
-                        child: RaisedButton(
-                          onPressed: () {
-                            setState(() {
-                              if (model.lot == 0) {
-                                model.setMiktar = int.parse(controller.text);
-                                print("TEKLI MIKTAR GIRISI");
-                                for (var i = 0;
-                                    i < satirlarRowModel.length;
-                                    i++) {
-                                  if (satirlarRowModel[i].stokRenkBoyutId ==
-                                      model.stokRenkBoyutId) {
-                                    satirlarRowModel[i].setMiktar =
-                                        int.parse(controller.text);
-                                  }
-                                }
-                              } else {
-                                model.setMiktar =
-                                    model.lotAdeti * int.parse(controller.text);
-                                print(satirlarRefModel);
-                                for (var i = 0;
-                                    i < satirlarRefModel.length;
-                                    i++) {
-                                  MusteriSiparisiRowModel refModel =
-                                      satirlarRefModel[i];
-                                  print(model.getBarkod);
-                                  print(refModel.getBarkod);
-                                  if (refModel.barkod == model.barkod &&
-                                      refModel.stokId == model.stokId &&
-                                      refModel.renkId == model.renkId) {
-                                    for (var k = 0;
-                                        k < satirlarRowModel.length;
-                                        k++) {
-                                      MusteriSiparisiRowModel rowModel =
-                                          satirlarRowModel[k];
-                                      print(rowModel.getStokRenkBoyutId);
-                                      print(refModel.getStokRenkBoyutId);
-                                      if (rowModel.getStokRenkBoyutId ==
-                                          refModel.getStokRenkBoyutId) {
-                                        rowModel.setMiktar =
-                                            refModel.getMiktar *
-                                                int.parse(controller.text);
-                                        print(rowModel.getMiktar);
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Container(
+                  height: 300,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InputDecorator(
+                          decoration: InputDecoration(labelText: "Para Birimi", border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              hint: Text(
+                                "Para Birimi",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                              isDense: true,
+                              value: paraBrm,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  paraBrm = newValue;
+                                });
+                              },
+                              items: paraBirimiList,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        TextField(
+                          keyboardType: TextInputType.number,
+                          /*inputFormatters: <TextInputFormatter>[ // SADECE NUMARA - VIRGUL BILE ISLEMIYOR 0-9
+                          FilteringTextInputFormatter.digitsOnly
+                        ],*/
+                          controller: fiyatController,
+                          decoration: InputDecoration(labelText: "Fiyat", border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni fiyatı giriniz.'),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        TextField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          controller: miktarController,
+                          decoration: InputDecoration(labelText: (model.lot == 1 ? "Lot Adedi" : "Adet"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni miktarı giriniz.'),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Center(
+                          child: SizedBox(
+                            width: 320.0,
+                            child: RaisedButton(
+                              onPressed: () {
+                                setState(() {
+                                  if (model.lot == 0) {
+                                    model.setMiktar = int.parse(miktarController.text);
+                                    model.setFiyat = double.parse(fiyatController.text);
+                                    model.setParaBirimi = paraBrm;
+                                    print("TEKLI MIKTAR GIRISI");
+                                    for (var i = 0; i < satirlarRowModel.length; i++) {
+                                      MusteriSiparisiRowModel rowModel = satirlarRowModel[i];
+                                      if (rowModel.stokRenkBoyutId == model.stokRenkBoyutId) {
+                                        rowModel.setMiktar = int.parse(miktarController.text);
+                                        rowModel.setFiyat = double.parse(fiyatController.text);
+                                        rowModel.setParaBirimi = paraBrm;
                                       }
                                     }
+                                  } else {
+                                    //GORUNEN LOT
+                                    model.setMiktar = model.lotAdeti * int.parse(miktarController.text);
+                                    model.setFiyat = double.parse(fiyatController.text);
+                                    model.setParaBirimi = paraBrm;
+
+                                    //ARKA PLANDAKI LOT ICI TEKLISI
+                                    for (var i = 0; i < satirlarRefModel.length; i++) {
+                                      MusteriSiparisiRowModel refModel = satirlarRefModel[i];
+                                      if (refModel.barkod == model.barkod && refModel.stokId == model.stokId && refModel.renkId == model.renkId) {
+                                        for (var k = 0; k < satirlarRowModel.length; k++) {
+                                          MusteriSiparisiRowModel rowModel = satirlarRowModel[k];
+                                          if (rowModel.getStokRenkBoyutId == refModel.getStokRenkBoyutId) {
+                                            rowModel.setMiktar = refModel.getMiktar * int.parse(miktarController.text);
+                                            rowModel.setFiyat = double.parse(fiyatController.text);
+                                            rowModel.setParaBirimi = paraBrm;
+                                          }
+                                        }
+                                      }
+                                    }
+                                    print("LOT MIKTAR GIRISI");
                                   }
-                                }
-                                print("LOT MIKTAR GIRISI");
-                              }
-                            });
-                            Navigator.pop(context);
-                          },
-                          child: Text(
-                            "Kaydet",
-                            style: TextStyle(color: Colors.white),
+                                });
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                "Kaydet",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              color: const Color(0xFF1BC0C5),
+                            ),
                           ),
-                          color: const Color(0xFF1BC0C5),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           );
         });
@@ -1574,10 +1439,9 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
         context: context,
         builder: (BuildContext context) {
           return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
             child: Container(
-              height: 200,
+              height: 250,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
@@ -1638,11 +1502,26 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                         ]),
                         TableRow(children: [
                           Text(
-                            "Lot",
+                            "Renk",
                             style: TextStyle(fontStyle: FontStyle.italic),
                           ),
-                          Text("Lot içi"),
-                        ])
+                          Text(tempModel.getRenk),
+                        ]),
+                        tempModel.lot == 1
+                            ? TableRow(children: [
+                                Text(
+                                  "Lot içi adedi",
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                                Text(tempModel.lotAdeti.toString()),
+                              ])
+                            : TableRow(children: [
+                                Text(
+                                  "Beden",
+                                  style: TextStyle(fontStyle: FontStyle.italic),
+                                ),
+                                Text(tempModel.getBeden.toString()),
+                              ])
                       ],
                     ),
                     SizedBox(
@@ -1654,9 +1533,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
                         FilteringTextInputFormatter.digitsOnly
                       ],
                       controller: controller,
-                      decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Miktarı giriniz.'),
+                      decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Miktarı giriniz.', labelText: (tempModel.lot == 0 ? "Adet" : "Lot Adedi")),
                     ),
                     Center(
                       child: SizedBox(
@@ -1688,9 +1565,8 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
   }
 
   Future<List> futureParaBirimi() async {
-    
-    String ip = LoginScreenView.ip;
-    String port = LoginScreenView.port;
+    String ip = loginInterface.getHttpManager().getIp;
+    String port = loginInterface.getHttpManager().getPort;
     var url = "http://$ip:$port/ERPService/parabirimi/list";
     await http.get(url).then((value) {
       paraBirimiList.clear();
@@ -1712,7 +1588,7 @@ class StokIslemiScreen extends State<StokIslemiScreenCommand> {
     return paraBirimiList;
   }
 
-    void setParaBrm() {
+  void setParaBrm() {
     futureParaBirimi().then((value) {
       setState(() {
         paraBirimiList = value;

@@ -1,3 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:teronmobile/interface/LoginInterface.dart';
+
 class DonemModel {
   String kod;
   String adi;
@@ -11,6 +16,23 @@ class DonemModel {
     this.adi = json['adi'];
   }
 
+  static Future<List> futureDonem(LoginInterface loginInterface) async {
+    List<DropdownMenuItem<String>> donemList = new List();
+    await loginInterface.getHttpManager().httpGet("/ERPService/donem/list").then((value) {
+      if (value != null) {
+        String resp = Utf8Decoder().convert(value.bodyBytes);
+        var jsonDecode = json.decode(resp);
+        for (var jsonDonem in jsonDecode) {
+          donemList.add(DropdownMenuItem(
+            child: Text(jsonDonem['kod'] + " - " + jsonDonem['adi']),
+            value: jsonDonem['kod'].toString(),
+          ));
+        }
+      }
+    });
+    return donemList;
+  }
+
   String get getKod => kod;
 
   set setKod(String kod) => this.kod = kod;
@@ -21,8 +43,7 @@ class DonemModel {
 
   DateTime get getBaslangicTarihi => baslangicTarihi;
 
-  set setBaslangicTarihi(DateTime baslangicTarihi) =>
-      this.baslangicTarihi = baslangicTarihi;
+  set setBaslangicTarihi(DateTime baslangicTarihi) => this.baslangicTarihi = baslangicTarihi;
 
   DateTime get getBitisTarihi => bitisTarihi;
 
@@ -30,11 +51,9 @@ class DonemModel {
 
   DateTime get getKapaliBaslangicTarihi => kapaliBaslangicTarihi;
 
-  set setKapaliBaslangicTarihi(DateTime kapaliBaslangicTarihi) =>
-      this.kapaliBaslangicTarihi = kapaliBaslangicTarihi;
+  set setKapaliBaslangicTarihi(DateTime kapaliBaslangicTarihi) => this.kapaliBaslangicTarihi = kapaliBaslangicTarihi;
 
   DateTime get getKapaliBitisTarihi => kapaliBitisTarihi;
 
-  set setKapaliBitisTarihi(DateTime kapaliBitisTarihi) =>
-      this.kapaliBitisTarihi = kapaliBitisTarihi;
+  set setKapaliBitisTarihi(DateTime kapaliBitisTarihi) => this.kapaliBitisTarihi = kapaliBitisTarihi;
 }
