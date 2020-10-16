@@ -5,7 +5,7 @@ import 'package:teronmobile/command/StokIslemiScreenCommand.dart';
 import 'command/LoginScreenCommand.dart';
 
 void main() {
-  LoginViewCommand lvc = LoginViewCommand();
+  LoginScreenCommand lvc = LoginScreenCommand();
 
   runApp(MaterialApp(
       theme: ThemeData(
@@ -28,7 +28,8 @@ void main() {
         '/musterisiparisi': (context) => MusteriSiparisiScreenCommand(lvc.getLsv),
         '/malalim': (context) => StokIslemiScreenCommand(lvc.getLsv, 1),
         '/toptansatis': (context) => StokIslemiScreenCommand(lvc.getLsv, 30),
-        '/perakendesatis': (context) => StokIslemiScreenCommand(lvc.getLsv, 31)
+        '/perakendesatis': (context) => StokIslemiScreenCommand(lvc.getLsv, 31),
+        '/uretim': (context) => StokIslemiScreenCommand(lvc.getLsv, 10)
       }));
   // home: LoginViewCommand()));
 }

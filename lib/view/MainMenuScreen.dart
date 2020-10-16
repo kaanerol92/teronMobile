@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
-class MainMenuView extends StatelessWidget {
+class MainMenuScreen extends StatelessWidget {
   var context;
 
   Map menuMap;
   String titl3;
 
-  MainMenuView(Map<String, dynamic> menuMap, String titl3) {
+  MainMenuScreen(Map<String, dynamic> menuMap, String titl3) {
     this.menuMap = menuMap;
     this.titl3 = titl3;
   }
@@ -34,8 +34,7 @@ class MainMenuView extends StatelessWidget {
             return Align(
               alignment: Alignment.center,
               child: Center(
-                child: getMenuItem(menuMap.keys.toList()[index],
-                    menuMap.values.toList()[index]),
+                child: getMenuItem(menuMap.keys.toList()[index], menuMap.values.toList()[index]),
               ),
             );
           }),
@@ -48,17 +47,17 @@ class MainMenuView extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
               border: Border.all(color: Colors.white, style: BorderStyle.none),
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20)),
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.white,
                   offset: Offset(0, 2),
                 ),
               ],
-              gradient: RadialGradient(
-                  colors: [Colors.black, Colors.grey], radius: 6)),
+              gradient: RadialGradient(colors: [
+                Colors.black,
+                Colors.grey
+              ], radius: 6)),
           padding: const EdgeInsets.all(20),
           margin: const EdgeInsets.all(20),
           child: Row(

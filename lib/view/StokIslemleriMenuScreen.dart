@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:teronmobile/command/StokIslemiScreenCommand.dart';
 import 'package:teronmobile/interface/LoginInterface.dart';
+import 'package:teronmobile/repository/TextRepository.dart';
 import 'package:teronmobile/view/MainMenuScreen.dart';
 
 class StokIslemleriMenuScreen extends StatelessWidget {
@@ -13,9 +14,10 @@ class StokIslemleriMenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Map menuMap = Map<String, dynamic>();
-    menuMap.putIfAbsent('Mal Alım', () => StokIslemiScreenCommand(loginInterface, 1));
-    menuMap.putIfAbsent('Toptan Satış', () => StokIslemiScreenCommand(loginInterface, 30));
-    menuMap.putIfAbsent('Perakende Satış', () => StokIslemiScreenCommand(loginInterface, 31));
-    return MainMenuView(menuMap, "Stok İşlemleri");
+    menuMap.putIfAbsent(TextRepository.getText(TextRepository.MAL_ALIM), () => StokIslemiScreenCommand(loginInterface, 1));
+    menuMap.putIfAbsent(TextRepository.getText(TextRepository.TOPTAN_SATIS), () => StokIslemiScreenCommand(loginInterface, 30));
+    menuMap.putIfAbsent(TextRepository.getText(TextRepository.PERAKENDE_SATIS), () => StokIslemiScreenCommand(loginInterface, 31));
+    menuMap.putIfAbsent(TextRepository.getText(TextRepository.URETIM), () => StokIslemiScreenCommand(loginInterface, 10));
+    return MainMenuScreen(menuMap, TextRepository.getText(TextRepository.STOK_ISLEMLERI));
   }
 }

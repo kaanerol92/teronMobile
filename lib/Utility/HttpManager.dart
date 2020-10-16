@@ -39,18 +39,13 @@ class HttpManager {
   void checkConnection(BuildContext context) async {
     String icAdress = "$icIp";
     String disAdress = "$disIp";
-    print(icAdress);
-    print(disAdress);
     try {
       final result = await InternetAddress.lookup(icAdress).timeout(Duration(seconds: 10));
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         setIp = icIp;
         setPort = icPort;
-        print(ip);
-        print(port);
         setHttpUrl = "http://$ip:$port";
         setConnect = true;
-        print(httpUrl);
       }
     } on SocketException catch (_) {
       try {

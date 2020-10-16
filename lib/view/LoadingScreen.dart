@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:teronmobile/command/LoadingScreenCommand.dart';
 
-class LoadingScreenView extends State<LoadingScreenViewCommand> {
+class LoadingScreen extends State<LoadingScreenCommand> {
   String message;
 
-  LoadingScreenView(String message) {
+  LoadingScreen(String message) {
     this.message = message;
   }
 

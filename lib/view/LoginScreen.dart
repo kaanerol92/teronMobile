@@ -1,23 +1,19 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:teronmobile/Utility/HttpManager.dart';
 import 'package:teronmobile/command/LoadingScreenCommand.dart';
 import 'package:teronmobile/command/LoginScreenCommand.dart';
 import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/model/DonemModel.dart';
 import 'package:teronmobile/model/KullaniciSessionModel.dart';
-import 'package:teronmobile/model/PersonelModel.dart';
 import 'package:teronmobile/model/SirketModel.dart';
-import 'package:teronmobile/view/MainMenuScreen.dart';
-import 'package:teronmobile/view/SiparisIslemleriMenuScreen.dart';
-import 'package:teronmobile/view/StokIslemleriMenuScreen.dart';
+import 'package:teronmobile/repository/TextRepository.dart';
 
 import 'AnaMenuScreen.dart';
 
-class LoginScreenView extends State<LoginViewCommand> implements LoginInterface {
+class LoginScreenView extends State<LoginScreenCommand> implements LoginInterface {
   KullaniciSessionModel ksm;
   List<DropdownMenuItem<String>> sirketList = new List();
   List<DropdownMenuItem<String>> donemList = new List();
@@ -28,10 +24,8 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
   bool sirketOk = false;
   bool donemOk = false;
   HttpManager httpManager = HttpManager();
-
-  // LoginScreenView() {
-  //   httpManager = HttpManager();
-  // }
+  SharedPreferences prefs;
+  bool dil;
 
   void setSirket() async {
     await SirketModel.futureSirket(this).then((value) {
@@ -44,6 +38,12 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
         }
       });
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    TextRepository.setTexts();
   }
 
   void setDonem() async {
@@ -60,7 +60,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
 
   void giris(BuildContext context) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return LoadingScreenViewCommand("Giriş Yapılıyor");
+      return LoadingScreenCommand(TextRepository.getText(TextRepository.GIRIS_YAPILIYOR));
     }));
     await KullaniciSessionModel.futureGiris(this, perId, sifre, selectedSirket, selectedDonem).then((value) {
       Navigator.pop(context);
@@ -70,15 +70,12 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
           children: [
             Icon(Icons.announcement),
             Padding(padding: EdgeInsets.all(20)),
-            Text("Giriş Başarısız."),
+            Text(TextRepository.getText(TextRepository.GIRIS_BASARISIZ)),
           ],
         )));
       } else {
         //ANA MENU ACAN KISIM
         ksm = value;
-        // Map menuMap = Map<String, dynamic>();
-        // menuMap.putIfAbsent('Sipariş İşlemleri', () => SiparisIslemleriMenuScreen());
-        // menuMap.putIfAbsent('Stok İşlemleri', () => StokIslemleriMenuScreen());
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return AnaMenuScreen(this);
         }));
@@ -88,6 +85,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
 
   @override
   Widget build(BuildContext context) {
+    print("HTTP CONNECT");
     print(httpManager.getConnect);
     return (httpManager.getConnect) ? login() : ipLog();
   }
@@ -96,7 +94,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
     if (sirketOk == false || donemOk == false) {
       setSirket();
       setDonem();
-      return LoadingScreenViewCommand("Sistem Yükleniyor..");
+      return LoadingScreenCommand(TextRepository.getText(TextRepository.SISTEM_YUKLENIYOR));
     }
 
     return Scaffold(
@@ -108,13 +106,13 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                 padding: EdgeInsets.symmetric(horizontal: 24.0),
                 children: <Widget>[
                   SizedBox(height: 80.0),
-                  Center(child: Text("TERON MOBILE")),
+                  Center(child: Text(TextRepository.getText(TextRepository.MOBILE_TITLE))),
                   SizedBox(height: 80.0),
                   TextField(
                     decoration: InputDecoration(
                       border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
-                      labelText: 'Kullanıcı Adı',
+                      labelText: TextRepository.getText(TextRepository.KULLANICI_ADI),
                       labelStyle: TextStyle(fontStyle: FontStyle.italic),
                       filled: true,
                     ),
@@ -127,7 +125,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                     decoration: InputDecoration(
                       border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
-                      labelText: 'Şifre',
+                      labelText: TextRepository.getText(TextRepository.SIFRE),
                       filled: true,
                       labelStyle: TextStyle(fontStyle: FontStyle.italic),
                     ),
@@ -142,7 +140,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         hint: Text(
-                          "Şirket",
+                          TextRepository.getText(TextRepository.SIRKET),
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                         value: selectedSirket,
@@ -162,7 +160,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         hint: Text(
-                          "Dönem",
+                          TextRepository.getText(TextRepository.DONEM),
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
                         value: selectedDonem,
@@ -179,8 +177,22 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                   SizedBox(height: 24.0),
                   ButtonBar(
                     children: <Widget>[
+                      Text("EN"),
+                      Checkbox(
+                          value: dil,
+                          onChanged: (bool value) {
+                            setState(() {
+                              dil = value;
+                              prefs.setBool("Dil", value);
+                              if (dil) {
+                                TextRepository.setEnTexts();
+                              } else {
+                                TextRepository.setTexts();
+                              }
+                            });
+                          }),
                       FlatButton(
-                        child: Text('Çıkış'),
+                        child: Text(TextRepository.getText(TextRepository.CIKIS)),
                         onPressed: () {
                           //SystemChannels.platform
                           //.invokeMethod('SystemNavigator.pop');
@@ -188,7 +200,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                         },
                       ),
                       FlatButton(
-                        child: Text('Giriş'),
+                        child: Text(TextRepository.getText(TextRepository.GIRIS)),
                         onPressed: () {
                           giris(context);
                         },
@@ -209,7 +221,39 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
   TextEditingController ipDisCont = TextEditingController();
   TextEditingController ipDisPortCont = TextEditingController();
 
+  getIpPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    if (prefs.getString("icIp") == null || prefs.getString("icPort") == null || prefs.getString("DisIp") == null || prefs.getString("DisPort") == null) {
+      return;
+    } else {
+      setState(() {
+        httpManager.setIcIp = prefs.getString("icIp");
+        httpManager.setIcPort = prefs.getString("icPort");
+        httpManager.setDisIp = prefs.getString("DisIp");
+        httpManager.setDisPort = prefs.getString("DisPort");
+        httpManager.checkConnection(context);
+        if (prefs.getBool("Dil") != null) {
+          setState(() {
+            dil = prefs.getBool("Dil");
+            if (prefs.getBool("Dil") == true) {
+              TextRepository.setEnTexts();
+            }
+          });
+        } else {
+          setState(() {
+            dil = false;
+          });
+        }
+      });
+    }
+  }
+
+  setIpPrefs(String key, var value) async {
+    await prefs.setString(key, value);
+  }
+
   Widget ipLog() {
+    getIpPrefs();
     return Scaffold(
       body: Builder(
         builder: (context) => Scaffold(
@@ -219,13 +263,13 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                 padding: EdgeInsets.symmetric(horizontal: 24.0),
                 children: <Widget>[
                   SizedBox(height: 80.0),
-                  Center(child: Text("TERON MOBILE - IP Ayarları")),
+                  Center(child: Text(TextRepository.getText(TextRepository.MOBILE_TITLE) + " - " + TextRepository.getText(TextRepository.IP_AYARLARI))),
                   SizedBox(height: 80.0),
                   TextField(
                     decoration: InputDecoration(
                       border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
-                      labelText: 'İç Ip',
+                      labelText: TextRepository.getText(TextRepository.ICIP),
                       labelStyle: TextStyle(fontStyle: FontStyle.italic),
                       filled: true,
                     ),
@@ -236,7 +280,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                       decoration: InputDecoration(
                         border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                         contentPadding: EdgeInsets.all(20),
-                        labelText: 'İç Port',
+                        labelText: TextRepository.getText(TextRepository.ICPORT),
                         filled: true,
                         labelStyle: TextStyle(fontStyle: FontStyle.italic),
                       ),
@@ -246,7 +290,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                       decoration: InputDecoration(
                         border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                         contentPadding: EdgeInsets.all(20),
-                        labelText: 'Dış Ip',
+                        labelText: TextRepository.getText(TextRepository.DISIP),
                         labelStyle: TextStyle(fontStyle: FontStyle.italic),
                         filled: true,
                       ),
@@ -256,7 +300,7 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                     decoration: InputDecoration(
                       border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
-                      labelText: 'Dış Port',
+                      labelText: TextRepository.getText(TextRepository.DISPORT),
                       filled: true,
                       labelStyle: TextStyle(fontStyle: FontStyle.italic),
                     ),
@@ -266,22 +310,19 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
                   ButtonBar(
                     children: <Widget>[
                       FlatButton(
-                        child: Text('Çıkış'),
+                        child: Text(TextRepository.getText(TextRepository.CIKIS)),
                         onPressed: () {
-                          //SystemChannels.platform
-                          //.invokeMethod('SystemNavigator.pop');
                           exit(1);
                         },
                       ),
                       FlatButton(
-                        child: Text('Tamam'),
+                        child: Text(TextRepository.getText(TextRepository.TAMAM)),
                         onPressed: () {
                           setState(() {
-                            httpManager.setIcIp = ipCont.text;
-                            httpManager.setIcPort = ipPortCont.text;
-                            httpManager.setDisIp = ipDisCont.text;
-                            httpManager.setDisPort = ipDisPortCont.text;
-                            httpManager.checkConnection(context);
+                            setIpPrefs("icIp", ipCont.text);
+                            setIpPrefs("icPort", ipPortCont.text);
+                            setIpPrefs("DisIp", ipDisCont.text);
+                            setIpPrefs("DisPort", ipDisPortCont.text);
                           });
                         },
                       )
@@ -304,5 +345,10 @@ class LoginScreenView extends State<LoginViewCommand> implements LoginInterface 
   @override
   KullaniciSessionModel getKullaniciSession() {
     return ksm;
+  }
+
+  @override
+  SharedPreferences getPrefs() {
+    return prefs;
   }
 }
