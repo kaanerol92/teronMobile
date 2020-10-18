@@ -26,6 +26,10 @@ class TextRepository {
   static const String PERAKENDE_SATIS = "PERAKENDE_SATIS";
   static const String URETIM = "URETIM";
   static const String KAYDET = "KAYDET";
+  static const String EVET = "EVET";
+  static const String HAYIR = "HAYIR";
+  static const String SIL = "SIL";
+  static const String DUZENLE = "DUZENLE";
 
   //MODULLER
   static const String BASLIK = "BASLIK";
@@ -61,6 +65,8 @@ class TextRepository {
   static const String TOPLAM_ADET = "TOPLAM_ADET";
   static const String MIKTAR = "MIKTAR";
   static const String TUTAR = "TUTAR";
+  static const String LOT_ICI_ADEDI = "LOT_ICI_ADEDI";
+  static const String LOT_ADEDI = "LOT_ADEDI";
 
   static void setTexts() {
     textMap.clear();
@@ -88,6 +94,48 @@ class TextRepository {
     textMap.putIfAbsent(TOPTAN_SATIS, () => "Toptan Satış");
     textMap.putIfAbsent(PERAKENDE_SATIS, () => "Perakende Satış");
     textMap.putIfAbsent(URETIM, () => "Üretim");
+    textMap.putIfAbsent(BASLIK, () => "Başlık");
+    textMap.putIfAbsent(DETAY, () => "Detay");
+    textMap.putIfAbsent(OZET, () => "Özet");
+    textMap.putIfAbsent(EVET, () => "Evet");
+    textMap.putIfAbsent(HAYIR, () => "Hayır");
+    textMap.putIfAbsent(SIL, () => "Sil");
+    textMap.putIfAbsent(DUZENLE, () => "Düzenle");
+    textMap.putIfAbsent(KAYDET, () => "Kaydet");
+
+    textMap.putIfAbsent(SIPARIS_TARIHI, () => "Sipariş Tarihi");
+    textMap.putIfAbsent(TERMIN_TARIHI, () => "Termin Tarihi");
+    textMap.putIfAbsent(CARI_KODU, () => "Cari Kodu");
+    textMap.putIfAbsent(CARI_ADI, () => "Cari Adı");
+    textMap.putIfAbsent(SEVK_CARI_KODU, () => "Sevk Cari Kodu");
+    textMap.putIfAbsent(SEVK_CARI_ADI, () => "Sevk Cari Adı");
+    textMap.putIfAbsent(DEPO_KODU, () => "Depo Kodu");
+    textMap.putIfAbsent(DEPO_ADI, () => "Depo Adı");
+    textMap.putIfAbsent(MUSTERI_SIPARIS_NO, () => "Müşteri Sipariş No");
+    textMap.putIfAbsent(ACIKLAMA, () => "Açıklama");
+    textMap.putIfAbsent(BARKOD, () => "Barkod");
+    textMap.putIfAbsent(STOK_KODU, () => "Stok Kodu");
+    textMap.putIfAbsent(STOK_ADI, () => "Stok Adı");
+    textMap.putIfAbsent(RENK, () => "Renk");
+    textMap.putIfAbsent(BEDEN, () => "Beden");
+    textMap.putIfAbsent(ADET, () => "Adet");
+    textMap.putIfAbsent(TARIH, () => "Tarih");
+    textMap.putIfAbsent(SEVK_TARIHI, () => "Sevk Tarihi");
+    textMap.putIfAbsent(GIRIS_DEPO_KODU, () => "Giriş Depo Kodu");
+    textMap.putIfAbsent(GIRIS_DEPO_ADI, () => "Giriş Depo Adı");
+    textMap.putIfAbsent(CIKIS_DEPO_KODU, () => "Çıkış Depo Kodu");
+    textMap.putIfAbsent(CIKIS_DEPO_ADI, () => "Çıkış Depo Adı");
+    textMap.putIfAbsent(PARA_BIRIMI, () => "Para Birimi");
+    textMap.putIfAbsent(FIYAT, () => "Fiyat");
+    textMap.putIfAbsent(FIS_TIPI, () => "Fiş Tipi");
+    textMap.putIfAbsent(KODU, () => "Kodu");
+    textMap.putIfAbsent(ADI, () => "Adı");
+    textMap.putIfAbsent(TOPLAM_ADET, () => "Toplam Adet");
+    textMap.putIfAbsent(MIKTAR, () => "Miktar");
+    textMap.putIfAbsent(TUTAR, () => "Tutar");
+    textMap.putIfAbsent(LOT_ICI_ADEDI, () => "Lot İçi Adedi");
+    textMap.putIfAbsent(LOT_ADEDI, () => "Lot Adedi");
+
   }
 
   static void setEnTexts() {
@@ -116,6 +164,47 @@ class TextRepository {
     textMap.putIfAbsent(TOPTAN_SATIS, () => "Whole Sale");
     textMap.putIfAbsent(PERAKENDE_SATIS, () => "Retail Sale");
     textMap.putIfAbsent(URETIM, () => "Production");
+    textMap.putIfAbsent(BASLIK, () => "Head");
+    textMap.putIfAbsent(DETAY, () => "Detail");
+    textMap.putIfAbsent(OZET, () => "Summary");
+    textMap.putIfAbsent(EVET, () => "Yes");
+    textMap.putIfAbsent(HAYIR, () => "No");
+    textMap.putIfAbsent(SIL, () => "Delete");
+    textMap.putIfAbsent(DUZENLE, () => "Edit");
+    textMap.putIfAbsent(KAYDET, () => "Save");
+
+      textMap.putIfAbsent(SIPARIS_TARIHI, () => "Order Date");
+    textMap.putIfAbsent(TERMIN_TARIHI, () => "Deadline Date");
+    textMap.putIfAbsent(CARI_KODU, () => "Customer Code");
+    textMap.putIfAbsent(CARI_ADI, () => "Customer Name");
+    textMap.putIfAbsent(SEVK_CARI_KODU, () => "Referral Client Code");
+    textMap.putIfAbsent(SEVK_CARI_ADI, () => "Referral Client Name");
+    textMap.putIfAbsent(DEPO_KODU, () => "Warehouse Code");
+    textMap.putIfAbsent(DEPO_ADI, () => "Warehouse Name");
+    textMap.putIfAbsent(MUSTERI_SIPARIS_NO, () => "Customer Order No");
+    textMap.putIfAbsent(ACIKLAMA, () => "Explanation");
+    textMap.putIfAbsent(BARKOD, () => "Barcode");
+    textMap.putIfAbsent(STOK_KODU, () => "Stock Code");
+    textMap.putIfAbsent(STOK_ADI, () => "Stock Name");
+    textMap.putIfAbsent(RENK, () => "Color");
+    textMap.putIfAbsent(BEDEN, () => "Body Size");
+    textMap.putIfAbsent(ADET, () => "Piece");
+    textMap.putIfAbsent(TARIH, () => "Date");
+    textMap.putIfAbsent(SEVK_TARIHI, () => "Referral Date");
+    textMap.putIfAbsent(GIRIS_DEPO_KODU, () => "Entering Repository Code");
+    textMap.putIfAbsent(GIRIS_DEPO_ADI, () => "Entering Repository Name");
+    textMap.putIfAbsent(CIKIS_DEPO_KODU, () => "Exiting Warehouse Code");
+    textMap.putIfAbsent(CIKIS_DEPO_ADI, () => "Exiting Warehouse Name");
+    textMap.putIfAbsent(PARA_BIRIMI, () => "Currency Unit");
+    textMap.putIfAbsent(FIYAT, () => "Price");
+    textMap.putIfAbsent(FIS_TIPI, () => "Receipt Type");
+    textMap.putIfAbsent(KODU, () => "Code");
+    textMap.putIfAbsent(ADI, () => "Name");
+    textMap.putIfAbsent(TOPLAM_ADET, () => "Total Piece");
+    textMap.putIfAbsent(MIKTAR, () => "Quantity");
+    textMap.putIfAbsent(TUTAR, () => "Amount");
+    textMap.putIfAbsent(LOT_ICI_ADEDI, () => "In Lot Piece");
+    textMap.putIfAbsent(LOT_ADEDI, () => "Lot Piece");
   }
 
   static String getText(String key) {

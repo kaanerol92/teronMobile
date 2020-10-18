@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:teronmobile/interface/LoginInterface.dart';
-import 'package:teronmobile/view/LoginScreen.dart';
 
-class MusteriSiparisiRowModel {
+class BarkodRowModel {
   LoginInterface loginInterface;
   String barkod = "";
   String kodu = "";
@@ -45,15 +44,15 @@ class MusteriSiparisiRowModel {
         body: jsonEncode(map));
   }*/
 
-  MusteriSiparisiRowModel(LoginInterface loginInterface) {
+  BarkodRowModel(LoginInterface loginInterface) {
     this.loginInterface = loginInterface;
   }
 
-  Future<List<MusteriSiparisiRowModel>> setData(String barkod, var sipModel) async {
+  Future<List<BarkodRowModel>> setData(String barkod, var sipModel) async {
     String ip = loginInterface.getHttpManager().getIp;
     String port = loginInterface.getHttpManager().getPort;
     var url = 'http://$ip:$port/ERPService/musterisiparisibarkod/specific?master_value=$barkod';
-    List<MusteriSiparisiRowModel> list = List();
+    List<BarkodRowModel> list = List();
     await http.get(Uri.encodeFull(url)).then((value) async {
       print(url);
       if (value.statusCode == 200) {
@@ -61,7 +60,7 @@ class MusteriSiparisiRowModel {
         List jsonDecode = json.decode(resp);
         int lotAdet = 0;
         for (var json in jsonDecode) {
-          await MusteriSiparisiRowModel(loginInterface).fromJson(loginInterface, json, sipModel).then((value) async {
+          await BarkodRowModel(loginInterface).fromJson(loginInterface, json, sipModel).then((value) async {
             await value.fillFiyat(value, sipModel).then((value) {
               lotAdet += json['miktar'];
               list.add(value);
@@ -70,7 +69,7 @@ class MusteriSiparisiRowModel {
         }
 
         for (var i = 0; i < list.length; i++) {
-          MusteriSiparisiRowModel model = list[i];
+          BarkodRowModel model = list[i];
           model.lotAdeti = lotAdet;
         }
       }
@@ -97,7 +96,7 @@ class MusteriSiparisiRowModel {
     return map;
   }
 
-  Future<MusteriSiparisiRowModel> fromJson(LoginInterface loginInterface, var json, var sipModel) async {
+  Future<BarkodRowModel> fromJson(LoginInterface loginInterface, var json, var sipModel) async {
     this.loginInterface = loginInterface;
     this.barkod = json['barkodu'];
     this.kodu = json['stokKodu'];
@@ -119,7 +118,7 @@ class MusteriSiparisiRowModel {
     return this;
   }
 
-  Future<MusteriSiparisiRowModel> fillFiyat(MusteriSiparisiRowModel model, var sipModel) async {
+  Future<BarkodRowModel> fillFiyat(BarkodRowModel model, var sipModel) async {
     String whereClause = "cari=" + sipModel.getCariKodu + "&stokid=" + stokId.toString() + "&renkid=" + renkId.toString() + "&boyutid=" + boyut1Id.toString() + "&sirket=" + loginInterface.getKullaniciSession().getSirket.getKod;
 
     String ip = loginInterface.getHttpManager().getIp;

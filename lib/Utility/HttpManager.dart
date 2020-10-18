@@ -36,27 +36,30 @@ class HttpManager {
     return response;
   }
 
-  void checkConnection(BuildContext context) async {
-    String icAdress = "$icIp";
-    String disAdress = "$disIp";
+  Future checkConnection(BuildContext context) async {
     try {
-      final result = await InternetAddress.lookup(icAdress).timeout(Duration(seconds: 10));
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        setIp = icIp;
-        setPort = icPort;
+      HttpClient client = HttpClient();
+      client.connectionTimeout = Duration(seconds: 5);
+      HttpClientRequest request =
+          await client.getUrl(Uri.parse("http://$icIp"));
+      await request.close();
+      setIp = icIp;
+      setPort = icPort;
+      setHttpUrl = "http://$ip:$port";
+      setConnect = true;
+    } catch (e) {
+      print("IC IP BAGLANTI BASARISIZ");
+      try {
+        HttpClient client = HttpClient();
+        client.connectionTimeout = Duration(seconds: 5);
+        HttpClientRequest request =
+            await client.getUrl(Uri.parse("http://$disIp"));
+        await request.close();
+        setIp = disIp;
+        setPort = disPort;
         setHttpUrl = "http://$ip:$port";
         setConnect = true;
-      }
-    } on SocketException catch (_) {
-      try {
-        final result = await InternetAddress.lookup(disAdress).timeout(Duration(seconds: 10));
-        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-          setIp = disIp;
-          setPort = disPort;
-          setHttpUrl = "http://$ip:$port";
-          setConnect = true;
-        }
-      } on SocketException catch (_) {
+      } catch (e) {
         Scaffold.of(context).showSnackBar(SnackBar(
             content: Row(
           children: [
@@ -67,6 +70,36 @@ class HttpManager {
         )));
       }
     }
+    // try {
+    //   final result =
+    //       await InternetAddress.lookup(icAdress).timeout(Duration(seconds: 10));
+    //   if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+    //     setIp = icIp;
+    //     setPort = icPort;
+    //     setHttpUrl = "http://$ip:$port";
+    //     setConnect = true;
+    //   }
+    // } on SocketException catch (_) {
+    //   try {
+    //     final result = await InternetAddress.lookup(disAdress)
+    //         .timeout(Duration(seconds: 10));
+    //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+    //       setIp = disIp;
+    //       setPort = disPort;
+    //       setHttpUrl = "http://$ip:$port";
+    //       setConnect = true;
+    //     }
+    //   } on SocketException catch (_) {
+    //     Scaffold.of(context).showSnackBar(SnackBar(
+    //         content: Row(
+    //       children: [
+    //         Icon(Icons.announcement),
+    //         Padding(padding: EdgeInsets.all(20)),
+    //         Text("Bağlantı Kurulamadı."),
+    //       ],
+    //     )));
+    //   }
+    // }
   }
 
   // static Future<bool> isInternetExist() async {

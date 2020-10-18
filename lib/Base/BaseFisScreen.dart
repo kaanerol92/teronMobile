@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:teronmobile/command/LoadingScreenCommand.dart';
 import 'package:teronmobile/interface/LoginInterface.dart';
 
@@ -21,7 +20,8 @@ abstract class BaseFisScreen extends State {
   FocusNode barkodFocus;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
   String paraBrm;
-  // final labelWidth = 120.0;
+  String selectedParaBirimi;
+  final labelWidth = 120.0;
   // var label;
 
   BaseFisScreen(LoginInterface loginInterface) {
@@ -156,6 +156,9 @@ abstract class BaseFisScreen extends State {
             child: Text(jsonPB['paraBirimi']),
             value: jsonPB['paraBirimi'].toString(),
           ));
+          if (selectedParaBirimi == null) {
+            selectedParaBirimi = jsonPB['paraBirimi'].toString();
+          }
         }
       }
     });

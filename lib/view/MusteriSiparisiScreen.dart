@@ -6,13 +6,12 @@ import 'package:teronmobile/Base/BaseFisScreen.dart';
 import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
 import 'package:teronmobile/model/MusteriSiparisiModel.dart';
-import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
+import 'package:teronmobile/model/BarkodRowModel.dart';
+import 'package:teronmobile/repository/TextRepository.dart';
 
 class MusteriSiparisiScreen extends BaseFisScreen {
   MusteriSiparisiScreen(LoginInterface loginInterface) : super(loginInterface);
 
-  final labelWidth = 120.0;
-  var label;
   // bool isPBOk = false;
   MusteriSiparisiModel model;
   // List<Step> steps;
@@ -25,9 +24,9 @@ class MusteriSiparisiScreen extends BaseFisScreen {
   bool depoRed = false;
   // String barkod;
   // FocusNode barkodFocus;
-  List<MusteriSiparisiRowModel> satirlarModel = List();
-  List<MusteriSiparisiRowModel> satirlarRowModel = List();
-  List<MusteriSiparisiRowModel> satirlarRefModel = List();
+  List<BarkodRowModel> satirlarModel = List();
+  List<BarkodRowModel> satirlarRowModel = List();
+  List<BarkodRowModel> satirlarRefModel = List();
   // List<DropdownMenuItem<String>> paraBirimiList = new List();
 
   TextEditingController sipTarihController = TextEditingController();
@@ -197,13 +196,13 @@ class MusteriSiparisiScreen extends BaseFisScreen {
 
   showIsOkDialog(BuildContext context) {
     Widget cancelButton = FlatButton(
-      child: Text("Hayır"),
+      child: Text(TextRepository.getText(TextRepository.HAYIR)),
       onPressed: () {
         Navigator.pop(context);
       },
     );
     Widget continueButton = FlatButton(
-      child: Text("Evet"),
+      child: Text(TextRepository.getText(TextRepository.EVET)),
       onPressed: () {
         complete = true;
         model.insert(satirlarRowModel).then((_) {
@@ -308,7 +307,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
   setSteps() {
     steps = [
       Step(
-        title: const Text('Başlık'),
+        title: Text(TextRepository.getText(TextRepository.BASLIK)),
         isActive: stepIndex[0],
         state: maxStep > 0 ? StepState.complete : StepState.editing,
         content: SingleChildScrollView(
@@ -317,7 +316,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
             children: [
               Row(
                 children: [
-                  Container(child: Text("Sipariş Tarihi"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.SIPARIS_TARIHI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -343,7 +342,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Termin Tarihi"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.TERMIN_TARIHI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -369,7 +368,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Cari Kodu"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.CARI_KODU)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -421,7 +420,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Cari Adı"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.CARI_ADI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -445,7 +444,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Sevk Cari Kodu"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.SEVK_CARI_KODU)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -487,7 +486,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Sevk Cari Adı"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.SEVK_CARI_ADI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -511,7 +510,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Depo Kodu"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.DEPO_KODU)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -554,7 +553,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Depo Adı"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.DEPO_ADI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -578,7 +577,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Müşteri Sipariş No"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.MUSTERI_SIPARIS_NO)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -601,7 +600,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(child: Text("Açıklama"), width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.ACIKLAMA)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -626,7 +625,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
       Step(
         isActive: stepIndex[1],
         state: maxStep > 1 ? StepState.complete : maxStep == 1 ? StepState.editing : StepState.indexed,
-        title: const Text('Detay'),
+        title: Text(TextRepository.getText(TextRepository.DETAY)),
         content: SingleChildScrollView(
             child: Column(
           children: <Widget>[
@@ -636,7 +635,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               children: [
                 Container(
                     child: Text(
-                      "Barkod",
+                      TextRepository.getText(TextRepository.BARKOD),
                       style: TextStyle(fontSize: 12),
                     ),
                     width: 50),
@@ -654,9 +653,9 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                         textInputAction: TextInputAction.done,
                         textCapitalization: TextCapitalization.characters,
                         onFieldSubmitted: (value) {
-                          MusteriSiparisiRowModel satirModel = MusteriSiparisiRowModel(loginInterface);
+                          BarkodRowModel satirModel = BarkodRowModel(loginInterface);
                           satirModel.setData(value, model).then((list) async {
-                            MusteriSiparisiRowModel tempModel;
+                            BarkodRowModel tempModel;
                             if (list.length != 0) {
                               tempModel = list[0];
                               await barkodMiktarDialog(tempModel).then((miktar) {
@@ -676,7 +675,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
 
                                       bool add = true;
                                       for (var i = 0; i < satirlarModel.length; i++) {
-                                        MusteriSiparisiRowModel m = satirlarModel[i];
+                                        BarkodRowModel m = satirlarModel[i];
                                         if (m.barkod == satirModel.barkod && m.stokId == satirModel.stokId && m.renkId == satirModel.renkId) {
                                           m.setMiktar = m.getMiktar + satirModel.getMiktar;
                                           print(satirModel.getMiktar);
@@ -685,7 +684,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                                       }
 
                                       if (add == true) {
-                                        MusteriSiparisiRowModel lotModel = MusteriSiparisiRowModel(loginInterface);
+                                        BarkodRowModel lotModel = BarkodRowModel(loginInterface);
                                         lotModel.setBarkod = satirModel.getBarkod;
                                         lotModel.setKodu = satirModel.getKodu;
                                         lotModel.setAdi = satirModel.getAdi;
@@ -705,7 +704,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
 
                                       bool addRow = true;
                                       for (var i = 0; i < satirlarRowModel.length; i++) {
-                                        MusteriSiparisiRowModel m = satirlarRowModel[i];
+                                        BarkodRowModel m = satirlarRowModel[i];
                                         if (m.getStokRenkBoyutId == satirModel.getStokRenkBoyutId) {
                                           m.setMiktar = m.getMiktar + satirModel.getMiktar;
                                           addRow = false;
@@ -713,7 +712,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                                       }
 
                                       if (addRow == true) {
-                                        MusteriSiparisiRowModel refModel = MusteriSiparisiRowModel(loginInterface);
+                                        BarkodRowModel refModel = BarkodRowModel(loginInterface);
                                         refModel.setBarkod = satirModel.getBarkod;
                                         refModel.setKodu = satirModel.getKodu;
                                         refModel.setAdi = satirModel.getAdi;
@@ -734,7 +733,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
 
                                       bool addRef = true;
                                       for (var i = 0; i < satirlarRefModel.length; i++) {
-                                        MusteriSiparisiRowModel m = satirlarRefModel[i];
+                                        BarkodRowModel m = satirlarRefModel[i];
                                         if (m.getStokRenkBoyutId == satirModel.getStokRenkBoyutId) {
                                           addRef = false;
                                         }
@@ -786,12 +785,12 @@ class MusteriSiparisiScreen extends BaseFisScreen {
       Step(
         isActive: stepIndex[2],
         state: maxStep > 1 ? StepState.editing : StepState.indexed,
-        title: const Text('Özet'),
+        title: Text(TextRepository.getText(TextRepository.OZET)),
         content: Column(
           children: <Widget>[
             Row(
               children: [
-                Container(child: Text("Cari Kodu"), width: 100),
+                Container(child: Text(TextRepository.getText(TextRepository.CARI_KODU)), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
                     width: 200,
@@ -810,7 +809,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
             ),
             Row(
               children: [
-                Container(child: Text("Cari Adı"), width: 100),
+                Container(child: Text(TextRepository.getText(TextRepository.CARI_ADI)), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
                     width: 200,
@@ -879,9 +878,9 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                           dataRowHeight: 30,
                           headingRowHeight: 30,
                           columns: [
-                            DataColumn(label: Text("Para Birimi")),
-                            DataColumn(label: Text("Miktar")),
-                            DataColumn(label: Text("Tutar")),
+                            DataColumn(label: Text(TextRepository.getText(TextRepository.PARA_BIRIMI))),
+                            DataColumn(label: Text(TextRepository.getText(TextRepository.MIKTAR))),
+                            DataColumn(label: Text(TextRepository.getText(TextRepository.TUTAR))),
                           ],
                           rows: setToplam()),
                     ),
@@ -895,7 +894,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(child: Text("Toplam Adet"), width: 100),
+                Container(child: Text(TextRepository.getText(TextRepository.TOPLAM_ADET)), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
                     width: 100,
@@ -920,10 +919,10 @@ class MusteriSiparisiScreen extends BaseFisScreen {
     Map paraBrmMap = Map();
     List<DataRow> list = List();
     for (var i = 0; i < satirlarModel.length; i++) {
-      MusteriSiparisiRowModel model = satirlarModel[i];
-      MusteriSiparisiRowModel toplamModel = paraBrmMap[model.getParaBirimi];
+      BarkodRowModel model = satirlarModel[i];
+      BarkodRowModel toplamModel = paraBrmMap[model.getParaBirimi];
       if (toplamModel == null) {
-        toplamModel = MusteriSiparisiRowModel(loginInterface);
+        toplamModel = BarkodRowModel(loginInterface);
         toplamModel.setParaBirimi = model.getParaBirimi;
         paraBrmMap.putIfAbsent(model.getParaBirimi, () => toplamModel);
       }
@@ -934,7 +933,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
     }
     int index = 0;
     for (var keys in paraBrmMap.keys) {
-      MusteriSiparisiRowModel toplamModel = paraBrmMap[keys];
+      BarkodRowModel toplamModel = paraBrmMap[keys];
       index++;
       list.add(DataRow(
           color: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
@@ -953,7 +952,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
     int toplam = 0;
     double fiyat = 0;
     for (var i = 0; i < satirlarModel.length; i++) {
-      MusteriSiparisiRowModel model = satirlarModel[i];
+      BarkodRowModel model = satirlarModel[i];
       toplam += model.getMiktar;
       fiyat += model.getFiyat;
     }
@@ -963,7 +962,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
     ozetToplamFiyatController.text = fiyat.toString();
   }
 
-  Widget table(MusteriSiparisiRowModel model, index) {
+  Widget table(BarkodRowModel model, index) {
     Color baslik = Colors.blueGrey;
     Color value = Colors.black;
     double baslikSize = 10;
@@ -983,34 +982,34 @@ class MusteriSiparisiScreen extends BaseFisScreen {
       children: [
         TableRow(decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]), children: [
           Text(
-            "Barkod",
+            TextRepository.getText(TextRepository.BARKOD),
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
           Text(model.getBarkod, style: TextStyle(color: value, fontSize: valueSize)),
           Text(
-            "Renk",
+            TextRepository.getText(TextRepository.RENK),
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
           Text(model.getRenk, style: TextStyle(color: value, fontSize: valueSize)),
           Text(
-            "Para Birimi",
+            TextRepository.getText(TextRepository.PARA_BIRIMI),
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
           Text(model.getParaBirimi, style: TextStyle(color: value, fontSize: valueSize)),
         ]),
         TableRow(decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]), children: [
           Text(
-            "Kodu",
+            TextRepository.getText(TextRepository.KODU),
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
           Text(model.getKodu, style: TextStyle(color: value, fontSize: valueSize)),
           Text(
-            model.lot == 1 ? "Lot İçi Adeti" : "Beden",
+            model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ICI_ADEDI) : TextRepository.getText(TextRepository.BEDEN),
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
           Text(model.lot == 1 ? model.lotAdeti.toString() : model.getBeden, style: TextStyle(color: value, fontSize: valueSize)),
           Text(
-            "Fiyat",
+            TextRepository.getText(TextRepository.FIYAT),
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
           Text(model.getFiyat.toString(), style: TextStyle(color: value, fontSize: valueSize)),
@@ -1019,17 +1018,17 @@ class MusteriSiparisiScreen extends BaseFisScreen {
           decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
           children: [
             Text(
-              "Adi",
+              TextRepository.getText(TextRepository.ADI),
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
             Text(model.getAdi, style: TextStyle(color: value, fontSize: valueSize)),
             Text(
-              model.lot == 1 ? "Lot Adeti" : "Miktar",
+              model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ICI_ADEDI) : TextRepository.getText(TextRepository.MIKTAR),
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
             Text(model.lot == 1 ? (model.getMiktar / model.lotAdeti).toString() : model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
             Text(
-              model.lot == 1 ? "Toplam Adet" : "",
+              model.lot == 1 ? TextRepository.getText(TextRepository.TOPLAM_ADET) : "",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
             Text(model.lot == 1 ? model.getMiktar.toString() : ""),
@@ -1045,20 +1044,20 @@ class MusteriSiparisiScreen extends BaseFisScreen {
     );
   }
 
-  Widget slidableSatir(MusteriSiparisiRowModel model, int index) {
+  Widget slidableSatir(BarkodRowModel model, int index) {
     return Slidable(
       actionPane: SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
       child: Container(child: table(model, index)),
       secondaryActions: <Widget>[
         IconSlideAction(
-          caption: 'Düzenle',
+          caption: TextRepository.getText(TextRepository.DUZENLE),
           color: Colors.black45,
           icon: Icons.edit,
           onTap: () => editDialog(model),
         ),
         IconSlideAction(
-          caption: 'Sil',
+          caption: TextRepository.getText(TextRepository.SIL),
           color: Colors.red,
           icon: Icons.delete,
           onTap: () {
@@ -1067,15 +1066,15 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                 builder: (context) => AlertDialog(
                       title: Text("Silmek istediğinize emin misiniz?"),
                       actions: [
-                        FlatButton(onPressed: () => Navigator.pop(context, false), child: Text("Hayır")),
-                        FlatButton(onPressed: () => Navigator.pop(context, true), child: Text("Evet")),
+                        FlatButton(onPressed: () => Navigator.pop(context, false), child: Text(TextRepository.getText(TextRepository.HAYIR))),
+                        FlatButton(onPressed: () => Navigator.pop(context, true), child: Text(TextRepository.getText(TextRepository.EVET))),
                       ],
                     )).then((value) {
               if (value == true) {
                 setState(() {
                   satirlarModel.removeAt(satirlarModel.indexOf(model));
                   for (var i = 0; i < satirlarRowModel.length; i++) {
-                    MusteriSiparisiRowModel rowModel = satirlarRowModel[i];
+                    BarkodRowModel rowModel = satirlarRowModel[i];
                     if (model.barkod == rowModel.barkod && model.stokId == rowModel.stokId && model.renkId == rowModel.renkId) {
                       satirlarRowModel.removeAt(satirlarRowModel.indexOf(rowModel));
                       i--;
@@ -1169,7 +1168,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
         });
   }*/
 
-  void editDialog(MusteriSiparisiRowModel model) {
+  void editDialog(BarkodRowModel model) {
     showDialog(
         barrierDismissible: false,
         context: context,
@@ -1192,11 +1191,11 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         InputDecorator(
-                          decoration: InputDecoration(labelText: "Para Birimi", border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                          decoration: InputDecoration(labelText: TextRepository.getText(TextRepository.PARA_BIRIMI), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               hint: Text(
-                                "Para Birimi",
+                                TextRepository.getText(TextRepository.PARA_BIRIMI),
                                 style: TextStyle(fontStyle: FontStyle.italic),
                               ),
                               isDense: true,
@@ -1221,7 +1220,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                           FilteringTextInputFormatter.digitsOnly
                         ],*/
                           controller: fiyatController,
-                          decoration: InputDecoration(labelText: "Fiyat", border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni fiyatı giriniz.'),
+                          decoration: InputDecoration(labelText: TextRepository.getText(TextRepository.FIYAT), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni fiyatı giriniz.'),
                         ),
                         SizedBox(
                           height: 5,
@@ -1232,7 +1231,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                             FilteringTextInputFormatter.digitsOnly
                           ],
                           controller: miktarController,
-                          decoration: InputDecoration(labelText: (model.lot == 1 ? "Lot Adedi" : "Adet"), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni miktarı giriniz.'),
+                          decoration: InputDecoration(labelText: (model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ADEDI) : TextRepository.getText(TextRepository.ADET)), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni miktarı giriniz.'),
                         ),
                         SizedBox(
                           height: 5,
@@ -1249,7 +1248,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                                     model.setParaBirimi = paraBrm;
                                     print("TEKLI MIKTAR GIRISI");
                                     for (var i = 0; i < satirlarRowModel.length; i++) {
-                                      MusteriSiparisiRowModel rowModel = satirlarRowModel[i];
+                                      BarkodRowModel rowModel = satirlarRowModel[i];
                                       if (rowModel.stokRenkBoyutId == model.stokRenkBoyutId) {
                                         rowModel.setMiktar = int.parse(miktarController.text);
                                         rowModel.setFiyat = double.parse(fiyatController.text);
@@ -1264,10 +1263,10 @@ class MusteriSiparisiScreen extends BaseFisScreen {
 
                                     //ARKA PLANDAKI LOT ICI TEKLISI
                                     for (var i = 0; i < satirlarRefModel.length; i++) {
-                                      MusteriSiparisiRowModel refModel = satirlarRefModel[i];
+                                      BarkodRowModel refModel = satirlarRefModel[i];
                                       if (refModel.barkod == model.barkod && refModel.stokId == model.stokId && refModel.renkId == model.renkId) {
                                         for (var k = 0; k < satirlarRowModel.length; k++) {
-                                          MusteriSiparisiRowModel rowModel = satirlarRowModel[k];
+                                          BarkodRowModel rowModel = satirlarRowModel[k];
                                           if (rowModel.getStokRenkBoyutId == refModel.getStokRenkBoyutId) {
                                             rowModel.setMiktar = refModel.getMiktar * int.parse(miktarController.text);
                                             rowModel.setFiyat = double.parse(fiyatController.text);
@@ -1282,7 +1281,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                                 Navigator.pop(context);
                               },
                               child: Text(
-                                "Kaydet",
+                                TextRepository.getText(TextRepository.KAYDET),
                                 style: TextStyle(color: Colors.white),
                               ),
                               color: const Color(0xFF1BC0C5),
@@ -1417,10 +1416,10 @@ class MusteriSiparisiScreen extends BaseFisScreen {
     return miktar;
   }*/
 
-  Future<int> barkodMiktarDialog(MusteriSiparisiRowModel tempModel) async {
+  Future<int> barkodMiktarDialog(BarkodRowModel tempModel) async {
     TextEditingController controller = TextEditingController();
-    int miktar = 1;
-    controller.text = miktar.toString();
+    int miktar = 0;
+    controller.text = 1.toString();
     await showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1474,21 +1473,21 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                       children: [
                         TableRow(children: [
                           Text(
-                            "Stok Kodu",
+                            TextRepository.getText(TextRepository.STOK_KODU),
                             style: TextStyle(fontStyle: FontStyle.italic),
                           ),
                           Text(tempModel.getKodu),
                         ]),
                         TableRow(children: [
                           Text(
-                            "Stok Adı",
+                            TextRepository.getText(TextRepository.STOK_ADI),
                             style: TextStyle(fontStyle: FontStyle.italic),
                           ),
                           Text(tempModel.getAdi),
                         ]),
                         TableRow(children: [
                           Text(
-                            "Renk",
+                            TextRepository.getText(TextRepository.RENK),
                             style: TextStyle(fontStyle: FontStyle.italic),
                           ),
                           Text(tempModel.getRenk),
@@ -1496,14 +1495,14 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                         tempModel.lot == 1
                             ? TableRow(children: [
                                 Text(
-                                  "Lot içi adedi",
+                                  TextRepository.getText(TextRepository.LOT_ICI_ADEDI),
                                   style: TextStyle(fontStyle: FontStyle.italic),
                                 ),
                                 Text(tempModel.lotAdeti.toString()),
                               ])
                             : TableRow(children: [
                                 Text(
-                                  "Beden",
+                                  TextRepository.getText(TextRepository.BEDEN),
                                   style: TextStyle(fontStyle: FontStyle.italic),
                                 ),
                                 Text(tempModel.getBeden.toString()),
@@ -1519,7 +1518,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                         FilteringTextInputFormatter.digitsOnly
                       ],
                       controller: controller,
-                      decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Miktarı giriniz.', labelText: (tempModel.lot == 0 ? "Adet" : "Lot Adedi")),
+                      decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Miktarı giriniz.', labelText: (tempModel.lot == 0 ? TextRepository.getText(TextRepository.ADET) : TextRepository.getText(TextRepository.LOT_ADEDI))),
                     ),
                     Center(
                       child: SizedBox(
@@ -1532,7 +1531,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                             });
                           },
                           child: Text(
-                            "Kaydet",
+                            TextRepository.getText(TextRepository.KAYDET),
                             style: TextStyle(color: Colors.white),
                           ),
                           color: const Color(0xFF1BC0C5),
@@ -1544,10 +1543,8 @@ class MusteriSiparisiScreen extends BaseFisScreen {
               ),
             ),
           );
-        }).then((value) {
-      return miktar;
-    });
-    return 0;
+        });
+    return miktar;
   }
 
   // Future<List> futureParaBirimi() async {

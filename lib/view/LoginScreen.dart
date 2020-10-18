@@ -13,7 +13,8 @@ import 'package:teronmobile/repository/TextRepository.dart';
 
 import 'AnaMenuScreen.dart';
 
-class LoginScreenView extends State<LoginScreenCommand> implements LoginInterface {
+class LoginScreenView extends State<LoginScreenCommand>
+    implements LoginInterface {
   KullaniciSessionModel ksm;
   List<DropdownMenuItem<String>> sirketList = new List();
   List<DropdownMenuItem<String>> donemList = new List();
@@ -26,6 +27,7 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
   HttpManager httpManager = HttpManager();
   SharedPreferences prefs;
   bool dil;
+  bool haveIp = true;
 
   void setSirket() async {
     await SirketModel.futureSirket(this).then((value) {
@@ -44,6 +46,7 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
   void initState() {
     super.initState();
     TextRepository.setTexts();
+    getIpPrefs();
   }
 
   void setDonem() async {
@@ -60,9 +63,12 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
 
   void giris(BuildContext context) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return LoadingScreenCommand(TextRepository.getText(TextRepository.GIRIS_YAPILIYOR));
+      return LoadingScreenCommand(
+          TextRepository.getText(TextRepository.GIRIS_YAPILIYOR));
     }));
-    await KullaniciSessionModel.futureGiris(this, perId, sifre, selectedSirket, selectedDonem).then((value) {
+    await KullaniciSessionModel.futureGiris(
+            this, perId, sifre, selectedSirket, selectedDonem)
+        .then((value) {
       Navigator.pop(context);
       if (value == null) {
         Scaffold.of(context).showSnackBar(SnackBar(
@@ -94,7 +100,8 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
     if (sirketOk == false || donemOk == false) {
       setSirket();
       setDonem();
-      return LoadingScreenCommand(TextRepository.getText(TextRepository.SISTEM_YUKLENIYOR));
+      return LoadingScreenCommand(
+          TextRepository.getText(TextRepository.SISTEM_YUKLENIYOR));
     }
 
     return Scaffold(
@@ -106,13 +113,19 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                 padding: EdgeInsets.symmetric(horizontal: 24.0),
                 children: <Widget>[
                   SizedBox(height: 80.0),
-                  Center(child: Text(TextRepository.getText(TextRepository.MOBILE_TITLE))),
+                  Center(
+                      child: Text(
+                          TextRepository.getText(TextRepository.MOBILE_TITLE))),
                   SizedBox(height: 80.0),
                   TextField(
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
-                      labelText: TextRepository.getText(TextRepository.KULLANICI_ADI),
+                      labelText:
+                          TextRepository.getText(TextRepository.KULLANICI_ADI),
                       labelStyle: TextStyle(fontStyle: FontStyle.italic),
                       filled: true,
                     ),
@@ -123,7 +136,10 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                   SizedBox(height: 24.0),
                   TextField(
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
                       labelText: TextRepository.getText(TextRepository.SIFRE),
                       filled: true,
@@ -136,7 +152,11 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                   ),
                   SizedBox(height: 24.0),
                   InputDecorator(
-                    decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20)))),
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20)))),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         hint: Text(
@@ -156,7 +176,11 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                   ),
                   SizedBox(height: 24.0),
                   InputDecorator(
-                    decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20)))),
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20)))),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         hint: Text(
@@ -192,7 +216,8 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                             });
                           }),
                       FlatButton(
-                        child: Text(TextRepository.getText(TextRepository.CIKIS)),
+                        child:
+                            Text(TextRepository.getText(TextRepository.CIKIS)),
                         onPressed: () {
                           //SystemChannels.platform
                           //.invokeMethod('SystemNavigator.pop');
@@ -200,7 +225,8 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                         },
                       ),
                       FlatButton(
-                        child: Text(TextRepository.getText(TextRepository.GIRIS)),
+                        child:
+                            Text(TextRepository.getText(TextRepository.GIRIS)),
                         onPressed: () {
                           giris(context);
                         },
@@ -223,7 +249,11 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
 
   getIpPrefs() async {
     prefs = await SharedPreferences.getInstance();
-    if (prefs.getString("icIp") == null || prefs.getString("icPort") == null || prefs.getString("DisIp") == null || prefs.getString("DisPort") == null) {
+    if (prefs.getString("icIp") == null ||
+        prefs.getString("icPort") == null ||
+        prefs.getString("DisIp") == null ||
+        prefs.getString("DisPort") == null) {
+      haveIp = false;
       return;
     } else {
       setState(() {
@@ -231,20 +261,21 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
         httpManager.setIcPort = prefs.getString("icPort");
         httpManager.setDisIp = prefs.getString("DisIp");
         httpManager.setDisPort = prefs.getString("DisPort");
-        httpManager.checkConnection(context);
-        if (prefs.getBool("Dil") != null) {
-          setState(() {
-            dil = prefs.getBool("Dil");
-            if (prefs.getBool("Dil") == true) {
-              TextRepository.setEnTexts();
-            }
-          });
-        } else {
-          setState(() {
-            dil = false;
-          });
-        }
+        haveIp = true;
       });
+      await httpManager.checkConnection(context);
+      if (prefs.getBool("Dil") != null) {
+        setState(() {
+          dil = prefs.getBool("Dil");
+          if (prefs.getBool("Dil") == true) {
+            TextRepository.setEnTexts();
+          }
+        });
+      } else {
+        setState(() {
+          dil = false;
+        });
+      }
     }
   }
 
@@ -253,7 +284,10 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
   }
 
   Widget ipLog() {
-    getIpPrefs();
+    if (haveIp) {
+      return LoadingScreenCommand(
+          TextRepository.getText(TextRepository.SISTEM_YUKLENIYOR));
+    }
     return Scaffold(
       body: Builder(
         builder: (context) => Scaffold(
@@ -263,11 +297,18 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                 padding: EdgeInsets.symmetric(horizontal: 24.0),
                 children: <Widget>[
                   SizedBox(height: 80.0),
-                  Center(child: Text(TextRepository.getText(TextRepository.MOBILE_TITLE) + " - " + TextRepository.getText(TextRepository.IP_AYARLARI))),
+                  Center(
+                      child: Text(TextRepository.getText(
+                              TextRepository.MOBILE_TITLE) +
+                          " - " +
+                          TextRepository.getText(TextRepository.IP_AYARLARI))),
                   SizedBox(height: 80.0),
                   TextField(
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
                       labelText: TextRepository.getText(TextRepository.ICIP),
                       labelStyle: TextStyle(fontStyle: FontStyle.italic),
@@ -278,9 +319,13 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                   SizedBox(height: 24.0),
                   TextField(
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20))),
                         contentPadding: EdgeInsets.all(20),
-                        labelText: TextRepository.getText(TextRepository.ICPORT),
+                        labelText:
+                            TextRepository.getText(TextRepository.ICPORT),
                         filled: true,
                         labelStyle: TextStyle(fontStyle: FontStyle.italic),
                       ),
@@ -288,7 +333,10 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                   SizedBox(height: 24.0),
                   TextField(
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20))),
                         contentPadding: EdgeInsets.all(20),
                         labelText: TextRepository.getText(TextRepository.DISIP),
                         labelStyle: TextStyle(fontStyle: FontStyle.italic),
@@ -298,7 +346,10 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                   SizedBox(height: 24.0),
                   TextField(
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomRight: Radius.circular(20))),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20))),
                       contentPadding: EdgeInsets.all(20),
                       labelText: TextRepository.getText(TextRepository.DISPORT),
                       filled: true,
@@ -310,13 +361,15 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
                   ButtonBar(
                     children: <Widget>[
                       FlatButton(
-                        child: Text(TextRepository.getText(TextRepository.CIKIS)),
+                        child:
+                            Text(TextRepository.getText(TextRepository.CIKIS)),
                         onPressed: () {
                           exit(1);
                         },
                       ),
                       FlatButton(
-                        child: Text(TextRepository.getText(TextRepository.TAMAM)),
+                        child:
+                            Text(TextRepository.getText(TextRepository.TAMAM)),
                         onPressed: () {
                           setState(() {
                             setIpPrefs("icIp", ipCont.text);

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:teronmobile/interface/LoginInterface.dart';
-import 'package:teronmobile/model/MusteriSiparisiRowModel.dart';
+import 'package:teronmobile/model/BarkodRowModel.dart';
 import 'package:teronmobile/view/LoginScreen.dart';
 
 class StokIslemiModel {
@@ -44,7 +44,7 @@ class StokIslemiModel {
     this.aciklama = "";
   }
 
-  Future insert(List<MusteriSiparisiRowModel> satirlarModel) async {
+  Future insert(List<BarkodRowModel> satirlarModel) async {
     var map = Map<String, dynamic>();
     map['fisTipi'] = fisTip.toString();
     map['paraBirimi'] = paraBrm;
@@ -91,10 +91,10 @@ class StokIslemiModel {
     });
   }
 
-  insertRows(List<MusteriSiparisiRowModel> satirlarModel) {
+  insertRows(List<BarkodRowModel> satirlarModel) {
     List<Map<String, String>> list = List();
     for (var i = 0; i < satirlarModel.length; i++) {
-      MusteriSiparisiRowModel model = satirlarModel.elementAt(i);
+      BarkodRowModel model = satirlarModel.elementAt(i);
       model.setMusSipId = this.id;
       model.headerKurType = this.kurType;
       model.headerTarih = this.siparisTarihi;
