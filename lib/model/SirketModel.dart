@@ -121,9 +121,10 @@ class SirketModel {
     this.adi = json['adi'];
   }
 
-  static Future<List> futureSirket(LoginInterface loginInterface) async {
+  static Future<List> futureSirket(LoginInterface loginInterface, String user) async {
     List<DropdownMenuItem<String>> sirketList = new List();
-    await loginInterface.getHttpManager().httpGet("/ERPService/sirket/list").then((value) {
+    // http://192.168.2.52:8080/ERPService/kullanicisirket/getsirket?where_clause=adm
+    await loginInterface.getHttpManager().httpGet("/ERPService/kullanicisirket/getsirket?where_clause=$user").then((value) {
       if (value != null) {
         String resp = Utf8Decoder().convert(value.bodyBytes);
         var jsonDecode = json.decode(resp);

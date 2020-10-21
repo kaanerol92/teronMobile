@@ -19,7 +19,7 @@ class KullaniciSessionModel {
     this.sirket = sirket;
     this.donem = donem;
 
-    var codec = Latin1Codec();
+    var codec = Utf8Codec();
     Uint8List list = codec.encode(getPersonel.getPerId + ":" + getPersonel.getSifre);
     userPass = base64.encode(list);
   }

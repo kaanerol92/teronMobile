@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
@@ -36,38 +37,40 @@ class HttpManager {
     return response;
   }
 
-  Future checkConnection(BuildContext context) async {
+  Future<bool> checkConnection(BuildContext context) async {
     try {
       HttpClient client = HttpClient();
       client.connectionTimeout = Duration(seconds: 5);
-      HttpClientRequest request =
-          await client.getUrl(Uri.parse("http://$icIp"));
+      HttpClientRequest request = await client.getUrl(Uri.parse("http://$icIp:$icPort"));
       await request.close();
       setIp = icIp;
       setPort = icPort;
       setHttpUrl = "http://$ip:$port";
       setConnect = true;
+      return true;
     } catch (e) {
       print("IC IP BAGLANTI BASARISIZ");
       try {
         HttpClient client = HttpClient();
         client.connectionTimeout = Duration(seconds: 5);
-        HttpClientRequest request =
-            await client.getUrl(Uri.parse("http://$disIp"));
+        HttpClientRequest request = await client.getUrl(Uri.parse("http://$disIp:$disPort"));
         await request.close();
         setIp = disIp;
         setPort = disPort;
         setHttpUrl = "http://$ip:$port";
         setConnect = true;
+        return true;
       } catch (e) {
-        Scaffold.of(context).showSnackBar(SnackBar(
-            content: Row(
-          children: [
-            Icon(Icons.announcement),
-            Padding(padding: EdgeInsets.all(20)),
-            Text("Bağlantı Kurulamadı."),
-          ],
-        )));
+        Fluttertoast.showToast(msg: "Bağlantı Başarısız. Lütfen sistem yöneticiniz ile iletişime geçiniz.", toastLength: Toast.LENGTH_SHORT, gravity: ToastGravity.BOTTOM, timeInSecForIosWeb: 1, backgroundColor: Colors.grey, textColor: Colors.white, fontSize: 14.0);
+        return false;
+        // Scaffold.of(context).showSnackBar(SnackBar(
+        //     content: Row(
+        //   children: [
+        //     Icon(Icons.announcement),
+        //     Padding(padding: EdgeInsets.all(20)),
+        //     Text("Bağlantı Kurulamadı."),
+        //   ],
+        // )));
       }
     }
     // try {

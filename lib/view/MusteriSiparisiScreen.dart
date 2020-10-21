@@ -7,6 +7,8 @@ import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
 import 'package:teronmobile/model/MusteriSiparisiModel.dart';
 import 'package:teronmobile/model/BarkodRowModel.dart';
+import 'package:teronmobile/repository/NumberFormatRepository.dart';
+import 'package:teronmobile/repository/ParametersRepository.dart';
 import 'package:teronmobile/repository/TextRepository.dart';
 
 class MusteriSiparisiScreen extends BaseFisScreen {
@@ -942,7 +944,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
           cells: [
             DataCell(Text(toplamModel.getParaBirimi)),
             DataCell(Text(toplamModel.getMiktar.toString())),
-            DataCell(Text(toplamModel.getFiyat.toString()))
+            DataCell(Text(toplamModel.getFiyat.toStringAsFixed(NumberFormatRepository.getFormat(NumberFormatRepository.TUTAR))))
           ]));
     }
     return list;
@@ -1012,7 +1014,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
             TextRepository.getText(TextRepository.FIYAT),
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
-          Text(model.getFiyat.toString(), style: TextStyle(color: value, fontSize: valueSize)),
+          Text(model.getFiyat.toStringAsFixed(NumberFormatRepository.getFormat(NumberFormatRepository.DOVBIRFIY)), style: TextStyle(color: value, fontSize: valueSize)),
         ]),
         TableRow(
           decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
@@ -1023,15 +1025,15 @@ class MusteriSiparisiScreen extends BaseFisScreen {
             ),
             Text(model.getAdi, style: TextStyle(color: value, fontSize: valueSize)),
             Text(
-              model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ICI_ADEDI) : TextRepository.getText(TextRepository.MIKTAR),
+              model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ADEDI) : "",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(model.lot == 1 ? (model.getMiktar / model.lotAdeti).toString() : model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
+            Text(model.lot == 1 ? (model.getMiktar ~/ model.lotAdeti).toString() : "", style: TextStyle(color: value, fontSize: valueSize)),
             Text(
-              model.lot == 1 ? TextRepository.getText(TextRepository.TOPLAM_ADET) : "",
+              model.lot == 1 ? TextRepository.getText(TextRepository.TOPLAM_ADET) : TextRepository.getText(TextRepository.ADET),
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(model.lot == 1 ? model.getMiktar.toString() : ""),
+            Text(model.lot == 1 ? model.getMiktar.toString() : model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
           ],
           /*decoration: BoxDecoration(
               border: Border(
@@ -1231,7 +1233,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
                             FilteringTextInputFormatter.digitsOnly
                           ],
                           controller: miktarController,
-                          decoration: InputDecoration(labelText: (model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ADEDI) : TextRepository.getText(TextRepository.ADET)), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni miktarı giriniz.'),
+                          decoration: InputDecoration(labelText: (model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ADEDI) : TextRepository.getText(TextRepository.ADET)), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni adedi giriniz.'),
                         ),
                         SizedBox(
                           height: 5,

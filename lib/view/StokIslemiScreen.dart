@@ -7,6 +7,7 @@ import 'package:teronmobile/interface/LoginInterface.dart';
 import 'package:teronmobile/model/CariDepoAutoComp.dart';
 import 'package:teronmobile/model/BarkodRowModel.dart';
 import 'package:teronmobile/model/StokIslemiModel.dart';
+import 'package:teronmobile/repository/NumberFormatRepository.dart';
 import 'package:teronmobile/repository/TextRepository.dart';
 
 class StokIslemiScreen extends BaseFisScreen {
@@ -14,8 +15,7 @@ class StokIslemiScreen extends BaseFisScreen {
   int depoType;
   StokIslemiModel model;
 
-  StokIslemiScreen(LoginInterface loginInterface, int fisTipi)
-      : super(loginInterface) {
+  StokIslemiScreen(LoginInterface loginInterface, int fisTipi) : super(loginInterface) {
     this.fisTipi = fisTipi;
     model = StokIslemiModel(loginInterface);
     model.fisTip = fisTipi;
@@ -162,10 +162,8 @@ class StokIslemiScreen extends BaseFisScreen {
     //   2: false
     // };
 
-    sipTarihController.text =
-        "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
-    terminTarihController.text =
-        "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+    sipTarihController.text = "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
+    terminTarihController.text = "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
 
     cariKoduController.text = model.getCariKodu;
     cariAdiController.text = model.getCariAdi;
@@ -302,16 +300,14 @@ class StokIslemiScreen extends BaseFisScreen {
           cariRed = true;
         });
       }
-      if (sevkCariKoduController.text == null ||
-          sevkCariKoduController.text == "") {
+      if (sevkCariKoduController.text == null || sevkCariKoduController.text == "") {
         setState(() {
           ret = true;
           sevkRed = true;
         });
       }
       if (depoType == 0 || depoType == 2) {
-        if (girisDepoKoduController.text == null ||
-            girisDepoKoduController.text == "") {
+        if (girisDepoKoduController.text == null || girisDepoKoduController.text == "") {
           setState(() {
             ret = true;
             girisDepoRed = true;
@@ -320,8 +316,7 @@ class StokIslemiScreen extends BaseFisScreen {
       }
 
       if (depoType == 1 || depoType == 2) {
-        if (cikisDepoKoduController.text == null ||
-            cikisDepoKoduController.text == "") {
+        if (cikisDepoKoduController.text == null || cikisDepoKoduController.text == "") {
           setState(() {
             ret = true;
             cikisDepoRed = true;
@@ -358,9 +353,7 @@ class StokIslemiScreen extends BaseFisScreen {
       Step(
         title: Text(TextRepository.getText(TextRepository.BASLIK)),
         subtitle: Text(
-          fisTipi.toString() +
-              "-" +
-              TextRepository.getText(TextRepository.FIS_TIPI),
+          fisTipi.toString() + "-" + TextRepository.getText(TextRepository.FIS_TIPI),
           style: TextStyle(fontStyle: FontStyle.italic),
         ),
         isActive: stepIndex[0],
@@ -371,34 +364,21 @@ class StokIslemiScreen extends BaseFisScreen {
             children: [
               Row(
                 children: [
-                  Container(
-                      child: Text(TextRepository.getText(TextRepository.TARIH)),
-                      width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.TARIH)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
                       height: 35,
                       child: TextField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: sipTarihController,
                         onTap: () {
-                          showDatePicker(
-                                  locale: const Locale('tr'),
-                                  context: context,
-                                  initialDate: model.getSiparisTarihi,
-                                  firstDate: DateTime(2010),
-                                  lastDate: DateTime(2030))
-                              .then((value) {
+                          showDatePicker(locale: const Locale('tr'), context: context, initialDate: model.getSiparisTarihi, firstDate: DateTime(2010), lastDate: DateTime(2030)).then((value) {
                             if (value != null) {
                               model.setSiparisTarihi = value;
-                              sipTarihController.text =
-                                  "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
+                              sipTarihController.text = "${model.getSiparisTarihi.day.toString().padLeft(2, '0')}-${model.getSiparisTarihi.month.toString().padLeft(2, '0')}-${model.getSiparisTarihi.year.toString()}";
                             }
                           });
                         },
@@ -410,34 +390,21 @@ class StokIslemiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(
-                      child: Text(
-                          TextRepository.getText(TextRepository.SEVK_TARIHI)),
-                      width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.SEVK_TARIHI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
                       height: 35,
                       child: TextField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: terminTarihController,
                         onTap: () {
-                          showDatePicker(
-                                  context: context,
-                                  initialDate: model.getTerminTarihi,
-                                  firstDate: DateTime(2010),
-                                  lastDate: DateTime(2030))
-                              .then((value) {
+                          showDatePicker(context: context, initialDate: model.getTerminTarihi, firstDate: DateTime(2010), lastDate: DateTime(2030)).then((value) {
                             if (value != null) {
                               model.setTerminTarihi = value;
-                              terminTarihController.text =
-                                  "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
+                              terminTarihController.text = "${model.getTerminTarihi.day.toString().padLeft(2, '0')}-${model.getTerminTarihi.month.toString().padLeft(2, '0')}-${model.getTerminTarihi.year.toString()}";
                             }
                           });
                         },
@@ -449,10 +416,7 @@ class StokIslemiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(
-                      child: Text(
-                          TextRepository.getText(TextRepository.CARI_KODU)),
-                      width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.CARI_KODU)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -460,8 +424,7 @@ class StokIslemiScreen extends BaseFisScreen {
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
                           if (pattern != null && pattern != "") {
-                            return await CariDepoAutoComp.getCariJson(
-                                loginInterface, pattern);
+                            return await CariDepoAutoComp.getCariJson(loginInterface, pattern);
                           }
                           return null;
                         },
@@ -478,29 +441,15 @@ class StokIslemiScreen extends BaseFisScreen {
                           );
                         },
                         onSuggestionSelected: (suggestion) {
-                          cariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          cariAdiController.text =
-                              suggestion.values.elementAt(0);
-                          sevkCariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          sevkCariAdiController.text =
-                              suggestion.values.elementAt(0);
+                          cariKoduController.text = suggestion.keys.elementAt(0);
+                          cariAdiController.text = suggestion.values.elementAt(0);
+                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text = suggestion.values.elementAt(0);
                           model.setCariKodu = cariKoduController.text;
                           model.setSevkCariKodu = sevkCariKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: cariRed == true
-                                      ? BorderSide(color: Colors.red, width: 2)
-                                      : BorderSide(width: 0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              contentPadding: EdgeInsets.all(8),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)))),
+                          decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cariRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                           textAlign: TextAlign.left,
                           controller: cariKoduController,
                           /*onChanged: (newText) {
@@ -519,23 +468,14 @@ class StokIslemiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(
-                      child:
-                          Text(TextRepository.getText(TextRepository.CARI_ADI)),
-                      width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.CARI_ADI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
                       height: 35,
                       child: TextField(
                         style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: cariAdiController,
@@ -552,10 +492,7 @@ class StokIslemiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(
-                      child: Text(TextRepository.getText(
-                          TextRepository.SEVK_CARI_KODU)),
-                      width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.SEVK_CARI_KODU)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
@@ -563,8 +500,7 @@ class StokIslemiScreen extends BaseFisScreen {
                       child: TypeAheadField(
                         suggestionsCallback: (pattern) async {
                           if (pattern != null && pattern != "") {
-                            return await CariDepoAutoComp.getCariJson(
-                                loginInterface, pattern);
+                            return await CariDepoAutoComp.getCariJson(loginInterface, pattern);
                           }
                           return null;
                         },
@@ -581,24 +517,12 @@ class StokIslemiScreen extends BaseFisScreen {
                           );
                         },
                         onSuggestionSelected: (suggestion) {
-                          sevkCariKoduController.text =
-                              suggestion.keys.elementAt(0);
-                          sevkCariAdiController.text =
-                              suggestion.values.elementAt(0);
+                          sevkCariKoduController.text = suggestion.keys.elementAt(0);
+                          sevkCariAdiController.text = suggestion.values.elementAt(0);
                           model.sevkCariKodu = sevkCariKoduController.text;
                         },
                         textFieldConfiguration: TextFieldConfiguration(
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: cariRed == true
-                                      ? BorderSide(color: Colors.red, width: 2)
-                                      : BorderSide(width: 0),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
-                              contentPadding: EdgeInsets.all(8),
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5)))),
+                          decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cariRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                           textAlign: TextAlign.left,
                           controller: sevkCariKoduController,
                         ),
@@ -610,23 +534,14 @@ class StokIslemiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(
-                      child: Text(
-                          TextRepository.getText(TextRepository.SEVK_CARI_ADI)),
-                      width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.SEVK_CARI_ADI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
                       height: 35,
                       child: TextField(
                         style: TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                            fillColor: Colors.yellow[100],
-                            filled: true,
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: true,
                         controller: sevkCariAdiController,
@@ -711,10 +626,7 @@ class StokIslemiScreen extends BaseFisScreen {
               depoType == 0 || depoType == 2
                   ? Row(
                       children: [
-                        Container(
-                            child: Text(TextRepository.getText(
-                                TextRepository.GIRIS_DEPO_KODU)),
-                            width: labelWidth),
+                        Container(child: Text(TextRepository.getText(TextRepository.GIRIS_DEPO_KODU)), width: labelWidth),
                         Padding(padding: EdgeInsets.only(right: 10)),
                         Container(
                             width: 150,
@@ -722,8 +634,7 @@ class StokIslemiScreen extends BaseFisScreen {
                             child: TypeAheadField(
                               suggestionsCallback: (pattern) async {
                                 if (pattern != null && pattern != "") {
-                                  return await CariDepoAutoComp.getDepoJson(
-                                      loginInterface, pattern);
+                                  return await CariDepoAutoComp.getDepoJson(loginInterface, pattern);
                                 }
                                 return null;
                               },
@@ -737,31 +648,16 @@ class StokIslemiScreen extends BaseFisScreen {
                               itemBuilder: (context, suggestion) {
                                 return ListTile(
                                   title: Text(suggestion.keys.elementAt(0)),
-                                  subtitle:
-                                      Text(suggestion.values.elementAt(0)),
+                                  subtitle: Text(suggestion.values.elementAt(0)),
                                 );
                               },
                               onSuggestionSelected: (suggestion) {
-                                girisDepoKoduController.text =
-                                    suggestion.keys.elementAt(0);
-                                girisDepoAdiController.text =
-                                    suggestion.values.elementAt(0);
-                                model.girisDepoKodu =
-                                    girisDepoKoduController.text;
+                                girisDepoKoduController.text = suggestion.keys.elementAt(0);
+                                girisDepoAdiController.text = suggestion.values.elementAt(0);
+                                model.girisDepoKodu = girisDepoKoduController.text;
                               },
                               textFieldConfiguration: TextFieldConfiguration(
-                                decoration: InputDecoration(
-                                    enabledBorder: OutlineInputBorder(
-                                        borderSide: girisDepoRed == true
-                                            ? BorderSide(
-                                                color: Colors.red, width: 2)
-                                            : BorderSide(width: 0),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5))),
-                                    contentPadding: EdgeInsets.all(8),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5)))),
+                                decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: girisDepoRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                                 textAlign: TextAlign.left,
                                 controller: girisDepoKoduController,
                               ),
@@ -780,23 +676,14 @@ class StokIslemiScreen extends BaseFisScreen {
               depoType == 0 || depoType == 2
                   ? Row(
                       children: [
-                        Container(
-                            child: Text(TextRepository.getText(
-                                TextRepository.GIRIS_DEPO_ADI)),
-                            width: labelWidth),
+                        Container(child: Text(TextRepository.getText(TextRepository.GIRIS_DEPO_ADI)), width: labelWidth),
                         Padding(padding: EdgeInsets.only(right: 10)),
                         Container(
                             width: 150,
                             height: 35,
                             child: TextField(
                               style: TextStyle(color: Colors.black),
-                              decoration: InputDecoration(
-                                  fillColor: Colors.yellow[100],
-                                  filled: true,
-                                  contentPadding: EdgeInsets.all(8),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5)))),
+                              decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                               textAlign: TextAlign.left,
                               readOnly: true,
                               controller: girisDepoAdiController,
@@ -820,10 +707,7 @@ class StokIslemiScreen extends BaseFisScreen {
               depoType == 1 || depoType == 2
                   ? Row(
                       children: [
-                        Container(
-                            child: Text(TextRepository.getText(
-                                TextRepository.CIKIS_DEPO_KODU)),
-                            width: labelWidth),
+                        Container(child: Text(TextRepository.getText(TextRepository.CIKIS_DEPO_KODU)), width: labelWidth),
                         Padding(padding: EdgeInsets.only(right: 10)),
                         Container(
                             width: 150,
@@ -831,8 +715,7 @@ class StokIslemiScreen extends BaseFisScreen {
                             child: TypeAheadField(
                               suggestionsCallback: (pattern) async {
                                 if (pattern != null && pattern != "") {
-                                  return await CariDepoAutoComp.getDepoJson(
-                                      loginInterface, pattern);
+                                  return await CariDepoAutoComp.getDepoJson(loginInterface, pattern);
                                 }
                                 return null;
                               },
@@ -846,31 +729,16 @@ class StokIslemiScreen extends BaseFisScreen {
                               itemBuilder: (context, suggestion) {
                                 return ListTile(
                                   title: Text(suggestion.keys.elementAt(0)),
-                                  subtitle:
-                                      Text(suggestion.values.elementAt(0)),
+                                  subtitle: Text(suggestion.values.elementAt(0)),
                                 );
                               },
                               onSuggestionSelected: (suggestion) {
-                                cikisDepoKoduController.text =
-                                    suggestion.keys.elementAt(0);
-                                cikisDepoAdiController.text =
-                                    suggestion.values.elementAt(0);
-                                model.cikisDepoKodu =
-                                    cikisDepoKoduController.text;
+                                cikisDepoKoduController.text = suggestion.keys.elementAt(0);
+                                cikisDepoAdiController.text = suggestion.values.elementAt(0);
+                                model.cikisDepoKodu = cikisDepoKoduController.text;
                               },
                               textFieldConfiguration: TextFieldConfiguration(
-                                decoration: InputDecoration(
-                                    enabledBorder: OutlineInputBorder(
-                                        borderSide: cikisDepoRed == true
-                                            ? BorderSide(
-                                                color: Colors.red, width: 2)
-                                            : BorderSide(width: 0),
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5))),
-                                    contentPadding: EdgeInsets.all(8),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(5)))),
+                                decoration: InputDecoration(enabledBorder: OutlineInputBorder(borderSide: cikisDepoRed == true ? BorderSide(color: Colors.red, width: 2) : BorderSide(width: 0), borderRadius: BorderRadius.all(Radius.circular(5))), contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                                 textAlign: TextAlign.left,
                                 controller: cikisDepoKoduController,
                               ),
@@ -889,23 +757,14 @@ class StokIslemiScreen extends BaseFisScreen {
               depoType == 1 || depoType == 2
                   ? Row(
                       children: [
-                        Container(
-                            child: Text(TextRepository.getText(
-                                TextRepository.CIKIS_DEPO_ADI)),
-                            width: labelWidth),
+                        Container(child: Text(TextRepository.getText(TextRepository.CIKIS_DEPO_ADI)), width: labelWidth),
                         Padding(padding: EdgeInsets.only(right: 10)),
                         Container(
                             width: 150,
                             height: 35,
                             child: TextField(
                               style: TextStyle(color: Colors.black),
-                              decoration: InputDecoration(
-                                  fillColor: Colors.yellow[100],
-                                  filled: true,
-                                  contentPadding: EdgeInsets.all(8),
-                                  border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(5)))),
+                              decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                               textAlign: TextAlign.left,
                               readOnly: true,
                               controller: cikisDepoAdiController,
@@ -928,18 +787,13 @@ class StokIslemiScreen extends BaseFisScreen {
                   : SizedBox(),
               Row(
                 children: [
-                  Container(
-                      child: Text(
-                          TextRepository.getText(TextRepository.PARA_BIRIMI)),
-                      width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.PARA_BIRIMI)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                     width: 150,
                     height: 35,
                     padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                        border: Border.all(width: 0),
-                        borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(border: Border.all(width: 0), borderRadius: BorderRadius.circular(5)),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton(
                           value: selectedParaBirimi,
@@ -959,20 +813,13 @@ class StokIslemiScreen extends BaseFisScreen {
               ),
               Row(
                 children: [
-                  Container(
-                      child:
-                          Text(TextRepository.getText(TextRepository.ACIKLAMA)),
-                      width: labelWidth),
+                  Container(child: Text(TextRepository.getText(TextRepository.ACIKLAMA)), width: labelWidth),
                   Padding(padding: EdgeInsets.only(right: 10)),
                   Container(
                       width: 150,
                       child: TextField(
                         maxLines: 3,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: aciklamaController,
@@ -990,9 +837,7 @@ class StokIslemiScreen extends BaseFisScreen {
       ),
       Step(
         isActive: stepIndex[1],
-        state: maxStep > 1
-            ? StepState.complete
-            : maxStep == 1 ? StepState.editing : StepState.indexed,
+        state: maxStep > 1 ? StepState.complete : maxStep == 1 ? StepState.editing : StepState.indexed,
         title: Text(TextRepository.getText(TextRepository.DETAY)),
         content: SingleChildScrollView(
             child: Column(
@@ -1013,11 +858,7 @@ class StokIslemiScreen extends BaseFisScreen {
                       width: 300,
                       height: 35,
                       child: TextFormField(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.all(8),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5)))),
+                        decoration: InputDecoration(contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                         textAlign: TextAlign.left,
                         readOnly: false,
                         controller: barkodController,
@@ -1025,23 +866,18 @@ class StokIslemiScreen extends BaseFisScreen {
                         textInputAction: TextInputAction.done,
                         textCapitalization: TextCapitalization.characters,
                         onFieldSubmitted: (value) {
-                          BarkodRowModel satirModel =
-                              BarkodRowModel(loginInterface);
+                          BarkodRowModel satirModel = BarkodRowModel(loginInterface);
                           satirModel.setData(value, model).then((list) async {
                             BarkodRowModel tempModel;
                             if (list.length != 0) {
                               tempModel = list[0];
-                              await barkodMiktarDialog(tempModel)
-                                  .then((miktar) {
+                              await barkodMiktarDialog(tempModel).then((miktar) {
                                 print("miktar");
                                 print(miktar);
                                 setState(() {
                                   barkod = value;
                                   barkodFocus.requestFocus();
-                                  barkodController.selection = TextSelection(
-                                      baseOffset: 0,
-                                      extentOffset:
-                                          barkodController.text.length);
+                                  barkodController.selection = TextSelection(baseOffset: 0, extentOffset: barkodController.text.length);
                                   for (var i = 0; i < miktar; i++) {
                                     print("miktar for ici");
                                     for (var i = 0; i < list.length; i++) {
@@ -1051,95 +887,67 @@ class StokIslemiScreen extends BaseFisScreen {
                                       satirModel = list[i];
 
                                       bool addRow = true;
-                                      for (var i = 0;
-                                          i < satirlarRowModel.length;
-                                          i++) {
+                                      for (var i = 0; i < satirlarRowModel.length; i++) {
                                         BarkodRowModel m = satirlarRowModel[i];
-                                        if (m.getStokRenkBoyutId ==
-                                            satirModel.getStokRenkBoyutId) {
-                                          m.setMiktar = m.getMiktar +
-                                              satirModel.getMiktar;
+                                        if (m.getStokRenkBoyutId == satirModel.getStokRenkBoyutId) {
+                                          m.setMiktar = m.getMiktar + satirModel.getMiktar;
                                           addRow = false;
                                         }
                                       }
 
                                       if (addRow == true) {
-                                        BarkodRowModel refModel =
-                                            BarkodRowModel(loginInterface);
-                                        refModel.setBarkod =
-                                            satirModel.getBarkod;
+                                        BarkodRowModel refModel = BarkodRowModel(loginInterface);
+                                        refModel.setBarkod = satirModel.getBarkod;
                                         refModel.setKodu = satirModel.getKodu;
                                         refModel.setAdi = satirModel.getAdi;
                                         refModel.setRenk = satirModel.getRenk;
-                                        refModel.setParaBirimi =
-                                            satirModel.getParaBirimi;
+                                        refModel.setParaBirimi = satirModel.getParaBirimi;
                                         refModel.setFiyat = satirModel.getFiyat;
-                                        refModel.setMiktar =
-                                            satirModel.getMiktar;
-                                        refModel.setStokId =
-                                            satirModel.getStokId;
-                                        refModel.setRenkId =
-                                            satirModel.getRenkId;
+                                        refModel.setMiktar = satirModel.getMiktar;
+                                        refModel.setStokId = satirModel.getStokId;
+                                        refModel.setRenkId = satirModel.getRenkId;
                                         refModel.kur = satirModel.kur;
                                         refModel.setBeden = satirModel.getBeden;
-                                        refModel.setStokRenkBoyutId =
-                                            satirModel.getStokRenkBoyutId;
+                                        refModel.setStokRenkBoyutId = satirModel.getStokRenkBoyutId;
                                         refModel.lot = satirModel.lot;
                                         refModel.lotAdeti = satirModel.lotAdeti;
-                                        refModel.setBoyut1Id =
-                                            satirModel.getBoyut1Id;
+                                        refModel.setBoyut1Id = satirModel.getBoyut1Id;
                                         satirlarRowModel.add(refModel);
                                       }
 
                                       bool add = true;
-                                      for (var i = 0;
-                                          i < satirlarModel.length;
-                                          i++) {
+                                      for (var i = 0; i < satirlarModel.length; i++) {
                                         BarkodRowModel m = satirlarModel[i];
-                                        if (m.barkod == satirModel.barkod &&
-                                            m.stokId == satirModel.stokId &&
-                                            m.renkId == satirModel.renkId) {
-                                          m.setMiktar = m.getMiktar +
-                                              satirModel.getMiktar;
+                                        if (m.barkod == satirModel.barkod && m.stokId == satirModel.stokId && m.renkId == satirModel.renkId) {
+                                          m.setMiktar = m.getMiktar + satirModel.getMiktar;
                                           print(satirModel.getMiktar);
                                           add = false;
                                         }
                                       }
 
                                       if (add == true) {
-                                        BarkodRowModel lotModel =
-                                            BarkodRowModel(loginInterface);
-                                        lotModel.setBarkod =
-                                            satirModel.getBarkod;
+                                        BarkodRowModel lotModel = BarkodRowModel(loginInterface);
+                                        lotModel.setBarkod = satirModel.getBarkod;
                                         lotModel.setKodu = satirModel.getKodu;
                                         lotModel.setAdi = satirModel.getAdi;
                                         lotModel.setRenk = satirModel.getRenk;
-                                        lotModel.setParaBirimi =
-                                            satirModel.getParaBirimi;
+                                        lotModel.setParaBirimi = satirModel.getParaBirimi;
                                         lotModel.setFiyat = satirModel.getFiyat;
-                                        lotModel.setMiktar =
-                                            satirModel.getMiktar;
-                                        lotModel.setStokId =
-                                            satirModel.getStokId;
-                                        lotModel.setRenkId =
-                                            satirModel.getRenkId;
+                                        lotModel.setMiktar = satirModel.getMiktar;
+                                        lotModel.setStokId = satirModel.getStokId;
+                                        lotModel.setRenkId = satirModel.getRenkId;
                                         lotModel.setBeden = satirModel.getBeden;
                                         lotModel.lot = satirModel.lot;
                                         lotModel.lotAdeti = satirModel.lotAdeti;
-                                        lotModel.setBoyut1Id =
-                                            satirModel.getBoyut1Id;
-                                        lotModel.setStokRenkBoyutId =
-                                            satirModel.getStokRenkBoyutId;
+                                        lotModel.setBoyut1Id = satirModel.getBoyut1Id;
+                                        lotModel.setStokRenkBoyutId = satirModel.getStokRenkBoyutId;
                                         satirlarModel.add(lotModel);
                                       }
 
                                       bool addRef = true;
-                                      for (var i = 0;
-                                          i < satirlarRefModel.length;
-                                          i++) {
+                                      for (var i = 0; i < satirlarRefModel.length; i++) {
                                         BarkodRowModel m = satirlarRefModel[i];
-                                        if (m.getStokRenkBoyutId ==
-                                            satirModel.getStokRenkBoyutId) {
+                                        if (m.getStokRenkBoyutId == satirModel.getStokRenkBoyutId) {
                                           addRef = false;
                                         }
                                       }
@@ -1172,20 +980,14 @@ class StokIslemiScreen extends BaseFisScreen {
               children: [
                 Expanded(
                   child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1.color,
-                              width: 1),
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.65,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
                         scrollDirection: Axis.vertical,
-                        itemBuilder: (context, index) =>
-                            slidableSatir(satirlarModel[index], index),
+                        itemBuilder: (context, index) => slidableSatir(satirlarModel[index], index),
                       )),
                 ),
               ],
@@ -1201,23 +1003,14 @@ class StokIslemiScreen extends BaseFisScreen {
           children: <Widget>[
             Row(
               children: [
-                Container(
-                    child:
-                        Text(TextRepository.getText(TextRepository.CARI_KODU)),
-                    width: 100),
+                Container(child: Text(TextRepository.getText(TextRepository.CARI_KODU)), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
                     width: 200,
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.left,
                       readOnly: true,
                       controller: cariKoduController,
@@ -1229,23 +1022,14 @@ class StokIslemiScreen extends BaseFisScreen {
             ),
             Row(
               children: [
-                Container(
-                    child:
-                        Text(TextRepository.getText(TextRepository.CARI_ADI)),
-                    width: 100),
+                Container(child: Text(TextRepository.getText(TextRepository.CARI_ADI)), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
                     width: 200,
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.left,
                       readOnly: true,
                       controller: cariAdiController,
@@ -1259,20 +1043,14 @@ class StokIslemiScreen extends BaseFisScreen {
               children: [
                 Expanded(
                   child: Container(
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                              color:
-                                  Theme.of(context).textTheme.bodyText1.color,
-                              width: 1),
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.33,
                       child: ListView.builder(
                         //padding: EdgeInsets.all(10),
                         itemCount: satirlarModel.length,
                         scrollDirection: Axis.vertical,
-                        itemBuilder: (context, index) =>
-                            table(satirlarModel[index], index),
+                        itemBuilder: (context, index) => table(satirlarModel[index], index),
                       )),
                 ),
               ],
@@ -1304,11 +1082,7 @@ class StokIslemiScreen extends BaseFisScreen {
                     )),*/
                 Expanded(
                   child: Container(
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Theme.of(context).textTheme.bodyText1.color,
-                            width: 1),
-                        borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(border: Border.all(color: Theme.of(context).textTheme.bodyText1.color, width: 1), borderRadius: BorderRadius.circular(5)),
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.18,
                     child: SingleChildScrollView(
@@ -1317,15 +1091,9 @@ class StokIslemiScreen extends BaseFisScreen {
                           dataRowHeight: 30,
                           headingRowHeight: 30,
                           columns: [
-                            DataColumn(
-                                label: Text(TextRepository.getText(
-                                    TextRepository.PARA_BIRIMI))),
-                            DataColumn(
-                                label: Text(TextRepository.getText(
-                                    TextRepository.MIKTAR))),
-                            DataColumn(
-                                label: Text(TextRepository.getText(
-                                    TextRepository.TUTAR))),
+                            DataColumn(label: Text(TextRepository.getText(TextRepository.PARA_BIRIMI))),
+                            DataColumn(label: Text(TextRepository.getText(TextRepository.MIKTAR))),
+                            DataColumn(label: Text(TextRepository.getText(TextRepository.TUTAR))),
                           ],
                           rows: setToplam()),
                     ),
@@ -1339,23 +1107,14 @@ class StokIslemiScreen extends BaseFisScreen {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(
-                    child: Text(
-                        TextRepository.getText(TextRepository.TOPLAM_ADET)),
-                    width: 100),
+                Container(child: Text(TextRepository.getText(TextRepository.TOPLAM_ADET)), width: 100),
                 Padding(padding: EdgeInsets.only(right: 10)),
                 Container(
                     width: 100,
                     height: 35,
                     child: TextField(
                       style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
-                          fillColor: Colors.yellow[100],
-                          filled: true,
-                          contentPadding: EdgeInsets.all(8),
-                          border: OutlineInputBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(5)))),
+                      decoration: InputDecoration(fillColor: Colors.yellow[100], filled: true, contentPadding: EdgeInsets.all(8), border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5)))),
                       textAlign: TextAlign.right,
                       readOnly: true,
                       onChanged: (newText) {},
@@ -1382,8 +1141,7 @@ class StokIslemiScreen extends BaseFisScreen {
       }
       setState(() {
         toplamModel.setMiktar = toplamModel.getMiktar + model.getMiktar;
-        toplamModel.setFiyat =
-            toplamModel.getFiyat + (model.getMiktar * model.getFiyat);
+        toplamModel.setFiyat = toplamModel.getFiyat + (model.getMiktar * model.getFiyat);
       });
     }
     int index = 0;
@@ -1391,14 +1149,13 @@ class StokIslemiScreen extends BaseFisScreen {
       BarkodRowModel toplamModel = paraBrmMap[keys];
       index++;
       list.add(DataRow(
-          color: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
+          color: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
             return index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100];
           }),
           cells: [
             DataCell(Text(toplamModel.getParaBirimi)),
             DataCell(Text(toplamModel.getMiktar.toString())),
-            DataCell(Text(toplamModel.getFiyat.toString()))
+            DataCell(Text(toplamModel.getFiyat.toStringAsFixed(NumberFormatRepository.getFormat(NumberFormatRepository.DOVTUT))))
           ]));
     }
     return list;
@@ -1436,84 +1193,58 @@ class StokIslemiScreen extends BaseFisScreen {
         5: FractionColumnWidth(.1),
       },
       children: [
+        TableRow(decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]), children: [
+          Text(
+            TextRepository.getText(TextRepository.BARKOD),
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getBarkod, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            TextRepository.getText(TextRepository.RENK),
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getRenk, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            TextRepository.getText(TextRepository.PARA_BIRIMI),
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getParaBirimi, style: TextStyle(color: value, fontSize: valueSize)),
+        ]),
+        TableRow(decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]), children: [
+          Text(
+            TextRepository.getText(TextRepository.KODU),
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getKodu, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ICI_ADEDI) : TextRepository.getText(TextRepository.BEDEN),
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.lot == 1 ? model.lotAdeti.toString() : model.getBeden, style: TextStyle(color: value, fontSize: valueSize)),
+          Text(
+            TextRepository.getText(TextRepository.FIYAT),
+            style: TextStyle(color: baslik, fontSize: baslikSize),
+          ),
+          Text(model.getFiyat.toStringAsFixed(NumberFormatRepository.getFormat(NumberFormatRepository.DOVBIRFIY)), style: TextStyle(color: value, fontSize: valueSize)),
+        ]),
         TableRow(
-            decoration: BoxDecoration(
-                color:
-                    index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
-            children: [
-              Text(
-                TextRepository.getText(TextRepository.BARKOD),
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getBarkod,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                TextRepository.getText(TextRepository.RENK),
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getRenk,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                TextRepository.getText(TextRepository.PARA_BIRIMI),
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getParaBirimi,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-            ]),
-        TableRow(
-            decoration: BoxDecoration(
-                color:
-                    index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
-            children: [
-              Text(
-                TextRepository.getText(TextRepository.KODU),
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getKodu,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                model.lot == 1
-                    ? TextRepository.getText(TextRepository.LOT_ICI_ADEDI)
-                    : TextRepository.getText(TextRepository.BEDEN),
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.lot == 1 ? model.lotAdeti.toString() : model.getBeden,
-                  style: TextStyle(color: value, fontSize: valueSize)),
-              Text(
-                TextRepository.getText(TextRepository.FIYAT),
-                style: TextStyle(color: baslik, fontSize: baslikSize),
-              ),
-              Text(model.getFiyat.toString(),
-                  style: TextStyle(color: value, fontSize: valueSize)),
-            ]),
-        TableRow(
-          decoration: BoxDecoration(
-              color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
+          decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),
           children: [
             Text(
               TextRepository.getText(TextRepository.ADI),
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(model.getAdi,
-                style: TextStyle(color: value, fontSize: valueSize)),
+            Text(model.getAdi, style: TextStyle(color: value, fontSize: valueSize)),
             Text(
-              model.lot == 1
-                  ? TextRepository.getText(TextRepository.LOT_ADEDI)
-                  : TextRepository.getText(TextRepository.MIKTAR),
+              model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ADEDI) : "",
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
+            Text(model.lot == 1 ? (model.getMiktar ~/ model.lotAdeti).toString() : "", style: TextStyle(color: value, fontSize: valueSize)),
             Text(
-                model.lot == 1
-                    ? (model.getMiktar / model.lotAdeti).toString()
-                    : model.getMiktar.toString(),
-                style: TextStyle(color: value, fontSize: valueSize)),
-            Text(
-              model.lot == 1
-                  ? TextRepository.getText(TextRepository.TOPLAM_ADET)
-                  : "",
+              model.lot == 1 ? TextRepository.getText(TextRepository.TOPLAM_ADET) : TextRepository.getText(TextRepository.ADET),
               style: TextStyle(color: baslik, fontSize: baslikSize),
             ),
-            Text(model.lot == 1 ? model.getMiktar.toString() : ""),
+            Text(model.lot == 1 ? model.getMiktar.toString() : model.getMiktar.toString(), style: TextStyle(color: value, fontSize: valueSize)),
           ],
           /*decoration: BoxDecoration(
               border: Border(
@@ -1548,14 +1279,8 @@ class StokIslemiScreen extends BaseFisScreen {
                 builder: (context) => AlertDialog(
                       title: Text("Silmek istediğinize emin misiniz?"),
                       actions: [
-                        FlatButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(
-                                TextRepository.getText(TextRepository.HAYIR))),
-                        FlatButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text(
-                                TextRepository.getText(TextRepository.EVET))),
+                        FlatButton(onPressed: () => Navigator.pop(context, false), child: Text(TextRepository.getText(TextRepository.HAYIR))),
+                        FlatButton(onPressed: () => Navigator.pop(context, true), child: Text(TextRepository.getText(TextRepository.EVET))),
                       ],
                     )).then((value) {
               if (value == true) {
@@ -1563,11 +1288,8 @@ class StokIslemiScreen extends BaseFisScreen {
                   satirlarModel.removeAt(satirlarModel.indexOf(model));
                   for (var i = 0; i < satirlarRowModel.length; i++) {
                     BarkodRowModel rowModel = satirlarRowModel[i];
-                    if (model.barkod == rowModel.barkod &&
-                        model.stokId == rowModel.stokId &&
-                        model.renkId == rowModel.renkId) {
-                      satirlarRowModel
-                          .removeAt(satirlarRowModel.indexOf(rowModel));
+                    if (model.barkod == rowModel.barkod && model.stokId == rowModel.stokId && model.renkId == rowModel.renkId) {
+                      satirlarRowModel.removeAt(satirlarRowModel.indexOf(rowModel));
                       i--;
                     }
                   }
@@ -1590,12 +1312,9 @@ class StokIslemiScreen extends BaseFisScreen {
           TextEditingController miktarController = TextEditingController();
           TextEditingController fiyatController = TextEditingController();
           fiyatController.text = model.getFiyat.toString();
-          miktarController.text = model.lot == 0
-              ? model.getMiktar.toString()
-              : (model.getMiktar ~/ model.lotAdeti).toInt().toString();
+          miktarController.text = model.lot == 0 ? model.getMiktar.toString() : (model.getMiktar ~/ model.lotAdeti).toInt().toString();
           return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
             child: StatefulBuilder(
               builder: (context, setState) {
                 return Container(
@@ -1607,16 +1326,11 @@ class StokIslemiScreen extends BaseFisScreen {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         InputDecorator(
-                          decoration: InputDecoration(
-                              labelText: TextRepository.getText(
-                                  TextRepository.PARA_BIRIMI),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5))),
+                          decoration: InputDecoration(labelText: TextRepository.getText(TextRepository.PARA_BIRIMI), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               hint: Text(
-                                TextRepository.getText(
-                                    TextRepository.PARA_BIRIMI),
+                                TextRepository.getText(TextRepository.PARA_BIRIMI),
                                 style: TextStyle(fontStyle: FontStyle.italic),
                               ),
                               isDense: true,
@@ -1639,12 +1353,7 @@ class StokIslemiScreen extends BaseFisScreen {
                           FilteringTextInputFormatter.digitsOnly
                         ],*/
                           controller: fiyatController,
-                          decoration: InputDecoration(
-                              labelText:
-                                  TextRepository.getText(TextRepository.FIYAT),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                              hintText: 'Yeni fiyatı giriniz.'),
+                          decoration: InputDecoration(labelText: TextRepository.getText(TextRepository.FIYAT), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni fiyatı giriniz.'),
                         ),
                         SizedBox(
                           height: 5,
@@ -1655,15 +1364,7 @@ class StokIslemiScreen extends BaseFisScreen {
                             FilteringTextInputFormatter.digitsOnly
                           ],
                           controller: miktarController,
-                          decoration: InputDecoration(
-                              labelText: (model.lot == 1
-                                  ? TextRepository.getText(
-                                      TextRepository.LOT_ADEDI)
-                                  : TextRepository.getText(
-                                      TextRepository.ADET)),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                              hintText: 'Yeni miktarı giriniz.'),
+                          decoration: InputDecoration(labelText: (model.lot == 1 ? TextRepository.getText(TextRepository.LOT_ADEDI) : TextRepository.getText(TextRepository.ADET)), border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Yeni adedi giriniz.'),
                         ),
                         SizedBox(
                           height: 5,
@@ -1675,56 +1376,33 @@ class StokIslemiScreen extends BaseFisScreen {
                               onPressed: () {
                                 setState(() {
                                   if (model.lot == 0) {
-                                    model.setMiktar =
-                                        int.parse(miktarController.text);
-                                    model.setFiyat =
-                                        double.parse(fiyatController.text);
+                                    model.setMiktar = int.parse(miktarController.text);
+                                    model.setFiyat = double.parse(fiyatController.text);
                                     model.setParaBirimi = paraBrm;
                                     print("TEKLI MIKTAR GIRISI");
-                                    for (var i = 0;
-                                        i < satirlarRowModel.length;
-                                        i++) {
-                                      BarkodRowModel rowModel =
-                                          satirlarRowModel[i];
-                                      if (rowModel.stokRenkBoyutId ==
-                                          model.stokRenkBoyutId) {
-                                        rowModel.setMiktar =
-                                            int.parse(miktarController.text);
-                                        rowModel.setFiyat =
-                                            double.parse(fiyatController.text);
+                                    for (var i = 0; i < satirlarRowModel.length; i++) {
+                                      BarkodRowModel rowModel = satirlarRowModel[i];
+                                      if (rowModel.stokRenkBoyutId == model.stokRenkBoyutId) {
+                                        rowModel.setMiktar = int.parse(miktarController.text);
+                                        rowModel.setFiyat = double.parse(fiyatController.text);
                                         rowModel.setParaBirimi = paraBrm;
                                       }
                                     }
                                   } else {
                                     //GORUNEN LOT
-                                    model.setMiktar = model.lotAdeti *
-                                        int.parse(miktarController.text);
-                                    model.setFiyat =
-                                        double.parse(fiyatController.text);
+                                    model.setMiktar = model.lotAdeti * int.parse(miktarController.text);
+                                    model.setFiyat = double.parse(fiyatController.text);
                                     model.setParaBirimi = paraBrm;
 
                                     //ARKA PLANDAKI LOT ICI TEKLISI
-                                    for (var i = 0;
-                                        i < satirlarRefModel.length;
-                                        i++) {
-                                      BarkodRowModel refModel =
-                                          satirlarRefModel[i];
-                                      if (refModel.barkod == model.barkod &&
-                                          refModel.stokId == model.stokId &&
-                                          refModel.renkId == model.renkId) {
-                                        for (var k = 0;
-                                            k < satirlarRowModel.length;
-                                            k++) {
-                                          BarkodRowModel rowModel =
-                                              satirlarRowModel[k];
-                                          if (rowModel.getStokRenkBoyutId ==
-                                              refModel.getStokRenkBoyutId) {
-                                            rowModel.setMiktar =
-                                                refModel.getMiktar *
-                                                    int.parse(
-                                                        miktarController.text);
-                                            rowModel.setFiyat = double.parse(
-                                                fiyatController.text);
+                                    for (var i = 0; i < satirlarRefModel.length; i++) {
+                                      BarkodRowModel refModel = satirlarRefModel[i];
+                                      if (refModel.barkod == model.barkod && refModel.stokId == model.stokId && refModel.renkId == model.renkId) {
+                                        for (var k = 0; k < satirlarRowModel.length; k++) {
+                                          BarkodRowModel rowModel = satirlarRowModel[k];
+                                          if (rowModel.getStokRenkBoyutId == refModel.getStokRenkBoyutId) {
+                                            rowModel.setMiktar = refModel.getMiktar * int.parse(miktarController.text);
+                                            rowModel.setFiyat = double.parse(fiyatController.text);
                                             rowModel.setParaBirimi = paraBrm;
                                           }
                                         }
@@ -1761,8 +1439,7 @@ class StokIslemiScreen extends BaseFisScreen {
         context: context,
         builder: (BuildContext context) {
           return Dialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
             child: Container(
               height: 250,
               child: Padding(
@@ -1833,8 +1510,7 @@ class StokIslemiScreen extends BaseFisScreen {
                         tempModel.lot == 1
                             ? TableRow(children: [
                                 Text(
-                                  TextRepository.getText(
-                                      TextRepository.LOT_ICI_ADEDI),
+                                  TextRepository.getText(TextRepository.LOT_ICI_ADEDI),
                                   style: TextStyle(fontStyle: FontStyle.italic),
                                 ),
                                 Text(tempModel.lotAdeti.toString()),
@@ -1857,14 +1533,7 @@ class StokIslemiScreen extends BaseFisScreen {
                         FilteringTextInputFormatter.digitsOnly
                       ],
                       controller: controller,
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5)),
-                          hintText: 'Miktarı giriniz.',
-                          labelText: (tempModel.lot == 0
-                              ? TextRepository.getText(TextRepository.ADET)
-                              : TextRepository.getText(
-                                  TextRepository.LOT_ADEDI))),
+                      decoration: InputDecoration(border: OutlineInputBorder(borderRadius: BorderRadius.circular(5)), hintText: 'Miktarı giriniz.', labelText: (tempModel.lot == 0 ? TextRepository.getText(TextRepository.ADET) : TextRepository.getText(TextRepository.LOT_ADEDI))),
                     ),
                     Center(
                       child: SizedBox(
