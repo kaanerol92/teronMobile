@@ -38,6 +38,8 @@ class HttpManager {
   }
 
   Future<bool> checkConnection(BuildContext context) async {
+    print(icIp);
+    print(disIp);
     try {
       HttpClient client = HttpClient();
       client.connectionTimeout = Duration(seconds: 5);

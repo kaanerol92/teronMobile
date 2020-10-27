@@ -626,7 +626,11 @@ class MusteriSiparisiScreen extends BaseFisScreen {
       ),
       Step(
         isActive: stepIndex[1],
-        state: maxStep > 1 ? StepState.complete : maxStep == 1 ? StepState.editing : StepState.indexed,
+        state: maxStep > 1
+            ? StepState.complete
+            : maxStep == 1
+                ? StepState.editing
+                : StepState.indexed,
         title: Text(TextRepository.getText(TextRepository.DETAY)),
         content: SingleChildScrollView(
             child: Column(
@@ -944,7 +948,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
           cells: [
             DataCell(Text(toplamModel.getParaBirimi)),
             DataCell(Text(toplamModel.getMiktar.toString())),
-            DataCell(Text(toplamModel.getFiyat.toStringAsFixed(NumberFormatRepository.getFormat(NumberFormatRepository.TUTAR))))
+            DataCell(Text(toplamModel.getFiyat.toStringAsFixed(NumberFormatRepository.getFormat(NumberFormatRepository.KUSURAT_DOVTUT))))
           ]));
     }
     return list;
@@ -1014,7 +1018,7 @@ class MusteriSiparisiScreen extends BaseFisScreen {
             TextRepository.getText(TextRepository.FIYAT),
             style: TextStyle(color: baslik, fontSize: baslikSize),
           ),
-          Text(model.getFiyat.toStringAsFixed(NumberFormatRepository.getFormat(NumberFormatRepository.DOVBIRFIY)), style: TextStyle(color: value, fontSize: valueSize)),
+          Text(model.getFiyat.toStringAsFixed(NumberFormatRepository.getFormat(NumberFormatRepository.KUSURAT_DOVBIRFIY)), style: TextStyle(color: value, fontSize: valueSize)),
         ]),
         TableRow(
           decoration: BoxDecoration(color: index % 2 == 0 ? Colors.grey[200] : Colors.blueGrey[100]),

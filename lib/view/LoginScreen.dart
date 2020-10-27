@@ -54,6 +54,10 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
       if (!hasFocus) {
         if (perId != null && perId != "") {
           await setSirket(perId);
+        } else {
+          setState(() {
+            sirketList = new List();
+          });
         }
       }
     });
@@ -252,8 +256,8 @@ class LoginScreenView extends State<LoginScreenCommand> implements LoginInterfac
       });
       await httpManager.checkConnection(context).then((value) async {
         if (value) {
+          await ParametersRepository.setParameters(this);
           if (prefs.getBool("Dil") != null) {
-            await ParametersRepository.setParameters(this);
             setState(() {
               dil = prefs.getBool("Dil");
               if (prefs.getBool("Dil") == true) {
